@@ -19,22 +19,20 @@
         </a>
       </div>
 
-      
+
       <div id="upload-form" class="tab-contents">
-      <form action="" method="">  
-        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onclick="document.getElementById('pdfpicker').click();">
+        <form onsubmit="uploadPDF(event);">
+        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onclick="document.getElementById('pdfpicker-file').click();">
           <p id="drop-text"> Drop your .pdf files here!</p>
           <br>
-          <input type="file" id="pdfpicker" accept=".pdf" style="display: none;" />
-        </div>
+          <input required type="file" name="file" id="pdfpicker-file" accept=".pdf" style="display: none;"/         </div>
       </div>
-       
-        <div id="url-form" class="tab-contents" required style="display: none;">  
-          <label for="pdfpicker-url">URL :  
+        <div id="url-form" class="tab-contents" required style="display: none;">
+          <label for="pdfpicker-url">URL :
           <input type="text" id="pdfpicker-url" />
           </label>
         </div>
-        
+
         <div class="selection-boxes" style="display: none;">
           <input type="checkbox" id="tables-and-figures" name="tables-and-figures">
           <label for="tables-and-figures"> Tables and Figures</label>
