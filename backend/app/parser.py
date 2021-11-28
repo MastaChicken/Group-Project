@@ -11,7 +11,7 @@ Todo:
     * Add tests
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cached_property
 
 import fitz
@@ -35,27 +35,18 @@ class Parser:
 
     @classmethod
     def __date_to_timestamp(cls, date: str) -> float:
-        """Convert ISO date to UNIX timestamp.
+        """Convert ISO/IEC 8824 date to UNIX timestamp.
 
         Args:
-            date (str): ISO date
+            date (str): ISO/IEC 8824 date
 
         Returns:
             float: UNIX timestamp
 
         """
-        # TODO: check if date is correct
-        # TODO: parse timezone
-        utc_dt: datetime = datetime.strptime(date, "D:%Y%m%d%H%M%SZ")
+        dt: datetime = datetime.strptime(date.replace("'", ""), "D:%Y%m%d%H%M%S%z")
+        utc_dt = dt.replace(tzinfo=timezone.utc)
         return utc_dt.timestamp()
-        # year = int(date[2:6])
-        # month = int(date[6:8])
-        # day = int(date[8:10])
-        # hour = int(date[10:12])
-        # minute = int(date[12:14])
-        # second = int(date[14:16])
-
-        # return datetime(year, month, day, hour, minute, second).timestamp()
 
     @cached_property
     def metadata(self) -> dict:
