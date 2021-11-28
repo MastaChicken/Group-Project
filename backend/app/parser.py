@@ -11,6 +11,7 @@ Todo:
     * Add tests
 """
 
+import typing
 from datetime import datetime, timezone
 from functools import cached_property
 
@@ -24,14 +25,15 @@ class Parser:
         _doc (Document): fitz document
     """
 
-    def __init__(self, path: str):
+    # TODO: does string input need to be handled as well?
+    def __init__(self, file: typing.Union[bytes, str]):
         """Open the document.
 
         Args:
-            path: path of the document
+            file (typing.Union[bytes, str]): PDF file as a buffered binary stream
 
         """
-        self._doc = fitz.open(path)
+        self._doc = fitz.open(stream=file, filetype="pdf")
 
     @classmethod
     def __date_to_timestamp(cls, date: str) -> float:
@@ -92,7 +94,8 @@ class Parser:
 
 
 if __name__ == "__main__":
-    test = Parser("samples/sampleScholar.pdf")
+    with open("samples/sampleScholar.pdf", "rb") as file:
+        test = Parser(file.read())
 
     print(f'Title: {test.metadata["title"]}')
     print(f'Author: {test.metadata["author"]}')

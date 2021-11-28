@@ -1,15 +1,20 @@
 import requests
 from app.parser import Parser
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
 
 
-@router.get("/")
-# NOTE: currently synchronous
-async def read_root():
-    test = Parser("samples/sampleScholar.pdf")
-    return {"Hello": test.metadata["author"]}
+@router.post("/upload")
+async def recieve_file(file: UploadFile = File(...)):
+    # TODO: test with large pdfs?
+    contents = await file.read()
+    test = Parser(contents)
+    return {
+        "summary": test.text,
+        "toc": test.toc,
+        "metadata": test.metadata,
+    }
 
 
 @router.get("/test/")

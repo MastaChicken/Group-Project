@@ -10,6 +10,7 @@ Todo:
 
 from app.api.routes import router
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def get_application() -> FastAPI:
@@ -19,6 +20,15 @@ def get_application() -> FastAPI:
 
     """
     application = FastAPI()
+
+    application.add_middleware(
+        CORSMiddleware,
+        # TODO: specify origins based on dev/prod
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     application.include_router(router)
 
