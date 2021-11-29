@@ -45,3 +45,10 @@ venv.bak/
 
 .idea/
 .vscode/
+
+# Sphinx
+docs/_build/
+docs/_static/
+docs/_templates/
+docs/*.rst
+!docs/index.rst

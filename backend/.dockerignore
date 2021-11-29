@@ -14,3 +14,4 @@ pip-delete-this-directory.txt
 .git*
 tests
 samples
+docs

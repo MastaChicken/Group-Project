@@ -2,7 +2,8 @@
 
 Potentially supports other document types thanks to PyMuPDF.
 
-Example:
+Example::
+
     with Parser("example.pdf") as doc:
         metadata = doc.metadata
 
