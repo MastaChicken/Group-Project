@@ -19,6 +19,13 @@ commit history.
 
 > https://chris.beams.io/posts/git-commit/
 
+A git hook can be enabled to ensure that your commit messages are formatted
+according to the conventions listed above. (Windows users need to use git bash)
+
+```
+$ git config --local core.hooksPath .githooks
+```
+
 ## Merge requests
 
 We have a development pipeline setup that will run after every commit. The
