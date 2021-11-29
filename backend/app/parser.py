@@ -11,11 +11,18 @@ Todo:
     * Add tests
 """
 
-import typing
+from typing import Union
 from datetime import datetime, timezone
 from functools import cached_property
 
 import fitz
+from pydantic.main import BaseModel
+
+
+class ParserModel(BaseModel):
+    metadata: dict
+    text: str
+    toc: list
 
 
 class Parser:
@@ -25,8 +32,10 @@ class Parser:
         _doc (Document): fitz document
     """
 
+    _doc: fitz.Document
+
     # TODO: does string input need to be handled as well?
-    def __init__(self, file: typing.Union[bytes, str]):
+    def __init__(self, file: Union[bytes, str]):
         """Open the document.
 
         Args:
@@ -45,10 +54,16 @@ class Parser:
         Returns:
             float: UNIX timestamp
 
+        Raises:
+            ValueError: if `date` is empty, `datetime.strptime()` will fail
+
         """
-        dt: datetime = datetime.strptime(date.replace("'", ""), "D:%Y%m%d%H%M%S%z")
-        utc_dt = dt.replace(tzinfo=timezone.utc)
-        return utc_dt.timestamp()
+        try:
+            dt: datetime = datetime.strptime(date.replace("'", ""), "D:%Y%m%d%H%M%S%z")
+            utc_dt = dt.replace(tzinfo=timezone.utc)
+            return utc_dt.timestamp()
+        except ValueError:
+            raise ValueError("creationDate is empty")
 
     @cached_property
     def metadata(self) -> dict:
@@ -62,9 +77,13 @@ class Parser:
 
         metadata["title"] = self._doc.metadata["title"]
         metadata["author"] = self._doc.metadata["author"]
-        metadata["creationTimestamp"] = self.__date_to_timestamp(
-            self._doc.metadata["creationDate"]
-        )
+        try:
+            metadata["creationTimestamp"] = self.__date_to_timestamp(
+                self._doc.metadata["creationDate"]
+            )
+        except ValueError:
+            # Setting to an empty string is consistent with PyMuPDFs default behaviour
+            metadata["creationTimestamp"] = ""
 
         return metadata
 
