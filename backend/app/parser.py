@@ -37,7 +37,7 @@ class Parser:
     """Parse PDF given document.
 
     Attributes:
-        _doc (Document): fitz document
+        _doc : fitz document
     """
 
     _doc: fitz.Document
@@ -47,7 +47,7 @@ class Parser:
         """Open the document.
 
         Args:
-            file (typing.Union[bytes, str]): PDF file as a buffered binary stream
+            file : PDF file as a buffered binary stream
 
         """
         self._doc = fitz.open(stream=file, filetype="pdf")
@@ -67,10 +67,10 @@ class Parser:
         """Convert ISO/IEC 8824 date to UNIX timestamp.
 
         Args:
-            date (str): ISO/IEC 8824 date
+            date : ISO/IEC 8824 date
 
         Returns:
-            float: UNIX timestamp
+            UNIX timestamp
 
         Raises:
             ValueError: if `date` is empty, `datetime.strptime()` will fail
@@ -88,7 +88,7 @@ class Parser:
         """Document metadata.
 
         Returns:
-            dict: Title, author and creation timestamp
+            Title, author and creation timestamp
 
         """
         metadata: dict = {}
@@ -110,7 +110,7 @@ class Parser:
         """Document text.
 
         Returns:
-            str: Text content from entire document
+            Text content from entire document
 
         """
         text: str = ""
@@ -124,7 +124,7 @@ class Parser:
         """Document table of contents.
 
         Returns:
-            list: Outline level, title, page number and link destination
+            Outline level, title, page number and link destination
 
         """
         return self._doc.get_toc()
