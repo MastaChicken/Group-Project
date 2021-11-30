@@ -1,35 +1,35 @@
 <!doctype html>
 <html lang=en>
-  <title>Content Visualisation</title>
-  <meta charset="utf-8">
-  <meta name=viewport content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
-  <script type="text/javascript" src="js/index.js"></script>
+<title>Content Visualisation</title>
+<meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
 
-  <body onload="listenForFileUpload()">
-    <div class="main">
-      <h1>Content Visualisation</h1>
+<body onload="listenForFileUpload()">
+  <div class="main">
+    <h1>Content Visualisation</h1>
 
-      <div class="tab-bar">
-        <a href="javascript:void(0)" onclick="openTab(event, 'upload-form');">
-          <div class="tab-button tablink">Upload</div>
-        </a>
-        <a href="javascript:void(0)" onclick="openTab(event, 'url-form');">
-          <div class="tab-button tablink">URL</div>
-        </a>
-      </div>
+    <div class="tab-bar">
+      <a href="javascript:void(0)" onclick="openTab(event, 'upload-form');">
+        <div class="tab-button tablink">Upload</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openTab(event, 'url-form');">
+        <div class="tab-button tablink">URL</div>
+      </a>
+    </div>
 
 
-      <div id="upload-form" class="tab-contents">
-        <form onsubmit="uploadPDF(event);">
-        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onclick="document.getElementById('pdfpicker-file').click();">
+    <div id="upload-form" class="tab-contents">
+      <form onsubmit="uploadPDF(event);">
+        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);"
+          onclick="document.getElementById('pdfpicker-file').click();">
           <p id="drop-text"> Drop your .pdf files here!</p>
           <br>
-          <input required type="file" name="file" id="pdfpicker-file" accept=".pdf" style="display: none;"/         </div>
-      </div>
+          <input required type="file" name="file" id="pdfpicker-file" accept=".pdf" style="display: none;" / </div>
+        </div>
         <div id="url-form" class="tab-contents" required style="display: none;">
           <label for="pdfpicker-url">URL :
-          <input type="text" id="pdfpicker-url" />
+            <input type="text" id="pdfpicker-url" />
           </label>
         </div>
 
@@ -46,11 +46,43 @@
           <label for="size-of-summary"> Size of Summary</label>
         </div>
 
-        <input type="submit" name="submit-upload" value="Upload"/>
+        <input type="submit" name="submit-upload" value="Upload" />
         <!-- Button below for implementing URL -->
         <!-- <button type="button" onclick = "isValidHttpUrl()">Upload</button> -->
       </form>
+
+      <div id="output-main" class="output-display">
+        <div id="pdf-renderer">
+          <h2>pdf renderer</h2>
+        </div>
+        <div id="summary-info" class="summary-boxes">
+
+          <div class="output-boxes" id="metadata-output">
+            <h2>metadata box</h2>
+            <div id="metadata-return-display" class="output-box-info" style="display: none;">
+              <p> blah blah blah</p>
+            </div>
+          </div>
+          <div class="output-boxes" id="summary-output">
+            <h2>summary box</h2>
+            <div id="summary-return-display" class="output-box-info" style="display: none;">
+              <p> blah blah blah</p>
+            </div>
+          </div>
+          <div class="output-boxes" id="references-output">
+            <h2>references box</h2>
+            <div id="references-return-display" class="output-box-info" style="display: none;">
+              <p> blah blah blah</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <label id="output-show-document-label" for="output-show-document">Show PDF Document?
+        <input type="checkbox" name="output-show-document" id="output-show-document" checked
+          onchange="togglePDFDisplay();">
+      </label>
     </div>
-  </body>
+</body>
+<script type="text/javascript" src="js/index.js"></script>
 
 </html>
