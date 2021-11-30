@@ -11,10 +11,23 @@ Todo:
     * Add tests
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cached_property
+from typing import Union
 
 import fitz
+from pydantic.main import BaseModel
+
+
+class ParserModel(BaseModel):
+    """Object used as a response model.
+
+    Models public properties in Parser
+    """
+
+    metadata: dict
+    text: str
+    toc: list
 
 
 class Parser:
@@ -24,38 +37,38 @@ class Parser:
         _doc (Document): fitz document
     """
 
-    def __init__(self, path: str):
+    _doc: fitz.Document
+
+    # TODO: does string input need to be handled as well?
+    def __init__(self, file: Union[bytes, str]):
         """Open the document.
 
         Args:
-            path: path of the document
+            file (typing.Union[bytes, str]): PDF file as a buffered binary stream
 
         """
-        self._doc = fitz.open(path)
+        self._doc = fitz.open(stream=file, filetype="pdf")
 
     @classmethod
     def __date_to_timestamp(cls, date: str) -> float:
-        """Convert ISO date to UNIX timestamp.
+        """Convert ISO/IEC 8824 date to UNIX timestamp.
 
         Args:
-            date (str): ISO date
+            date (str): ISO/IEC 8824 date
 
         Returns:
             float: UNIX timestamp
 
-        """
-        # TODO: check if date is correct
-        # TODO: parse timezone
-        utc_dt: datetime = datetime.strptime(date, "D:%Y%m%d%H%M%SZ")
-        return utc_dt.timestamp()
-        # year = int(date[2:6])
-        # month = int(date[6:8])
-        # day = int(date[8:10])
-        # hour = int(date[10:12])
-        # minute = int(date[12:14])
-        # second = int(date[14:16])
+        Raises:
+            ValueError: if `date` is empty, `datetime.strptime()` will fail
 
-        # return datetime(year, month, day, hour, minute, second).timestamp()
+        """
+        try:
+            dt: datetime = datetime.strptime(date.replace("'", ""), "D:%Y%m%d%H%M%S%z")
+            utc_dt = dt.replace(tzinfo=timezone.utc)
+            return utc_dt.timestamp()
+        except ValueError:
+            raise ValueError("creationDate is empty")
 
     @cached_property
     def metadata(self) -> dict:
@@ -69,9 +82,13 @@ class Parser:
 
         metadata["title"] = self._doc.metadata["title"]
         metadata["author"] = self._doc.metadata["author"]
-        metadata["creationTimestamp"] = self.__date_to_timestamp(
-            self._doc.metadata["creationDate"]
-        )
+        try:
+            metadata["creationTimestamp"] = self.__date_to_timestamp(
+                self._doc.metadata["creationDate"]
+            )
+        except ValueError:
+            # Setting to an empty string is consistent with PyMuPDFs default behaviour
+            metadata["creationTimestamp"] = ""
 
         return metadata
 
@@ -101,7 +118,8 @@ class Parser:
 
 
 if __name__ == "__main__":
-    test = Parser("samples/sampleScholar.pdf")
+    with open("samples/sampleScholar.pdf", "rb") as file:
+        test = Parser(file.read())
 
     print(f'Title: {test.metadata["title"]}')
     print(f'Author: {test.metadata["author"]}')
