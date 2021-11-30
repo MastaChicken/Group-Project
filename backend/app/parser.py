@@ -11,15 +11,20 @@ Todo:
     * Add tests
 """
 
-from typing import Union
 from datetime import datetime, timezone
 from functools import cached_property
+from typing import Union
 
 import fitz
 from pydantic.main import BaseModel
 
 
 class ParserModel(BaseModel):
+    """Object used as a response model.
+
+    Models public properties in Parser
+    """
+
     metadata: dict
     text: str
     toc: list
