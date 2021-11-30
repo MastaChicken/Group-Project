@@ -57,19 +57,22 @@ h1 {
 }
 
 .output-boxes {
-    background: white;
+    color: #0b0c10;
+    background: #66fcf1;
     min-height: 4em;
     width: 90%;
     margin: auto;
     overflow: scroll;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+    font-size: 1.1em;
 }
 
 .output-boxes.open > div {
     display: block !important;
-    background: rgba(0, 0, 0, 0.24);
-    min-height: 33em;
+    color: #1f2833;
+    background: #c5c6c7;
+    max-height: 33em;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
