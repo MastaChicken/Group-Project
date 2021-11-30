@@ -1,0 +1,307 @@
+#!/usr/bin/env python
+import argparse
+from typing import Optional, Sequence
+
+whitelist = [
+    "accept",
+    "access",
+    "add",
+    "adjust",
+    "aggregate",
+    "allow",
+    "append",
+    "apply",
+    "archive",
+    "assert",
+    "assign",
+    "attempt",
+    "authenticate",
+    "authorize",
+    "break",
+    "build",
+    "bump",
+    "cache",
+    "calculate",
+    "call",
+    "cancel",
+    "capture",
+    "change",
+    "check",
+    "clarify",
+    "clean",
+    "clear",
+    "close",
+    "collect",
+    "combine",
+    "commit",
+    "compare",
+    "compute",
+    "configure",
+    "confirm",
+    "connect",
+    "construct",
+    "control",
+    "convert",
+    "copy",
+    "count",
+    "create",
+    "customize",
+    "declare",
+    "decode",
+    "decorate",
+    "define",
+    "delegate",
+    "delete",
+    "deprecate",
+    "derive",
+    "describe",
+    "detect",
+    "determine",
+    "display",
+    "download",
+    "drop",
+    "dump",
+    "emit",
+    "empty",
+    "enable",
+    "encapsulate",
+    "encode",
+    "end",
+    "ensure",
+    "enumerate",
+    "establish",
+    "evaluate",
+    "examine",
+    "execute",
+    "exit",
+    "expand",
+    "expect",
+    "export",
+    "extend",
+    "extract",
+    "feed",
+    "fetch",
+    "fill",
+    "filter",
+    "finalize",
+    "find",
+    "fire",
+    "fix",
+    "flag",
+    "force",
+    "format",
+    "forward",
+    "generate",
+    "get",
+    "give",
+    "go",
+    "group",
+    "handle",
+    "help",
+    "hold",
+    "identify",
+    "implement",
+    "import",
+    "improve",
+    "indicate",
+    "init",
+    "initialise",
+    "initialize",
+    "initiate",
+    "input",
+    "insert",
+    "install",
+    "instantiate",
+    "intercept",
+    "invoke",
+    "iterate",
+    "join",
+    "keep",
+    "launch",
+    "list",
+    "listen",
+    "load",
+    "log",
+    "look",
+    "make",
+    "manage",
+    "manipulate",
+    "map",
+    "mark",
+    "match",
+    "mention",
+    "merge",
+    "mock",
+    "modify",
+    "monitor",
+    "move",
+    "normalize",
+    "note",
+    "obtain",
+    "open",
+    "output",
+    "override",
+    "overwrite",
+    "package",
+    "pad",
+    "parse",
+    "partial",
+    "pass",
+    "patch",
+    "perform",
+    "persist",
+    "pick",
+    "plot",
+    "poll",
+    "populate",
+    "post",
+    "prepare",
+    "print",
+    "process",
+    "produce",
+    "provide",
+    "publish",
+    "pull",
+    "put",
+    "query",
+    "raise",
+    "read",
+    "record",
+    "reduce",
+    "refactor",
+    "refer",
+    "refresh",
+    "register",
+    "reload",
+    "remove",
+    "rename",
+    "render",
+    "replace",
+    "reply",
+    "report",
+    "represent",
+    "request",
+    "require",
+    "reset",
+    "resolve",
+    "retrieve",
+    "return",
+    "roll",
+    "rollback",
+    "round",
+    "run",
+    "sample",
+    "save",
+    "scan",
+    "search",
+    "select",
+    "send",
+    "serialise",
+    "serialize",
+    "serve",
+    "set",
+    "setup",
+    "show",
+    "simulate",
+    "source",
+    "specify",
+    "split",
+    "start",
+    "step",
+    "stop",
+    "store",
+    "strip",
+    "submit",
+    "subscribe",
+    "support",
+    "sum",
+    "summarize",
+    "swap",
+    "sync",
+    "synchronise",
+    "synchronize",
+    "take",
+    "tear",
+    "test",
+    "time",
+    "transform",
+    "translate",
+    "transmit",
+    "truncate",
+    "try",
+    "turn",
+    "tweak",
+    "update",
+    "upload",
+    "untrack",
+    "use",
+    "validate",
+    "verify",
+    "view",
+    "wait",
+    "walk",
+    "wrap",
+    "write",
+    "yield",
+]
+
+
+def print_error(message: str):
+    print(f"\033[31m{message}")
+
+
+def lint_commit_message(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="Git commit file", type=str)
+    args = parser.parse_args(argv)
+    errors = 0
+
+    body = ""
+    body_space = ""
+    message = ""
+    with open(args.file) as f:
+        for i, line in enumerate(f):
+            if i == 0:
+                message = line
+            elif i == 1:
+                body_space = line
+            else:
+                body += line
+
+    if not message:
+        print_error("No commit message found?")
+        return -1
+
+    if body_space and not body_space[0] == "\n":
+        print_error("Separate subject from body with a blank line")
+        errors += 1
+
+    if len(message) > 50:
+        print_error("Limit the subject line to 50 characters")
+        errors += 1
+
+    if message[0].islower():
+        print_error("Capitalize the subject line")
+        errors += 1
+
+    if message.endswith("."):
+        print_error("Do not end the subject line with a period")
+        errors += 1
+
+    if message.split(" ", 1)[0].lower() not in whitelist:
+        print_error("Use the imperative mood in the subject line")
+        errors += 1
+
+    for line in body:
+        if len(line) > 72:
+            print_error("Wrap the body at 72 characters")
+            errors += 1
+
+    if errors:
+        print_error(f"{errors}/6 errors need to be resolved")
+
+    return errors
+
+
+if __name__ == "__main__":
+    raise SystemExit(lint_commit_message())
