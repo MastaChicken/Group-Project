@@ -1,13 +1,15 @@
 """Unit tests for API routes.
 
 Todo:
-    * Add tests for `/validate_url` endpoint
+    
 """
 from typing import Any
-
+from fastapi.exceptions import HTTPException
+from requests.utils import quote
 from app.main import app
 from app.parser import ParserModel
 from fastapi.testclient import TestClient
+import pytest
 
 client = TestClient(app)
 
@@ -20,8 +22,6 @@ class TestRecieveFile:
     """
 
     import fitz
-
-    res_body = {}
 
     test_pdf = fitz.open()
     # Required to save pdf
@@ -36,3 +36,20 @@ class TestRecieveFile:
         res_body = response.json()
         assert response.status_code == 200
         assert ParserModel.validate(res_body)
+
+
+class TestValidateURL:
+    """Unit tests for '/validate_url/' endpoint.
+
+    Todo:
+        * Add invalid tests
+    """
+
+    def test_valid_request(self) -> Any:
+        """Request should return 200/0K and valid json response."""
+
+        response = client.get(
+            "/validate_url/", params={"url": "https://www.orimi.com/pdf-test.pdf"}
+        )
+        assert response.status_code == 200
+        assert response.json()["detail"] == "PDF URL is valid"
