@@ -1,4 +1,7 @@
-"""Tests the metadata from the pdf."""
+"""Tests the properties and methods in Parser.
+
+TODO: Tests intended to fail.
+"""
 from typing import Any
 from app.parser import Parser
 import fitz
@@ -25,18 +28,15 @@ doc = Parser("test.pdf")
 
 
 def test_pdf_title() -> Any:
-    """Test pdf title."""
     title = doc.metadata["title"]
     assert title == pdf_title
 
 
 def test_pdf_authors() -> Any:
-    """Test pdf author."""
     author = doc.metadata["author"]
     assert author == pdf_author
 
 
 def test_pdf_timestamp() -> Any:
-    """Test pdf timestamp."""
     c_time = doc.metadata["creationTimestamp"]
     assert c_time == now_time
