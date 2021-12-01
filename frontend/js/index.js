@@ -160,15 +160,22 @@ async function uploadPDF(e) {
   });
   const file = await response.json();
   console.log(file);
-}
 
+  $('metadata-return-display').innerHTML = "";
+
+  for (const [key, value] of Object.entries(file.metadata)) {
+    $('metadata-return-display').innerHTML += (`<b>${key}:</b> ${value}<br><br>`);
+  }
+  $('summary-return-display').innerHTML = Object.values([file.text]);
+  $('references-return-display').innerHTML = Object.values(file.toc);
+
+  
+}
 
 /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
 
 
 var outputBoxes = document.querySelectorAll(".output-boxes");
-
-console.log(outputBoxes);
 
 outputBoxes.forEach(box => box.addEventListener('click', toggleOpen));
 
