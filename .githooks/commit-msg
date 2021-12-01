@@ -256,7 +256,7 @@ def lint_commit_message(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
     errors = 0
 
-    body = ""
+    body = []
     body_space = ""
     message = ""
     with open(args.file) as f:
@@ -266,7 +266,7 @@ def lint_commit_message(argv: Optional[Sequence[str]] = None) -> int:
             elif i == 1:
                 body_space = line
             else:
-                body += line
+                body += [line]
 
     if not message:
         print_error("No commit message found?")
@@ -296,6 +296,7 @@ def lint_commit_message(argv: Optional[Sequence[str]] = None) -> int:
         if len(line) > 72:
             print_error("Wrap the body at 72 characters")
             errors += 1
+            break
 
     if errors:
         print_error(f"{errors}/6 errors need to be resolved")
