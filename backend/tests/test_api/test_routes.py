@@ -4,6 +4,7 @@ Todo:
     * added more test cases for all
 """
 from typing import Any
+
 from app.main import app
 from app.parser import ParserModel
 from fastapi.testclient import TestClient
