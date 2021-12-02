@@ -17,7 +17,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from functools import cached_property
-from typing import Union
 
 import fitz
 from pydantic.main import BaseModel
@@ -44,7 +43,7 @@ class Parser:
     _doc: fitz.Document
 
     # TODO: does string input need to be handled as well?
-    def __init__(self, file: Union[bytes, str]):
+    def __init__(self, file: bytes | str):
         """Open the document.
 
         Args:
