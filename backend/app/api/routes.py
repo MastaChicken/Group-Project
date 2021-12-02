@@ -24,9 +24,9 @@ async def recieve_file(file: UploadFile = File(...)):
         SizeError: if given file is too large
     """
     contents = await file.read()
-    out = Parser(contents)
 
-    return ParserModel(metadata=out.metadata, text=out.text, toc=out.toc)
+    with Parser(contents) as out:
+        return ParserModel(metadata=out.metadata, text=out.text, toc=out.toc)
 
 
 @router.get("/validate_url/")

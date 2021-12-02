@@ -3,13 +3,16 @@
 Potentially supports other document types thanks to PyMuPDF.
 
 Example:
-    doc = Parser("doc.pdf")
-    doc.text
+    with Parser("example.pdf") as doc:
+        metadata = doc.metadata
 
 Todo:
     * Add more methods
     * Add tests
+    * Multiprocessing
 """
+
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from functools import cached_property
@@ -48,9 +51,19 @@ class Parser:
 
         """
         self._doc = fitz.open(stream=file, filetype="pdf")
+        if self._doc.needs_pass or self._doc.is_encrypted:
+            raise PermissionError("No support for encrypted PDFs")
 
-    @classmethod
-    def __date_to_timestamp(cls, date: str) -> float:
+    def __enter__(self) -> Parser:
+        return self
+
+    def __exit__(self, *args):
+        self.close_doc()
+
+    def close_doc(self):
+        self._doc.close()
+
+    def __date_to_timestamp(self, date: str) -> float:
         """Convert ISO/IEC 8824 date to UNIX timestamp.
 
         Args:
@@ -102,7 +115,7 @@ class Parser:
         """
         text: str = ""
         for page in self._doc:
-            text += page.get_text()
+            text += str(page.get_text("text", flags=fitz.TEXT_DEHYPHENATE))
 
         return text
 

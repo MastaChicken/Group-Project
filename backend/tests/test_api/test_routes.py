@@ -21,10 +21,10 @@ class TestRecieveFile:
 
     import fitz
 
-    test_pdf = fitz.open()
-    # Required to save pdf
-    test_pdf.new_page()
-    test_obj: bytes = test_pdf.tobytes()
+    with fitz.open(filetype="pdf") as test_pdf:
+        # Required to save pdf
+        test_pdf.new_page()
+        test_obj: bytes = test_pdf.tobytes()
 
     def test_valid_request(self) -> Any:
         """Request should return 200/OK and response schema should be valid."""
