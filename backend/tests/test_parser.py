@@ -23,24 +23,24 @@ class TestParserProperties:
     def test_pdf_title(self) -> Any:
         pdf_title = "Test PDF"
         self.new_pdf.set_metadata({"title": pdf_title})
-        doc = Parser(self.new_pdf.tobytes())
+        with Parser(self.new_pdf.tobytes()) as doc:
+            title = doc.metadata["title"]
 
-        title = doc.metadata["title"]
         assert title == pdf_title
 
     def test_pdf_authors(self) -> Any:
         pdf_author = "Wil"
         self.new_pdf.set_metadata({"author": pdf_author})
-        doc = Parser(self.new_pdf.tobytes())
+        with Parser(self.new_pdf.tobytes()) as doc:
+            author = doc.metadata["author"]
 
-        author = doc.metadata["author"]
         assert author == pdf_author
 
     def test_pdf_timestamp(self) -> Any:
         pdf_time = fitz.get_pdf_now()
         now_time = float(int(datetime.timestamp(datetime.now())))
         self.new_pdf.set_metadata({"creationDate": pdf_time})
-        doc = Parser(self.new_pdf.tobytes())
+        with Parser(self.new_pdf.tobytes()) as doc:
+            c_time = doc.metadata["creationTimestamp"]
 
-        c_time = doc.metadata["creationTimestamp"]
         assert c_time == now_time
