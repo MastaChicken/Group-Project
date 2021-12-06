@@ -4,7 +4,7 @@ Potentially supports other document types thanks to PyMuPDF.
 
 Example::
 
-    with Parser("example.pdf") as doc:
+    with (open("example.pdf", "rb") as pdf, Parser(pdf.read()) as doc):
         metadata = doc.metadata
 
 Todo:
