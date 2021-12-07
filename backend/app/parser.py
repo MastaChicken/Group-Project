@@ -19,7 +19,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from functools import cached_property
-from statistics import fmean, pvariance
+from statistics import StatisticsError, fmean
 
 import fitz
 from pydantic.main import BaseModel
@@ -147,38 +147,51 @@ class Parser:
 
         Iterates around the first page, concatanating text chunks with large font sizes.
         If a title is in the PDF metadata, use a similarity ratio to check whether to
-        use parsed_title or extracted_title.
+        use parsed_title or metadata_title.
 
         Returns:
-            Title extracted from metadata/first page
+            Title extracted from first page/metadata
 
         Notes:
             title_chunks should never be empty. Ensure that the page is not empty
             (add test).
         """
         title_chunks: dict[float, str] = defaultdict(str)
-        max_font_size = fmean(self.font_sizes) + 2 * pvariance(self.font_sizes)
 
+        try:
+            avg_font_size = fmean(self.font_sizes)
+        except StatisticsError:
+            avg_font_size = 0.0
+
+        first_page = self.text[0]["blocks"]
         # Iterating around first page blocks
-        for block in self.text[0]["blocks"]:
+        for block in first_page:
             for line in block["lines"]:
                 for span in line["spans"]:
                     text_size = span["size"]
-                    if text_size > max_font_size:
+                    if text_size >= avg_font_size:
                         title_chunks[text_size] += span["text"] + " "
 
-        parsed_title = title_chunks[max(title_chunks.keys())]
-        extracted_title = self.metadata["title"]
+        # Attempt to get title with largest font
+        try:
+            parsed_title = title_chunks[max(title_chunks.keys())]
+        except ValueError:
+            parsed_title = ""
 
-        if not extracted_title:
+        metadata_title = self.metadata["title"]
+        if not metadata_title and parsed_title:
             return parsed_title.strip()
 
         # NOTE: should we trust that the pdf metadata title is correct?
         for value in title_chunks.values():
-            similarity = SequenceMatcher(None, extracted_title, value).quick_ratio()
+            value = value.strip()
+            similarity = SequenceMatcher(None, metadata_title, value).quick_ratio()
             if round(similarity, 1) == 1:
-                parsed_title = extracted_title
+                parsed_title = metadata_title
                 break
+
+        if not parsed_title:
+            parsed_title = metadata_title
 
         return parsed_title.strip()
 
@@ -203,12 +216,15 @@ class Parser:
 
 
 if __name__ == "__main__":
-    with (
-        open("samples/sampleScholar.pdf", "rb") as pdf,
-        Parser(pdf.read()) as test,
-    ):
-        from pprint import pprint
+    import os
 
-        pprint(test.text[0]["blocks"][0])
-        print(test.metadata)
-        print(test.title)
+    for file in os.listdir("samples"):
+        if not file.endswith(".pdf"):
+            continue
+        with (
+            open(os.path.join("samples", file), "rb") as pdf,
+            Parser(pdf.read()) as test,
+        ):
+            print(
+                f"{file}:\n  parsed:{test.title}\n  metatdata:{test.metadata['title']}\n"
+            )
