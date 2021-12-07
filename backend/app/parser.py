@@ -61,12 +61,18 @@ class Parser:
             raise PermissionError("No support for encrypted PDFs")
 
     def __enter__(self) -> Parser:
+        """Return self on enter."""
         return self
 
     def __exit__(self, *args):
+        """Close document on exit."""
         self.close_doc()
 
     def close_doc(self):
+        """Close document.
+
+        Useful if not using context manager
+        """
         self._doc.close()
 
     def __date_to_timestamp(self, date: str) -> float:
@@ -178,6 +184,11 @@ class Parser:
 
     @cached_property
     def font_sizes(self) -> list[float]:
+        """Document font sizes.
+
+        Returns:
+            All the font sizes in document
+        """
         # TODO: refactor this function
         # it should be more generic
         font_sizes = []
