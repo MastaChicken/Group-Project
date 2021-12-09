@@ -15,7 +15,6 @@ Todo:
 
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from functools import cached_property
@@ -46,7 +45,7 @@ class Parser:
         _doc : fitz document
     """
 
-    _doc: fitz.Document
+    __doc: fitz.Document
 
     # TODO: does string input need to be handled as well?
     def __init__(self, file: bytes | str):
@@ -56,8 +55,8 @@ class Parser:
             file : PDF file as a buffered binary stream
 
         """
-        self._doc = fitz.open(stream=file, filetype="pdf")
-        if self._doc.needs_pass or self._doc.is_encrypted:
+        self.__doc = fitz.open(stream=file, filetype="pdf")
+        if self.__doc.needs_pass or self.__doc.is_encrypted:
             raise PermissionError("No support for encrypted PDFs")
 
     def __enter__(self) -> Parser:
@@ -73,7 +72,7 @@ class Parser:
 
         Useful if not using context manager
         """
-        self._doc.close()
+        self.__doc.close()
 
     def __date_to_timestamp(self, date: str) -> float:
         """Convert ISO/IEC 8824 date to UNIX timestamp.
@@ -105,11 +104,11 @@ class Parser:
         """
         metadata: dict = {}
 
-        metadata["title"] = self._doc.metadata["title"]
-        metadata["author"] = self._doc.metadata["author"]
+        metadata["title"] = self.__doc.metadata["title"]
+        metadata["author"] = self.__doc.metadata["author"]
         try:
             metadata["creationTimestamp"] = self.__date_to_timestamp(
-                self._doc.metadata["creationDate"]
+                self.__doc.metadata["creationDate"]
             )
         except ValueError:
             # Setting to an empty string is consistent with PyMuPDFs default behaviour
@@ -126,8 +125,8 @@ class Parser:
 
         """
         text: list[dict] = []
-        for page in self._doc:
-            text.append(page.get_text("dict", sort=False, flags=fitz.TEXT_DEHYPHENATE))
+        for page in self.__doc:
+            text.append(page.get_text("dict", sort=False))
 
         return text
 
@@ -139,50 +138,52 @@ class Parser:
             Outline level, title, page number and link destination
 
         """
-        return self._doc.get_toc()
+        return self.__doc.get_toc()
 
     @cached_property
     def title(self) -> str:
         """Document title.
 
         Iterates around the first page, concatanating text chunks with large font sizes.
+        Ignores text chunks with one words or less.
         If a title is in the PDF metadata, use a similarity ratio to check whether to
         use parsed_title or metadata_title.
 
         Returns:
             Title extracted from first page/metadata
-
-        Notes:
-            title_chunks should never be empty. Ensure that the page is not empty
-            (add test).
         """
-        title_chunks: dict[float, str] = defaultdict(str)
+        title_chunks: dict[float, str] = {}
+        spans = self.spans.get(0, [])
 
+        # Get average font size of first page
         try:
-            avg_font_size = fmean(self.font_sizes)
+            avg_font_size = fmean([span["size"] for span in spans])
         except StatisticsError:
             avg_font_size = 0.0
 
-        first_page = self.text[0]["blocks"]
-        # Iterating around first page blocks
-        for block in first_page:
-            for line in block["lines"]:
-                for span in line["spans"]:
-                    text_size = span["size"]
-                    if text_size >= avg_font_size:
-                        title_chunks[text_size] += span["text"] + " "
+        for span in spans:
+            text_size = span["size"]
+            if avg_font_size and text_size >= avg_font_size:
+                # TODO: improve the insertion of whitespace
+                if text_size not in title_chunks:
+                    title_chunks[text_size] = str(span["text"])
+                    continue
+                title_chunks[text_size] += " " + str(span["text"])
 
-        # Attempt to get title with largest font
-        try:
-            parsed_title = title_chunks[max(title_chunks.keys())]
-        except ValueError:
-            parsed_title = ""
+        # Attempt to get title (more than 1 word) with largest font
+        parsed_title = ""
+        title_chunks_max = 0.0
+        for key in title_chunks.keys():
+            if key > title_chunks_max and len(title_chunks[key].split()) > 1:
+                title_chunks_max = key
+
+        if title_chunks_max != 0.0:
+            parsed_title = title_chunks[title_chunks_max]
 
         metadata_title = self.metadata["title"]
-        if not metadata_title and parsed_title:
-            return parsed_title.strip()
+        if not metadata_title or metadata_title == "untitled":
+            return " ".join(parsed_title.split())
 
-        # NOTE: should we trust that the pdf metadata title is correct?
         for value in title_chunks.values():
             value = value.strip()
             similarity = SequenceMatcher(None, metadata_title, value).quick_ratio()
@@ -193,26 +194,26 @@ class Parser:
         if not parsed_title:
             parsed_title = metadata_title
 
-        return parsed_title.strip()
+        return " ".join(parsed_title.split())
 
     @cached_property
-    def font_sizes(self) -> list[float]:
-        """Document font sizes.
+    def spans(self) -> dict[int, list]:
+        """Text spans per page.
 
-        Returns:
-            All the font sizes in document
+        Zero-based
         """
-        # TODO: refactor this function
-        # it should be more generic
-        font_sizes = []
+        spans: dict[int, list] = {}
 
-        for page in self.text:
+        for i, page in enumerate(self.text):
+            spans[i] = []
             for block in page["blocks"]:
+                if "lines" not in block:
+                    continue
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        font_sizes.append(span["size"])
+                        spans[i].append(span)
 
-        return font_sizes
+        return spans
 
 
 if __name__ == "__main__":

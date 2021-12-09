@@ -100,6 +100,7 @@ whitelist = [
     "help",
     "hold",
     "identify",
+    "ignore",
     "implement",
     "import",
     "improve",
