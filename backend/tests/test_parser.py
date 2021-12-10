@@ -10,28 +10,121 @@ import fitz
 from app.parser import Parser
 
 
-class TestParserProperties:
-    """Unit tests for parser properties.
+class TestParser:
+    """Base class for parser tests."""
+
+    pdf = fitz.open()
+
+    @classmethod
+    def empty_new_page(cls) -> fitz.Page:
+        """Create only one new empty page."""
+        if cls.pdf.page_count:
+            cls.pdf.delete_page(0)
+        return cls.pdf.new_page()
+
+
+class TestParserTitle(TestParser):
+    """Unit tests for parser title."""
+
+    def test_text_title(self) -> Any:
+        """Should extract the title from the text itself."""
+        page = TestParser.empty_new_page()
+        pdf_title = "PDF Title"
+        title_p = fitz.Point(0, 0)
+        text_p = fitz.Point(50, 0)
+        self.pdf.set_metadata({})
+        page.insert_text(title_p, "PDF Title", fontsize=15)
+        page.insert_text(
+            text_p,
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            fontsize=11,
+        )
+
+        with Parser(self.pdf.tobytes()) as doc:
+            extracted_title = doc.title
+
+        assert extracted_title == pdf_title
+
+    def test_metadata_title(self) -> Any:
+        """Should fallback to the metadata title.
+
+        This occurs when the largest font isn't the title
+        """
+        page = TestParser.empty_new_page()
+        pdf_title = "PDF Title"
+        title_p = fitz.Point(0, 0)
+        heading_p = fitz.Point(50, 0)
+        text_p = fitz.Point(100, 0)
+        self.pdf.set_metadata({"title": pdf_title})
+        page.insert_text(title_p, "PDF Title", fontsize=10)
+        page.insert_text(
+            heading_p,
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+            fontsize=11,
+        )
+        page.insert_text(
+            text_p,
+            "Sed enim mi, fermentum et odio sit amet, maximus egestas.",
+            fontsize=9,
+        )
+
+        with Parser(self.pdf.tobytes()) as doc:
+            extracted_title = doc.title
+
+        assert extracted_title == pdf_title
+
+    def test_metadata_empty_page(self) -> Any:
+        """Should get the metdata title.
+
+        Page is empty, but metadata title still exists
+        """
+        TestParser.empty_new_page()
+        pdf_title = "PDF Title"
+
+        self.pdf.set_metadata({"title": pdf_title})
+
+        with Parser(self.pdf.tobytes()) as doc:
+            extracted_title = doc.title
+
+        assert extracted_title == pdf_title
+
+    def test_empty_first_page(self) -> Any:
+        """Should return an empty string.
+
+        No metadata title or text on first page
+        Should fallback in the frontend by using the file name
+        File name is not available on the backend since Parser takes bytes
+        """
+        TestParser.empty_new_page()
+
+        self.pdf.set_metadata({})
+        with Parser(self.pdf.tobytes()) as doc:
+            extracted_title = doc.title
+
+        assert extracted_title == ""
+
+
+class TestParserMetadata(TestParser):
+    """Unit tests for parser metadata property.
 
     Todo:
         * Add invalid tests
     """
 
-    new_pdf = fitz.open()
-    new_pdf.new_page()
+    TestParser.empty_new_page()
 
-    def test_pdf_title(self) -> Any:
+    def test_title(self) -> Any:
         pdf_title = "Test PDF"
-        self.new_pdf.set_metadata({"title": pdf_title})
-        with Parser(self.new_pdf.tobytes()) as doc:
+        self.pdf.set_metadata({"title": pdf_title})
+        with Parser(self.pdf.tobytes()) as doc:
             title = doc.metadata["title"]
 
         assert title == pdf_title
 
     def test_pdf_authors(self) -> Any:
         pdf_author = "Wil"
-        self.new_pdf.set_metadata({"author": pdf_author})
-        with Parser(self.new_pdf.tobytes()) as doc:
+        self.pdf.set_metadata({"author": pdf_author})
+        with Parser(self.pdf.tobytes()) as doc:
             author = doc.metadata["author"]
 
         assert author == pdf_author
@@ -39,8 +132,8 @@ class TestParserProperties:
     def test_pdf_timestamp(self) -> Any:
         pdf_time = fitz.get_pdf_now()
         now_time = float(int(datetime.timestamp(datetime.now())))
-        self.new_pdf.set_metadata({"creationDate": pdf_time})
-        with Parser(self.new_pdf.tobytes()) as doc:
+        self.pdf.set_metadata({"creationDate": pdf_time})
+        with Parser(self.pdf.tobytes()) as doc:
             c_time = doc.metadata["creationTimestamp"]
 
         assert c_time == now_time
