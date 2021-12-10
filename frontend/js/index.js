@@ -80,7 +80,18 @@ function listenForFileUpload() {
     },
     true
   );
+
+  let sos = $("size-of-summary");
+  sos.addEventListener(
+    "change",
+    (e) => {     
+      $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
+    },
+    true
+  );
 }
+
+  
 
 /* Function to monitor when files are dragged over the drag over box.
 Important to remove browsers default functionality i.e chrome wants to copy the pdf file into browser and render. */
@@ -138,38 +149,84 @@ function clearData(data) {
 }
 
 /* Changes between upload / url tabs */
-function openTab(evt, tabName) {
-  /* For Each element of tab-contents(i.e Upload / URL divs) set display = none */
-  [...document.getElementsByClassName("tab-contents")].forEach(
-    ({ style }) => (style.display = "none")
-  );
+function openTab(tabName, className) {
+  /*
+  Couldn't get this ES6 version of the code to work properly, so i think something is wrong with it.
+  Kept so we can maybe refer to it when updating coding conventions to ES6 later. 
+  */
+  // [...document.getElementsByClassName("tab-contents")].forEach(
+    //   ({ style }) => (style.display = "none"));
+    
+
+    /* For Each element of tab-contents(i.e Upload / URL divs) set display = none */
+  tabs = document.getElementsByClassName(className);
+  for(i = 0; i < tabs.length; i++) { tabs[i].style.display = "none"; }
 
   /* Set selected element to be displayed */
-  $(tabName).style.display = "block";
+  show = document.getElementsByClassName(tabName);
+  for(i = 0; i < show.length; i++) { show[i].style.display = "block"; }
 }
+
+function validateStatus(statusCode) {
+  if(statusCode == 200) { return true; }
+  else { return false; }
+}
+
+function validateString(url) {
+  if (url.indexOf("http://") == 0 || url.indexOf("https://")) {
+    url = "http://" + url;
+  }
+  if (url.indexOf(".pdf") == -1) { url = "false"; }
+  return url;
+}
+
+async function validateURL() {
+  const url = "http://localhost:8000";
+  urlString = $('pdfpicker-url').value;
+  
+  urlString = validateString(urlString);
+  
+  if(urlString == "false") {
+    console.log(urlString);
+  } else {
+
+    await fetch(`${url}/validate_url/?url=${urlString}`)
+      .then((data) => {
+        if(validateStatus(data.status)) { console.log('ok!'); }
+      })
+    }
+    
+}
+
+/* Handle non-network errors */
+function handleErrors(response) {
+  if (!response.ok) throw new Error(response.status);
+  return response;
+}
+
 
 /* Sends request to API with the pdf uploaded to form */
 async function uploadPDF(e) {
   e.preventDefault();
+  const url = "http://localhost:8000";
   const data = new FormData();
   // Add first file in file input, the PDF, as "file"
   data.append("file", e.target.file.files[0]);
-  const response = await fetch("http://localhost:8000/upload", {
-    method: "POST",
-    body: data,
-  });
-  const file = await response.json();
-  console.log(file);
-
-  $('metadata-return-display').innerHTML = "";
-
-  for (const [key, value] of Object.entries(file.metadata)) {
-    $('metadata-return-display').innerHTML += (`<b>${key}:</b> ${value}<br><br>`);
-  }
-  $('summary-return-display').innerHTML = Object.values([file.text]);
-  $('references-return-display').innerHTML = Object.values(file.toc);
-
-  
+  await fetch(`${url}/upload`, { method: "POST", body: data })
+    .then(handleErrors)
+    .then((r) => r.json())
+    .then((data) => {
+      $("metadata-return-display").innerHTML = "";
+      Object.entries(data.metadata).forEach(([k, v]) => {
+        $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
+      });
+      $("summary-return-display").textContent = data.text;
+      $("references-return-display").textContent = data.toc;
+    })
+    ;
+    (openTab('output-display', 'tab-contents'));
+    $('output-main').scrollIntoView();
+    $('tab-bar-id').style.display = "inline-block";
 }
 
 /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
@@ -184,10 +241,6 @@ function toggleOpen() {
 }
 
 function togglePDFDisplay() {
-  var pdfDocDiv = document.getElementById('pdf-renderer');
-  var outputMain = document.getElementById('output-main');
-
-  pdfDocDiv.style.display = pdfDocDiv.style.display == "none" ? "block" : "none";
-  outputMain.style.gridTemplateColumns = outputMain.style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
-
+  $('pdf-renderer').style.display = $('pdf-renderer').style.display == "none" ? "block" : "none";
+  $('output-main').style.gridTemplateColumns = $('output-main').style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
 }

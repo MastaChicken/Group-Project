@@ -31,6 +31,12 @@ h1 {
     border: 3px dashed grey;
 }
 
+.buttons {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
 #output-main {
     border: 1px 1px black;
     height: 50em;
