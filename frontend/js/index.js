@@ -89,6 +89,7 @@ function listenForFileUpload() {
     },
     true
   );
+
 }
 
   
@@ -226,7 +227,7 @@ async function uploadPDF(e) {
     ;
     (openTab('output-display', 'tab-contents'));
     $('output-main').scrollIntoView();
-    $('tab-bar-id').style.display = "inline-block";
+    $('summary-link').style.display = "inline-block";
 }
 
 /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/

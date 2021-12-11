@@ -38,21 +38,24 @@ h1 {
 }
 
 #output-main {
-    border: 1px 1px black;
+    color: white;
+    border: 2px solid black;
+    background: teal;
+    border-radius: 3em;
     height: 50em;
     width: 100%;
-    background: blue;
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr 1fr;
 }
 
 #pdf-renderer {
-    background: orange;
     height: 100%;
+    border-right: 2px solid black;
 }
 
 #summary-info {
+    border-radius: 3em;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -63,8 +66,8 @@ h1 {
 }
 
 .output-boxes {
-    color: #0b0c10;
-    background: #66fcf1;
+    background: teal;
+    border-radius: 1em;
     min-height: 4em;
     width: 90%;
     margin: auto;
@@ -72,12 +75,12 @@ h1 {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
     font-size: 1.1em;
+    border: 1px solid white;
 }
 
 .output-boxes.open > div {
+    border-top: 1px solid black;
     display: block !important;
-    color: #1f2833;
-    background: #c5c6c7;
     max-height: 33em;
 }
 
