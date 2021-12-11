@@ -3,7 +3,10 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from heapq import nlargest
 from string import punctuation
 from app.parser import Parser
+from spacy.tokens import span
+from app.nlp.main import extractive_summarisation2
 
+# Summarisation need to be improved so that it takes the headings and summarises text underneath
 with open("samples/sampleScholar.pdf", "rb") as file:
     doc = Parser(file.read())
 
@@ -12,36 +15,16 @@ with open("samples/sampleScholar.pdf", "rb") as file:
     punctuation = punctuation + "\n"
 
     nlp = spacy.load("en_core_web_sm")
-    doc = nlp(doc.text)
-    tokens = [token.text for token in doc]
 
-    word_frequencies = {}
-    for word in doc:
-        if word.text.lower() not in stopwords:
-            if word.text.lower() not in punctuation:
-                if word.text not in word_frequencies.keys():
-                    word_frequencies[word.text] = 1
-                else:
-                    word_frequencies[word.text] += 1
+    # from pprint import pprint
 
-    max_frequency = max(word_frequencies.values())
-    for word in word_frequencies.keys():
-        word_frequencies[word] = word_frequencies[word] / max_frequency
+    # pprint(doc.spans)
 
-    sentence_tokens = [sent for sent in doc.sents]
+    text = ""
+    for values in doc.spans[1]:
+        text += values["text"] + " "
 
-    sentence_scores = {}
-    for sent in sentence_tokens:
-        for word in sent:
-            if word.text.lower() in word_frequencies.keys():
-                if sent not in sentence_scores.keys():
-                    sentence_scores[sent] = word_frequencies[word.text.lower()]
-                else:
-                    sentence_scores[sent] += word_frequencies[word.text.lower()]
+    print("\n")
+    doc = nlp(text)
 
-    select_length = int(len(sentence_tokens) * 0.7)
-    summary = nlargest(select_length, sentence_scores, key=sentence_scores.get)
-
-    final_summary = [word.text for word in summary]
-    summary = "".join(final_summary)
-    print(summary)
+    print(extractive_summarisation2(doc))

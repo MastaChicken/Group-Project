@@ -12,27 +12,7 @@ punctuation += "\n"
 nlp = spacy.load("en_core_web_sm")
 stopwords = list(STOP_WORDS)
 
-data = """Health secretary Sajid Javid on Monday confirmed that community transmission of the new Omicron variant of coronavirus was occurring in England, as the number of cases climbed to 336 across the UK.
-
-Javid told the House of Commons there remained many unknowns in relation to the variant first identified in South Africa, but said the government would leave nothing to “chance” and proceed with “proportionate” measures.
-
-“We don’t yet have a complete picture of whether Omicron causes more severe disease or indeed how it interacts with vaccines,” he told MPs. “We can’t say for certain at this point whether Omicron has the potential to knock us off our road to recovery.”
-
-Javid said 261 Omicron cases have been identified in England, 71 in Scotland and 4 in Wales, adding that several cases were not linked to travel abroad.
-
-“It is highly likely that there is now community transmission across multiple regions of England,” the health secretary said.
-
-Despite the spread of the new variant, Boris Johnson, prime minister, earlier on Monday defended the government’s strategy, arguing that more time was needed to assess the true impact of Omicron.
-
-“We’re still waiting to see exactly how dangerous it is, what sort of effect it has in terms of deaths and hospitalisations,” he told reporters while on a visit to Merseyside.
-
-Over the weekend, the government announced fresh changes to travel restrictions. From 4am on Tuesday, all passengers arriving into the UK, regardless of their vaccination status, will be required to show proof of a negative pre-departure coronavirus test.
-
-Meanwhile, Nigeria was added to the red list of countries, meaning that from Tuesday, individuals who are not UK or Irish nationals and have been in Nigeria over the past 10 days, will not be permitted to enter the UK.
-
-“Analysis from [UK Health Security Agency] shows that at least 21 Omicron cases in England alone are linked to travel from Nigeria,” Javid said, adding the country had “very strong travel links with South Africa” and was the second most popular flight destination from Johannesburg.
-
-The health secretary confirmed MPs would be given a further update on the situation next week, adding that the government’s strategy was to buy time and strengthen defences while scientists assess the new variant.
+data = """Systematic reviews involve a well established process [21], applied in most research disciplines, including our own community (e.g., Kelly & Sugimoto’s systematic review of IIR Evaluation [26]). Brereton et al. [7] acknowledge 10 stages of a systematic review that span the planning, execution, and documentation of systematic reviews: 1) plan research questions, 2) specify review protocol, 3) validate review protocol, 4) identify relevant research, 5) select primary studies, 6) assess study quality, 7) extract required data, 8) synthesize data, 9) write review report, 10) validate report. In comparison to a literature review, a systematic review is designed to 1) parameterise a literature review space to define what will be included and excluded, 2) survey all the available research that meets those criteria, 3) synthesise the studies’ combined data (e.g., through meta-analysis), and 4) present quantifiable recommendations based on the synthesised data [17]. While a literature review might outwardly look for possible extant literature that relates by any one criteria, a systematic review looks inwardly to find all the literature that matches all the prespecified criteria, to the exclusion of results that only partially meet the criteria. Brereton et al. applied their 10 stages to software engineering literature, and dicovered that poor quality abstracts and lack of infrastructure make such reviews difficult. Thus, they need to be adapted to suit different domains. Athukorala et al., for example, found that literature searching was a highly collaborative experience for the computer scientists they studied [3]. Papaioannou et al. studied the different search tactics used by social scientists in systematic reviews, noting that beyond reference lists, checking and expert contacts were needed to reach rigorous standards [31]. More recently, Booth performed an in depth systematic review of methodologies used in qualitative systematic reviews [6], noting the data extraction of comparable specific detail as an open challenge. The stages of the systematic review task lend themselves to different roles, similar to the Prospector and Miner proposed by Golovchinsky et al. [16], where one person’s role is to find sources of information, and another person’s role is to extract data from them. In 2005, Harris studied the crucial role that a medical research librarian plays in the process, in collaboration with researchers on a project [20]. Similarly, Beverley et al. studied 11 different roles that may be performed by an information specialist in healthcare literature reviews [5]. It could be argued that Systematic Reviews are made up of a series of Work Tasks, such as selecting primary studies, reviewing papers, etc.; however, as our results further highlight below, each of the stages are closely integrated and depend on shared document artefacts.
 """
 
 doc = nlp(data)
@@ -51,12 +31,12 @@ def extractive_summarisation1(doc: Doc):
             keywords.append(token.text)
 
     freq_word = Counter(keywords)
-    # print(freq_word.most_common(5))
+    print(freq_word.most_common(5))
 
     max_freq = Counter(keywords).most_common(1)[0][1]
     for word in freq_word.keys():
         freq_word[word] = freq_word[word] / max_freq
-    # print(freq_word.most_common(5))
+    print(freq_word.most_common(5))
 
     sent_strength = {}
     for sent in doc.sents:
@@ -76,7 +56,7 @@ def extractive_summarisation1(doc: Doc):
     print(summary)
 
 
-def extractive_summarisation2(doc: Doc):
+def extractive_summarisation2(doc: Doc) -> str:
     tokens = [token.text for token in doc]
 
     word_frequencies = {}
@@ -110,7 +90,7 @@ def extractive_summarisation2(doc: Doc):
 
     final_summary = [word.text for word in summary]
     summary = " ".join(final_summary)
-    print(summary)
+    return summary
 
 
 def omar(n):
@@ -128,6 +108,7 @@ def omar(n):
     print(common_nouns)
 
 
-extractive_summarisation2(doc)
-print("\n\n")
-extractive_summarisation1(doc)
+if __name__ == "__main__":
+    # extractive_summarisation1(doc)
+    print("\n\n")
+    print(extractive_summarisation2(doc))
