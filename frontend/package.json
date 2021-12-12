@@ -3,15 +3,17 @@
   "version": "0.0.0",
   "description": "Frontend for the Content Visualisation project",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test"
   },
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
-    "cypress": "^9.1.1",
+    "@playwright/test": "^1.17.1",
     "eslint": "^8.4.1",
     "jsdoc": "^3.6.7",
+    "playwright": "^1.17.1",
     "prettier": "^2.5.1"
   }
 }
