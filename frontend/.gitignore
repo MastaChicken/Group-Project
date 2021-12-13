@@ -1,0 +1,17 @@
+# Environment
+.env
+
+# Coverage
+coverage
+*.lcov
+.nyc_output
+
+# Depedency directories
+node_modules/
+
+# Cache
+.eslintcache
+.npm
+
+# JSDoc
+docs/
