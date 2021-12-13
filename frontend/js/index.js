@@ -1,5 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const API = "http://localhost:8000";
+let showSlider = false; 
+let count = 0;
 
 /* Checks if file is valid .pdf */
 function isValidPDF({ type, name }) {
@@ -17,31 +19,43 @@ function isValidPDF({ type, name }) {
   return false;
 }
 
+function displaySlider(c) {
+  const ptsSlider = $("pages-to-summarise");
+  count = c;
+  if (count == 1) {
+      $("selection-boxes").style.display = "none";
+      showSlider = false;
+    } else if (count > 1) {
+      $("selection-boxes").style.display = "block";
+      ptsSlider.max = count;
+      ptsSlider.value = count;
+      showSlider = true;
+      // Then it changes the text for pages to summarise to update with the current value
+      // and the max i.e
+      $(
+        "pts-lbl"
+      ).innerHTML = `Pages to Summarise: ${ptsSlider.value} / ${count}`;
+      }
+}
+
 /* Sets the slider for pages to summarise to half max / max.
   -- This slider should maybe ne a dual slider but these seem to require JQuery or a proper framework. */
 function setPagesToSummarise(file) {
-  const ptsSlider = $("pages-to-summarise");
   // reads file and function triggers when reader has completed reading.
   let reader = new FileReader();
   reader.readAsBinaryString(file);
   reader.onloadend = (e) => {
     // let count = number of pages. sets the pages to summarise slider attribute max
     // to the number of pages.
+    try {
     let count = reader.result.match(/\/Type[\s]*\/Page[^s]/g).length;
-    if (count == 1) {
-      ptsSlider.style.display = "none";
-      $("pts-lbl").style.display = "none";
-    } else if (count > 1) {
-      ptsSlider.style.display = "inline-block";
-      $("pts-lbl").style.display = "inline-block";
-      ptsSlider.setAttribute("max", count);
-      ptsSlider.setAttribute("value", count);
-      // Then it changes the text for pages to summarise to update with the current value
-      // and the max i.e
-      $(
-        "pts-lbl"
-      ).innerHTML = `Pages to Summarise: ${ptsSlider.value} / ${count}`;
+    displaySlider(count);
     }
+    catch(e) {
+      $("selection-boxes").style.display = "none";
+      showSlider = false;
+      count = 0;
+    }     
   };
 }
 
@@ -58,13 +72,13 @@ function listenForFileUpload() {
       if (files.length > 0 && isValidPDF(files[0])) {
         setPagesToSummarise(files[0]);
         dropText.innerHTML = `File accepted: ${files[0].name}`;
-        document.getElementsByClassName("selection-boxes")[0].style.display =
+        $("selection-boxes").style.display =
           "block";
       } else {
         // throws alert for wrong file type
         $("pdfpicker-file").value = "";
         dropText.innerHTML = "File Rejected: Please add .pdf file type";
-        document.getElementsByClassName("selection-boxes")[0].style.display =
+        $("selection-boxes").style.display =
           "none";
       }
     },
@@ -122,14 +136,14 @@ function dropHandler(ev) {
         dropText.innerHTML = `File accepted: ${file.name}`;
         $("pdfpicker-file").files = ev.dataTransfer.files;
         clearData(ev.dataTransfer);
-        document.getElementsByClassName("selection-boxes")[0].style.display =
+        $("selection-boxes").style.display =
           "block";
       } else {
         // If not a valid .pdf Add reject messsage and clear data from file input and event data.
         dropText.innerHTML = "File Rejected: Please add .pdf file type";
         $("pdfpicker-file").value = "";
         clearData(ev.dataTransfer);
-        document.getElementsByClassName("selection-boxes")[0].style.display =
+        $("selection-boxes").style.display =
           "none";
       }
     }
@@ -165,7 +179,10 @@ function openTab(tabName, className) {
   /* Set selected element to be displayed */
   show = document.getElementsByClassName(tabName);
   for (i = 0; i < show.length; i++) {
-    show[i].style.display = "block";
+    show[i].style.display = "block";    
+    if(tabName == "upload-form" && showSlider == true) {
+      displaySlider(count);
+    }
   }
 }
 
