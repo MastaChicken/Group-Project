@@ -54,6 +54,9 @@ class Parser:
         Args:
             file : PDF file as a buffered binary stream
 
+        Raises:
+            PermissionError: if pdf is encrypted
+
         """
         self.__doc = fitz.open(stream=file, filetype="pdf")
         if self.__doc.needs_pass or self.__doc.is_encrypted:

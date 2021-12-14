@@ -23,7 +23,7 @@ class Techniques:
     """Apply NLP techiniques on text.
 
     Attributes:
-        __doc: spaCy Doc class
+        __doc : spaCy Doc class
     """
 
     __doc: Doc
@@ -33,12 +33,18 @@ class Techniques:
 
         Args:
             text : chunk of text from scholarly article
+
+        Raises:
+            RuntimeError: if text is empty
+
         """
+        if text == "":
+            raise RuntimeError("Text cannot be empty")
         nlp = load("en_core_web_sm")
         self.__doc = nlp(text)
 
     @cached_property
-    def word_freq(self) -> dict:
+    def word_freq(self) -> dict[str, int]:
         """Calculate the frequencies of word in a given document.
 
         Returns:
@@ -49,6 +55,8 @@ class Techniques:
         punctuation += "\n"
 
         word_frequencies = {}
+        # TODO: Remove similar words
+        # Lemmatization maybe
         for word in self.__doc:
             if (
                 word.text.lower() not in STOP_WORDS
@@ -74,8 +82,9 @@ class Techniques:
         word_frequencies = self.word_freq
 
         max_frequency = max(word_frequencies.values())
+        normalized_frequencies: dict[str, float] = {}
         for word in word_frequencies.keys():
-            word_frequencies[word] = word_frequencies[word] / max_frequency
+            normalized_frequencies[word] = word_frequencies[word] / max_frequency
 
         # need to optimise this, only counts sentence if fullstop,
         # space then capital letter/punctuation/number
@@ -84,11 +93,12 @@ class Techniques:
         sentence_scores: dict[Span, float] = {}
         for sent in sentence_tokens:
             for word in sent:
-                if word.text.lower() in word_frequencies.keys():
+                l_word = word.text.lower()
+                if l_word in normalized_frequencies.keys():
                     if sent not in sentence_scores.keys():
-                        sentence_scores[sent] = word_frequencies[word.text.lower()]
-                    else:
-                        sentence_scores[sent] += word_frequencies[word.text.lower()]
+                        sentence_scores[sent] = normalized_frequencies[l_word]
+                        continue
+                    sentence_scores[sent] += normalized_frequencies[l_word]
 
         summarised_sentences = nlargest(
             n, sentence_scores, key=lambda k: sentence_scores[k]
