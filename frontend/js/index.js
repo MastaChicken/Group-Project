@@ -233,7 +233,7 @@ function openTab(tabName, className) {
  * Handle non-network errors
  * 
  * @param {*} response - response state from fetch call. 
- * @returns response
+ * @returns {*} response
  */
 function handleErrors(response) {
   if (!response.ok) throw new Error(response.status);
@@ -243,7 +243,7 @@ function handleErrors(response) {
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
  * If response is 200 then it is a valid url 
  * 
- * @returns Boolean - Returns true if the URL is valid
+ * @returns {*} Boolean  - Returns true if the URL is valid
  */
 async function validateURL() {
   var url = $("pdfpicker-url").value;
@@ -300,10 +300,17 @@ var outputBoxes = document.querySelectorAll(".output-boxes");
 
 outputBoxes.forEach((box) => box.addEventListener("click", toggleOpen));
 
+/**
+ * Toggles adding the open css class to a div. 
+ */
 function toggleOpen() {
   this.classList.toggle("open");
 }
 
+/**
+ * Toggle whether the pdf renderer is being displayed or not. If it is not displayed then then changes grid template to 
+ * one column as opposed to 2 and vice versa.
+ */
 function togglePDFDisplay() {
   $("pdf-renderer").style.display =
     $("pdf-renderer").style.display == "none" ? "block" : "none";
