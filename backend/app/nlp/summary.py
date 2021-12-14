@@ -4,7 +4,7 @@ from heapq import nlargest
 from string import punctuation
 from app.parser import Parser
 from spacy.tokens import span
-from app.nlp.main import extractive_summarisation2
+from app.nlp.main import extractive_summarisation, topCommonNWords
 
 # Summarisation need to be improved so that it takes the headings and summarises text underneath
 with open("samples/sampleScholar.pdf", "rb") as file:
@@ -27,4 +27,6 @@ with open("samples/sampleScholar.pdf", "rb") as file:
     print("\n")
     doc = nlp(text)
 
-    print(extractive_summarisation2(doc))
+    print(extractive_summarisation(doc, 5))
+    print("\n\n\n")
+    print(topCommonNWords(doc, 10))
