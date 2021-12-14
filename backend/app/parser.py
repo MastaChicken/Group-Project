@@ -42,7 +42,7 @@ class Parser:
     """Parse PDF given document.
 
     Attributes:
-        _doc : fitz document
+        __doc : fitz document
     """
 
     __doc: fitz.Document
@@ -53,6 +53,9 @@ class Parser:
 
         Args:
             file : PDF file as a buffered binary stream
+
+        Raises:
+            PermissionError: if pdf is encrypted
 
         """
         self.__doc = fitz.open(stream=file, filetype="pdf")
