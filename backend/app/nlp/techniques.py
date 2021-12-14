@@ -11,29 +11,47 @@ punctuation += "\n"
 stopwords = list(STOP_WORDS)
 
 
-def extractive_summarisation(doc: Doc, n: int) -> str:
-    """Returns extractive summarisation of given document down to 'n' amount of sentences.
+def word_freq(doc: Doc) -> dict:
+    """Calculates the frequencies of word in a given document.
 
     Args:
-        doc (Doc): document containing text to be summarised
-        n (int): amount of sentences to be reduced down to
+        doc: document containing the text to work the frequencies of
 
     Returns:
-        str: the summarised text
+        dictionary containing the frequency of each word
     """
     word_frequencies = {}
     for word in doc:
-        if word.text.lower() not in stopwords:
-            if word.text.lower() not in punctuation:
-                if word.text not in word_frequencies.keys():
-                    word_frequencies[word.text] = 1
-                else:
-                    word_frequencies[word.text] += 1
+        if (
+            word.text.lower() not in stopwords
+            and word.text.lower() not in punctuation
+            and word.pos_ == "NOUN"
+        ):
+            if word.text not in word_frequencies.keys():
+                word_frequencies[word.text] = 1
+            else:
+                word_frequencies[word.text] += 1
+
+    return word_frequencies
+
+
+def extractive_summarisation(doc: Doc, n: int) -> list[str]:
+    """Returns extractive summarisation of given document down to 'n' amount of sentences.
+
+    Args:
+        doc: document containing text to be summarised
+        n : amount of sentences to be reduced down to
+
+    Returns:
+        list of strings containing the extractive summarisation
+    """
+    word_frequencies = word_freq(doc)
 
     max_frequency = max(word_frequencies.values())
     for word in word_frequencies.keys():
         word_frequencies[word] = word_frequencies[word] / max_frequency
 
+    # need to optimise this, only counts sentence if fullstop, space then capital letter/punctuation/number
     sentence_tokens = [sent for sent in doc.sents]
 
     sentence_scores = {}
@@ -48,11 +66,10 @@ def extractive_summarisation(doc: Doc, n: int) -> str:
     summarised_sentences = nlargest(n, sentence_scores, key=sentence_scores.get)
 
     final_sentences = [w.text for w in summarised_sentences]
-    summary = "\n\n".join(final_sentences)
-    return summary
+    return final_sentences
 
 
-def topcommonnwords(doc: Doc, n: int) -> tuple[str, int]:
+def top_common_n_words(doc: Doc, n: int) -> tuple[str, int]:
     """Returns tuple containing most common n amount of words in given text.
 
     Args:
@@ -62,14 +79,10 @@ def topcommonnwords(doc: Doc, n: int) -> tuple[str, int]:
     Returns:
         tuple[str, int]: first element is the word, second element is the frequency
     """
-    nouns = [
-        token.text
-        for token in doc
-        if (not token.is_stop and not token.is_punct and token.pos_ == "NOUN")
-    ]
+    word_frequencies = word_freq(doc)
 
     # five most common noun tokens
-    noun_freq = Counter(nouns)
+    noun_freq = Counter(word_frequencies)
     common_nouns = noun_freq.most_common(n)
 
     return common_nouns

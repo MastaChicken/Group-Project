@@ -1,6 +1,6 @@
 import spacy
 from app.parser import Parser
-from app.nlp.main import extractive_summarisation, topCommonNWords
+from app.nlp.techniques import extractive_summarisation, top_common_n_words
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -16,9 +16,9 @@ with open("samples/sampleScholar.pdf", "rb") as file:
     for values in doc.spans[1]:
         text += values["text"] + " "
 
-    print("\n")
     doc = nlp(text)
 
     print(extractive_summarisation(doc, 5))
+
     print("\n\n\n")
-    print(topCommonNWords(doc, 10))
+    print(top_common_n_words(doc, 10))
