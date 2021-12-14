@@ -1,9 +1,13 @@
 const $ = (id) => document.getElementById(id);
 const API = "http://localhost:8000";
-let showSlider = false; 
 let count = 0;
 
-/* Checks if file is valid .pdf */
+/**
+ * Checks if file is valid .pdf
+ * 
+ * @param {*} file - file input. Type and Name are two parts of the pdf file.
+ * @returns {Boolean}
+ */
 function isValidPDF({ type, name }) {
   if (type === "application/pdf") {
     return true;
@@ -19,17 +23,23 @@ function isValidPDF({ type, name }) {
   return false;
 }
 
+/**
+ * Takes the the page count and runs checks to see whether the pages-to-summarise slider should be 
+ * displayed or not. If page count is equal to 1 then it is not shown as there is no range of pages
+ * to be summarised. Else if it is over 1 then it shows the slider and updates the sliders attributes
+ * to match the Page count. Finally it updates the label to reflect this. 
+ * 
+ * @param {*} c - Passes the count variable. This represents the Page count of the pdf file.   
+ */
 function displaySlider(c) {
   const ptsSlider = $("pages-to-summarise");
   count = c;
   if (count == 1) {
       $("selection-boxes").style.display = "none";
-      showSlider = false;
     } else if (count > 1) {
       $("selection-boxes").style.display = "block";
       ptsSlider.max = count;
       ptsSlider.value = count;
-      showSlider = true;
       // Then it changes the text for pages to summarise to update with the current value
       // and the max i.e
       $(
@@ -38,13 +48,21 @@ function displaySlider(c) {
       }
 }
 
-/* Sets the slider for pages to summarise to half max / max.
-  -- This slider should maybe ne a dual slider but these seem to require JQuery or a proper framework. */
+/**
+ * Creates a reader and reads the PDF document. When the file has been read it tries to set count
+ * as result match on Regex for /Type/Page[x]. If this is successful it calls displaySlider(), else
+ * it catches the error, hides the slider and sets count to 0. 
+ * 
+ * This is inconsistant so far, as PDFs can be hidden behind multiple layers of obscurification /
+ * compression which affects the documents readability.
+ * 
+ * @param {*} file - The PDF document stores in file input pdfpicker.
+ */
 function setPagesToSummarise(file) {
   // reads file and function triggers when reader has completed reading.
   let reader = new FileReader();
   reader.readAsBinaryString(file);
-  reader.onloadend = (e) => {
+  reader.onloadend = () => {
     // let count = number of pages. sets the pages to summarise slider attribute max
     // to the number of pages.
     try {
@@ -53,19 +71,27 @@ function setPagesToSummarise(file) {
     }
     catch(e) {
       $("selection-boxes").style.display = "none";
-      showSlider = false;
       count = 0;
     }     
   };
 }
 
-/* Adds event listeners for the pdfpicker upload button and the pages to summarise slider.
-the upload file just sets some text and and the pages slider. */
-function listenForFileUpload() {
+/**
+ * Adds event listeners for the pdfpicker file input, the pages to summarise slider, size of summary slider.
+ * 
+ * The Event Listener for pdfpicker waits for change in the pdfpicker-file. Once detected this then checks 
+ * the files in input files for being over zero and and calls isValidPDF(). If true, then calls
+ * setPagesToSymmarise() and changes text in Drag and Drop box. 
+ * 
+ * Event for pages-to-summarise slider detects user changing value and updates label accordingly.
+ * 
+ * Event for size-of-summary slider detects user changing value and updates label accordingly.
+ */
+window.onload = function listenForFileUpload() {
   // Adds event listener to the upload button, so it executes on change.
   $("pdfpicker-file").addEventListener(
     "change",
-    (e) => {
+    () => {
       let files = $("pdfpicker-file").files;
       let dropText = $("drop-text");
       // checks file exists and passes PDF checks.
@@ -89,7 +115,7 @@ function listenForFileUpload() {
   let ptsValue = $("pages-to-summarise");
   ptsValue.addEventListener(
     "change",
-    (e) => {
+    () => {
       let max = ptsValue.getAttribute("max");
       $("pts-lbl").innerHTML = `Pages to Summarise: ${ptsValue.value} / ${max}`;
     },
@@ -99,23 +125,31 @@ function listenForFileUpload() {
   let sos = $("size-of-summary");
   sos.addEventListener(
     "change",
-    (e) => {
+    () => {
       $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
     },
     true
   );
 }
 
-/* Function to monitor when files are dragged over the drag over box.
-Important to remove browsers default functionality i.e chrome wants to copy the pdf file into browser and render. */
+/**
+ * Function to monitor when files are dragged over the drag over box. 
+ * Important to remove browsers default functionality i.e chrome wants to copy the pdf file into browser and render.
+ * 
+ * @param {*} ev - dragOverHandler event. 
+ */
 function dragOverHandler(ev) {
   console.log("File(s) in drop zone");
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
 }
 
-/* Function for handling drop events. Handles the file transfer from event.datatransfer file to being stored in the input="file".
-clears dataTransfer data after stored, or determined not valid .pdf filetype.  */
+/**
+ * Function for handling drop events. Handles the file transfer from event.datatransfer file to being stored in the input="file".
+ * clears dataTransfer data after stored, or determined not valid .pdf filetype.
+ * 
+ * @param {*} ev - dropHandler event.
+ */
 function dropHandler(ev) {
   console.log("File(s) dropped");
 
@@ -150,7 +184,11 @@ function dropHandler(ev) {
   }
 }
 
-/* Handles clearing data with check for items. */
+/**
+ * Handles clearing data with check for items.
+ * 
+ * @param {*} data - dataTransfer data.
+ */
 function clearData(data) {
   if (data.items) {
     // Use DataTransferItemList interface to remove the drag data
@@ -161,14 +199,19 @@ function clearData(data) {
   }
 }
 
-/* Changes between upload / url tabs */
+/**
+ * Changes between upload / URL / Summary tabs.
+ * 
+ * @param {*} tabName - Desired tab to switch to.
+ * @param {*} className - Class Name for all involved divs. (Think i included this to make it reuseable but may be able to remove this.)
+ */
 function openTab(tabName, className) {
   /*
   Couldn't get this ES6 version of the code to work properly, so i think something is wrong with it.
   Kept so we can maybe refer to it when updating coding conventions to ES6 later.
-  */
-  // [...document.getElementsByClassName("tab-contents")].forEach(
-  //   ({ style }) => (style.display = "none"));
+  
+  [...document.getElementsByClassName("tab-contents")].forEach(
+    ({ style }) => (style.display = "none")); */
 
   /* For Each element of tab-contents(i.e Upload / URL divs) set display = none */
   tabs = document.getElementsByClassName(className);
@@ -180,19 +223,28 @@ function openTab(tabName, className) {
   show = document.getElementsByClassName(tabName);
   for (i = 0; i < show.length; i++) {
     show[i].style.display = "block";    
-    if(tabName == "upload-form" && showSlider == true) {
+    if(tabName == "upload-form" && count > 1) {
       displaySlider(count);
     }
   }
 }
 
-/* Handle non-network errors */
+/**
+ * Handle non-network errors
+ * 
+ * @param {*} response - response state from fetch call. 
+ * @returns response
+ */
 function handleErrors(response) {
   if (!response.ok) throw new Error(response.status);
   return response;
 }
-
-/* Returns true if the URL is valid */
+/**
+ * Checks url is has .pdf suffix, passes it to backend to get a status response.
+ * If response is 200 then it is a valid url 
+ * 
+ * @returns Boolean - Returns true if the URL is valid
+ */
 async function validateURL() {
   var url = $("pdfpicker-url").value;
 
@@ -213,7 +265,11 @@ async function validateURL() {
   return code == 200
 }
 
-/* Sends request to API with the pdf uploaded to form */
+/**
+ * Sends request to API with the pdf uploaded to form
+ * 
+ * @param {*} e - only called to prevent default.
+ */
 async function uploadPDF(e) {
   e.preventDefault();
   const data = new FormData();
