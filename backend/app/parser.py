@@ -42,7 +42,7 @@ class Parser:
     """Parse PDF given document.
 
     Attributes:
-        _doc : fitz document
+        __doc : fitz document
     """
 
     __doc: fitz.Document
