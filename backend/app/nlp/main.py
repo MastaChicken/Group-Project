@@ -1,21 +1,26 @@
+"""Contains the techniques used within the nlp process."""
 from collections import Counter
-
-
-import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from heapq import nlargest
 from spacy.tokens.doc import Doc
-from app.parser import Parser
 
+
+# adds the newline token to the punctuation array
 punctuation += "\n"
 stopwords = list(STOP_WORDS)
 
 
-def extractive_summarisation(doc: Doc, n: int):
+def extractive_summarisation(doc: Doc, n: int) -> str:
+    """Returns extractive summarisation of given document down to 'n' amount of sentences.
 
-    tokens = [token.text for token in doc]
+    Args:
+        doc (Doc): document containing text to be summarised
+        n (int): amount of sentences to be reduced down to
 
+    Returns:
+        str: the summarised text
+    """
     word_frequencies = {}
     for word in doc:
         if word.text.lower() not in stopwords:
@@ -47,8 +52,16 @@ def extractive_summarisation(doc: Doc, n: int):
     return summary
 
 
-def topCommonNWords(doc: Doc, n: int):
-    # noun tokens that arent stop words or punctuations
+def topcommonnwords(doc: Doc, n: int) -> tuple[str, int]:
+    """Returns tuple containing most common n amount of words in given text.
+
+    Args:
+        doc (Doc): document with text to find most common n words
+        n (int): amount of common words to return
+
+    Returns:
+        tuple[str, int]: first element is the word, second element is the frequency
+    """
     nouns = [
         token.text
         for token in doc
