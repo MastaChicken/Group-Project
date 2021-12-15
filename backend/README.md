@@ -7,8 +7,8 @@ extension installed for code completion.
 
 ## Requirements
 
-- Python >= 3.10
-- Poetry >= 1.1.12
+- `python` >= 3.10
+- `poetry` >= 1.1.12
 
 ## Setup
 
@@ -17,7 +17,7 @@ extension installed for code completion.
 We use [poetry](https://python-poetry.org/) for dependency management.
 
 To get started, run:
-```
+```bash
 $ poetry install
 ```
 
@@ -29,12 +29,12 @@ To use the virtual environment, change the interpreter environment to
 relevant script (related to the shell you are using).
 
 Example using bash (\*nix):
-```
+```bash
 $ source .venv/bin/activate
 ```
 
 Example using git bash (Windows):
-```
+```bash
 $ source .venv/Script/activate
 ```
 
@@ -65,7 +65,7 @@ This will run a specific python test module.
 
 We include a tool to measure the code coverage of the unit tests, `coverage.py`
 
-```
+```bash
 $ poetry run coverage run -m pytest
 $ poetry run coverage report
 ```
@@ -99,12 +99,12 @@ We follow the Google Python docstring style convention. `pydocstyle` is a dev
 dependency that has been setup to check compliance. The Python linter, `flake8`,
 should warn you when compliance has not been met.
 
-> https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
+> <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>
 
 ### Building
 
 You need to be in the virtual environment and/or have `sphinx` installed.
-```
+```bash
 $ sphinx-apidoc -o docs/ app/
 $ sphinx-apidoc -o docs/ tests/
 $ cd docs && make html
@@ -118,7 +118,7 @@ For more commands, run `make help` in the `docs/` directory
 
 We follow the Google Python style guide for writing Python.
 
-> https://google.github.io/styleguide/pyguide.html
+> <https://google.github.io/styleguide/pyguide.html>
 
 ### Black 
 
@@ -126,7 +126,7 @@ We use [Black](https://github.com/psf/black) as our formatter. If using Visual
 Studio Code, you can change the `provider.formatting.provider` setting to
 `"black"`. Setting the formatter to apply on save is also recommended.
 
-> https://code.visualstudio.com/docs/python/editing#_formatting
+> <https://code.visualstudio.com/docs/python/editing#_formatting>
 
 ### isort
 
@@ -134,7 +134,7 @@ We use [isort](https://github.com/PyCQA/isort) as an import formatter. If using
 Visual Studio Code, you need to assign a keyboard shortcut to the
 `python.sortImports` command.
 
-> https://code.visualstudio.com/docs/python/editing#_sort-imports
+> <https://code.visualstudio.com/docs/python/editing#_sort-imports>
 
 ### Flake8
 
@@ -143,5 +143,5 @@ Visual Studio Code, you need to enable Flake8 by setting
 `python.linting.flake8Enabled` to true. As part of the dev dependencies are
 Flake8 plugins that should be enabled automatically.
 
-> https://code.visualstudio.com/docs/python/linting
+> <https://code.visualstudio.com/docs/python/linting>
 

@@ -1,8 +1,7 @@
 """Unit tests for the properties and methods in Techniques."""
-from typing import Any
-
 from app.nlp.techniques import Techniques
 from pytest import raises
+from spacy import load
 
 
 class TestTechniques:
@@ -36,9 +35,10 @@ class TestTechniques:
     rejects pleasures to secure other greater pleasures, or else he endures pains to
     avoid worse pains
     """
+    model = load("en_core_web_sm")
 
-    def test_word_frequency(self) -> Any:
-        doc = Techniques(self.test_string)
+    def test_word_frequency(self):
+        doc = Techniques(self.model, self.test_string)
         words = doc.top_common_n_words(5)
         assert words == [
             ("pleasure", 9),
@@ -48,6 +48,6 @@ class TestTechniques:
             ("circumstances", 2),
         ]
 
-    def test_empty_string(self) -> Any:
+    def test_empty_string(self):
         with raises(RuntimeError):
-            Techniques(self.empty_string)
+            Techniques(self.model, self.empty_string)

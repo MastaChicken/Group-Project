@@ -3,10 +3,8 @@
 Todo:
     * added more test cases for all
 """
-from typing import Any
-
-from app.main import app
 from app.api.models import UploadResponse
+from app.main import app
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -26,7 +24,7 @@ class TestRecieveFile:
         test_pdf.new_page()
         test_obj: bytes = test_pdf.tobytes()
 
-    def test_valid_request(self) -> Any:
+    def test_valid_request(self):
         """Request should return 200/OK and response schema should be valid."""
         response = client.post(
             "/upload", files={"file": ("filename", self.test_obj, "application/pdf")}
@@ -43,7 +41,7 @@ class TestValidateURL:
         * Add invalid tests
     """
 
-    def test_valid_request(self) -> Any:
+    def test_valid_request(self):
         """Request should return 200/0K and valid json response."""
         response = client.get(
             "/validate_url/", params={"url": "https://www.orimi.com/pdf-test.pdf"}
@@ -51,13 +49,13 @@ class TestValidateURL:
         assert response.status_code == 200
         assert response.json()["detail"] == "PDF URL is valid"
 
-    def test_invalid_url(self) -> Any:
+    def test_invalid_url(self):
         """Request should return 500 and invalid json response."""
         response = client.get("/validate_url/", params={"url": "invalidlink"})
         assert response.status_code == 500
         assert response.json()["detail"] == "Parameter has an invalid format"
 
-    def test_invalid_request(self) -> Any:
+    def test_invalid_request(self):
         """Request shouldn't return 200 status code and unsuccessful json."""
         response = client.get(
             "/validate_url/",
@@ -66,7 +64,7 @@ class TestValidateURL:
         assert response.status_code != 200
         assert response.json()["detail"] == "Request unsuccessful"
 
-    def test_invalid_pdf(self) -> Any:
+    def test_invalid_pdf(self):
         """Request should return 415 and unsupported json."""
         response = client.get("/validate_url/", params={"url": "http://www.google.com"})
         assert response.status_code == 415

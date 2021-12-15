@@ -10,8 +10,16 @@ from app.api.models import UploadResponse
 from app.nlp.techniques import Techniques
 from app.parser import Parser
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from spacy import load
 
 router = APIRouter()
+
+
+@router.on_event("startup")
+def load_model():
+    """Load model once to be passed around as an instance."""
+    global model
+    model = load("en_core_web_sm")
 
 
 @router.post("/upload", response_model=UploadResponse)
@@ -37,7 +45,7 @@ async def recieve_file(file: UploadFile = File(...)):
         common_words = []
         # FIXME: this is a workaround to ensure that tests continue to pass
         if text:
-            nlp = Techniques(text)
+            nlp = Techniques(model, text)
             summary = nlp.extractive_summarisation(5)
             common_words = nlp.top_common_n_words(10)
         return UploadResponse(
