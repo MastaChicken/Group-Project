@@ -35,10 +35,6 @@ pep8-naming = "^0.12.1"
 flake8-blind-except = "^0.2.0"
 flake8-builtins = "^1.5.3"
 flake8-black = "^0.2.3"
-flake8-annotations-coverage = "^0.0.5"
-# TODO: decide if these are required to test endpoints
-httpx = "^0.21.1"
-asgi-lifespan = "^1.0.1"
 Sphinx = "^4.3.1"
 
 [tool.pydocstyle]
