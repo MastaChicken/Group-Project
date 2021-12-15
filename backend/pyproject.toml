@@ -10,6 +10,7 @@ authors = [
   "Sean Butcher <psysb11@nottingham.ac.uk>",
   "Emre Ozsaruhan <psyeo1@nottingham.ac.uk>"
 ]
+include = ["debug_server.py", "README.md"]
 
 [tool.poetry.dependencies]
 python = "^3.10"

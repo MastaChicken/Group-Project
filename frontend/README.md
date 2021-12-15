@@ -5,7 +5,7 @@ The frontend is written in HTML, CSS and JavaScript.
 
 ## Requirements
 
-- Node.js >= 16
+- `Node.js` >= 16
 
 ## Setup
 
@@ -56,9 +56,9 @@ This will build the documentation in `docs/`
 We aim to follow the latest JavaScript Standard, ES12.
 We follow Google's HTML/CSS and JavaScript style guides.
 
-> https://google.github.io/styleguide/htmlcssguide.html
+> <https://google.github.io/styleguide/htmlcssguide.html>
 
-> https://google.github.io/styleguide/jsguide.html
+> <https://google.github.io/styleguide/jsguide.html>
 
 ### ESLint
 
