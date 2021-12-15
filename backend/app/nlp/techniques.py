@@ -13,8 +13,8 @@ from collections import Counter
 from functools import cached_property
 from heapq import nlargest
 
-from spacy import load
 from spacy.lang.en.stop_words import STOP_WORDS
+from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
 
@@ -28,10 +28,11 @@ class Techniques:
 
     __doc: Doc
 
-    def __init__(self, text: str):
+    def __init__(self, model: Language, text: str):
         """Run English spacy model on text chunk.
 
         Args:
+            model : instance of a spaCy text-processing pipeline
             text : chunk of text from scholarly article
 
         Raises:
@@ -40,8 +41,7 @@ class Techniques:
         """
         if text == "":
             raise RuntimeError("Text cannot be empty")
-        nlp = load("en_core_web_sm")
-        self.__doc = nlp(text)
+        self.__doc = model(text)
 
     @cached_property
     def word_freq(self) -> dict[str, int]:
