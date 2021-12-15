@@ -6,13 +6,15 @@ Todo:
 """
 
 import requests
-from app.parser import Parser, ParserModel
+from app.api.models import UploadResponse
+from app.nlp.techniques import Techniques
+from app.parser import Parser
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
 
 
-@router.post("/upload", response_model=ParserModel)
+@router.post("/upload", response_model=UploadResponse)
 async def recieve_file(file: UploadFile = File(...)):
     """Recieves uploaded file and sets it to object.
 
@@ -25,8 +27,26 @@ async def recieve_file(file: UploadFile = File(...)):
     """
     contents = await file.read()
 
-    with Parser(contents) as out:
-        return ParserModel(metadata=out.metadata, text=out.text, toc=out.toc)
+    with Parser(contents) as doc:
+        text = ""
+        spans = doc.spans.get(1, {})
+        for values in spans:
+            text += values["text"] + " "
+
+        summary = []
+        common_words = []
+        # FIXME: this is a workaround to ensure that tests continue to pass
+        if text:
+            nlp = Techniques(text)
+            summary = nlp.extractive_summarisation(5)
+            common_words = nlp.top_common_n_words(10)
+        return UploadResponse(
+            title=doc.title,
+            metadata=doc.metadata,
+            toc=doc.toc,
+            summary=summary,
+            common_words=common_words,
+        )
 
 
 @router.get("/validate_url/")

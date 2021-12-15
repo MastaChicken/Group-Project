@@ -6,7 +6,7 @@ Todo:
 from typing import Any
 
 from app.main import app
-from app.parser import ParserModel
+from app.api.models import UploadResponse
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -33,7 +33,7 @@ class TestRecieveFile:
         )
         res_body = response.json()
         assert response.status_code == 200
-        assert ParserModel.validate(res_body)
+        assert UploadResponse.validate(res_body)
 
 
 class TestValidateURL:
