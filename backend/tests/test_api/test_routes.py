@@ -4,8 +4,9 @@ Todo:
     * added more test cases for all
 """
 from typing import Any
+
 from app.main import app
-from app.parser import ParserModel
+from app.api.models import UploadResponse
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -20,10 +21,10 @@ class TestRecieveFile:
 
     import fitz
 
-    test_pdf = fitz.open()
-    # Required to save pdf
-    test_pdf.new_page()
-    test_obj: bytes = test_pdf.tobytes()
+    with fitz.open(filetype="pdf") as test_pdf:
+        # Required to save pdf
+        test_pdf.new_page()
+        test_obj: bytes = test_pdf.tobytes()
 
     def test_valid_request(self) -> Any:
         """Request should return 200/OK and response schema should be valid."""
@@ -32,7 +33,7 @@ class TestRecieveFile:
         )
         res_body = response.json()
         assert response.status_code == 200
-        assert ParserModel.validate(res_body)
+        assert UploadResponse.validate(res_body)
 
 
 class TestValidateURL:

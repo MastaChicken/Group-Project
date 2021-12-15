@@ -1,56 +1,103 @@
 <!doctype html>
 <html lang=en>
-  <title>Content Visualisation</title>
-  <meta charset="utf-8">
-  <meta name=viewport content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
-  <script type="text/javascript" src="js/index.js"></script>
+<title>Content Visualisation</title>
+<meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
 
-  <body onload="listenForFileUpload()">
-    <div class="main">
-      <h1>Content Visualisation</h1>
+<body onload="listenForFileUpload()">
+  <div class="main">
+    <h1>Content Visualisation</h1>
 
-      <div class="tab-bar">
-        <a href="javascript:void(0)" onclick="openTab(event, 'upload-form');">
-          <div class="tab-button tablink">Upload</div>
-        </a>
-        <a href="javascript:void(0)" onclick="openTab(event, 'url-form');">
-          <div class="tab-button tablink">URL</div>
-        </a>
-      </div>
+    <div id="tab-bar-id" class="tab-bar">
+      <a href="#main" onclick="openTab('upload-form', 'tab-contents');">
+        <div class="tab-button tablink">Upload</div>
+      </a>
+      <a href="#main" onclick="openTab('url-form', 'tab-contents');">
+        <div class="tab-button tablink">URL</div>
+      </a>
+      <a id="summary-link" href="#output-main" onclick="openTab('output-display', 'tab-contents');" style="display: none;">
+        <div class="tab-button tablink">Summary</div>
+      </a>
+    </div>
 
 
-      <div id="upload-form" class="tab-contents">
-        <form onsubmit="uploadPDF(event);">
-        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onclick="document.getElementById('pdfpicker-file').click();">
+    <div class="tab-contents upload-form">
+      <form onsubmit="uploadPDF(event);">
+        <div id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);"
+          onclick="document.getElementById('pdfpicker-file').click();">
           <p id="drop-text"> Drop your .pdf files here!</p>
           <br>
-          <input required type="file" name="file" id="pdfpicker-file" accept=".pdf" style="display: none;"/         </div>
-      </div>
-        <div id="url-form" class="tab-contents" required style="display: none;">
-          <label for="pdfpicker-url">URL :
-          <input type="text" id="pdfpicker-url" />
-          </label>
-        </div>
-
-        <div class="selection-boxes" style="display: none;">
-          <input type="checkbox" id="tables-and-figures" name="tables-and-figures">
-          <label for="tables-and-figures"> Tables and Figures</label>
-          <input type="checkbox" id="show-doc" name="original-document">
-          <label for="show-doc"> Show Original Document</label>
-          <input type="range" min="1" max="100" value="50" class="slider" id="pages-to-summarise">
-          <label for="pages-to-summarise" id="pts-lbl"> Pages to Sumarise </label>
-          <input type="checkbox" id="meta-data" name="meta-data" checked>
-          <label for="meta-data"> Meta Data</label>
-          <input type="range" min="0" max="100" value="50" step="10" class="slider" id="size-of-summary">
-          <label for="size-of-summary"> Size of Summary</label>
-        </div>
-
-        <input type="submit" name="submit-upload" value="Upload"/>
-        <!-- Button below for implementing URL -->
-        <!-- <button type="button" onclick = "isValidHttpUrl()">Upload</button> -->
-      </form>
+          <input required type="file" name="file" id="pdfpicker-file" accept=".pdf" style="display: none;" /> </div>
     </div>
-  </body>
+    <div class="tab-contents url-form" required style="display: none;">
+      <label for="pdfpicker-url">URL :
+        <input type="text" id="pdfpicker-url" />
+      </label>
+    </div>
+
+    <div class="tab-contents" id="selection-boxes" style="display: none;">
+      <input type="range" min="1" max="100" value="50" class="slider" id="pages-to-summarise">
+      <label for="pages-to-summarise" id="pts-lbl"> Pages to Sumarise </label>
+    </div>
+    <div class="buttons">
+      <input class="tab-contents upload-form" type="submit" name="submit-upload" value="Upload" />
+      <!-- Button below for implementing URL -->
+      <input class="tab-contents url-form" type="submit" name="" value="Upload URL" onclick="validateURL()" style="display: none;"/>
+    </div>
+      </form>
+
+
+
+      <div class="tab-contents output-display">
+        <div id="output-main">
+          <div id="pdf-renderer">
+            <h2>PDF RENDERER</h2>
+          </div>
+          <div id="summary-info" class="summary-boxes">
+            <div class="output-boxes" id="title-output">
+              <h2>TITLE</h2>
+              <div id="title-return-display" class="output-box-info" style="display: none;">
+                <p></p>
+              </div>
+            </div>
+            <div class="output-boxes" id="metadata-output">
+              <h2>METADATA</h2>
+              <div id="metadata-return-display" class="output-box-info" style="display: none;">
+                <p></p>
+              </div>
+            </div>
+            <div class="output-boxes" id="references-output">
+              <h2>TABLE OF CONTENTS</h2>
+              <div id="references-return-display" class="output-box-info" style="display: none;">
+
+              </div>
+            </div>
+            <div class="output-boxes" id="summary-output">
+              <h2>SUMMARY</h2>
+              <div id="summary-return-display" class="output-box-info" style="display: none;">
+
+              </div>
+            </div>
+            <div class="output-boxes" id="common-words-output">
+              <h2>TOP 10 WORDS</h2>
+              <div id="common-words-return-display" class="output-box-info" style="display: none;">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      <label id="output-show-document-label" for="output-show-document">Show PDF Document?
+        <input type="checkbox" name="output-show-document" id="output-show-document" checked
+          onchange="togglePDFDisplay();">
+      </label>
+      <label for="tables-and-figures"> Tables and Figures</label>
+      <input type="checkbox" id="tables-and-figures" name="tables-and-figures">
+      <label for="size-of-summary" id="sos-lbl"> Size of Summary: 100%</label>
+      <input type="range" min="0" max="100" value="100" step="10" class="slider" id="size-of-summary">
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="js/index.js"></script>
 
 </html>
