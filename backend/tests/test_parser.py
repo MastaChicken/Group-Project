@@ -4,7 +4,6 @@ Todo:
     * Add tests for future methods
 """
 from datetime import datetime
-from typing import Any
 
 import fitz
 from app.parser import Parser
@@ -26,7 +25,7 @@ class TestParser:
 class TestParserTitle(TestParser):
     """Unit tests for parser title."""
 
-    def test_text_title(self) -> Any:
+    def test_text_title(self):
         """Should extract the title from the text itself."""
         page = TestParser.empty_new_page()
         pdf_title = "PDF Title"
@@ -45,7 +44,7 @@ class TestParserTitle(TestParser):
 
         assert extracted_title == pdf_title
 
-    def test_metadata_title(self) -> Any:
+    def test_metadata_title(self):
         """Should fallback to the metadata title.
 
         This occurs when the largest font isn't the title
@@ -73,7 +72,7 @@ class TestParserTitle(TestParser):
 
         assert extracted_title == pdf_title
 
-    def test_metadata_empty_page(self) -> Any:
+    def test_metadata_empty_page(self):
         """Should get the metdata title.
 
         Page is empty, but metadata title still exists
@@ -88,7 +87,7 @@ class TestParserTitle(TestParser):
 
         assert extracted_title == pdf_title
 
-    def test_empty_first_page(self) -> Any:
+    def test_empty_first_page(self):
         """Should return an empty string.
 
         No metadata title or text on first page
@@ -113,7 +112,7 @@ class TestParserMetadata(TestParser):
 
     TestParser.empty_new_page()
 
-    def test_title(self) -> Any:
+    def test_title(self):
         pdf_title = "Test PDF"
         self.pdf.set_metadata({"title": pdf_title})
         with Parser(self.pdf.tobytes()) as doc:
@@ -121,7 +120,7 @@ class TestParserMetadata(TestParser):
 
         assert title == pdf_title
 
-    def test_pdf_authors(self) -> Any:
+    def test_pdf_authors(self):
         pdf_author = "Wil"
         self.pdf.set_metadata({"author": pdf_author})
         with Parser(self.pdf.tobytes()) as doc:
@@ -129,7 +128,7 @@ class TestParserMetadata(TestParser):
 
         assert author == pdf_author
 
-    def test_pdf_timestamp(self) -> Any:
+    def test_pdf_timestamp(self):
         pdf_time = fitz.get_pdf_now()
         now_time = float(int(datetime.timestamp(datetime.now())))
         self.pdf.set_metadata({"creationDate": pdf_time})
