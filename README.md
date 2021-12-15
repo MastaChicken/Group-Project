@@ -31,7 +31,7 @@ This is the easiest method of running the server
 $ docker-compose up
 ```
 
-This will run the server in production mode
+This will run the server in production mode using `gunicorn`
 
 ### Source
 
