@@ -21,21 +21,6 @@ from functools import cached_property
 from statistics import StatisticsError, fmean
 
 import fitz
-from pydantic.main import BaseModel
-
-
-class ParserModel(BaseModel):
-    """Object used as a response model.
-
-    Models public properties in Parser
-
-    Todo:
-        * Add new properties to model
-    """
-
-    metadata: dict
-    text: list[dict]
-    toc: list
 
 
 class Parser:
@@ -98,7 +83,7 @@ class Parser:
             raise ValueError("creationDate is empty")
 
     @cached_property
-    def metadata(self) -> dict:
+    def metadata(self) -> dict[str, str]:
         """Document metadata.
 
         Returns:
