@@ -3,9 +3,10 @@
 Todo:
     * added more test cases for all
 """
+from fastapi.testclient import TestClient
+
 from app.api.models import UploadResponse
 from app.main import app
-from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

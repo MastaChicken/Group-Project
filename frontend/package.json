@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
-    "doc": "jsdoc -d docs js/index.js"
+    "doc": "jsdoc -d docs js/index.js",
+    "lint": "eslint js",
+    "format_lint": "prettier --check js"
   },
   "author": "",
   "license": "UNLICENSED",

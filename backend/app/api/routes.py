@@ -6,11 +6,12 @@ Todo:
 """
 
 import requests
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from spacy import load
+
 from app.api.models import UploadResponse
 from app.nlp.techniques import Techniques
 from app.parser import Parser
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
-from spacy import load
 
 router = APIRouter()
 

@@ -76,7 +76,12 @@ class Parser:
 
         """
         try:
-            dt: datetime = datetime.strptime(date.replace("'", ""), "D:%Y%m%d%H%M%S%z")
+            # Sanitize for strptime
+            if "'" not in date:
+                date += "+0000"
+            else:
+                date = date.replace("'", "")
+            dt: datetime = datetime.strptime(date, "D:%Y%m%d%H%M%S%z")
             utc_dt = dt.replace(tzinfo=timezone.utc)
             return utc_dt.timestamp()
         except ValueError:
@@ -215,5 +220,5 @@ if __name__ == "__main__":
             Parser(pdf.read()) as test,
         ):
             print(
-                f"{file}:\n  parsed:{test.title}\n  metatdata:{test.metadata['title']}\n"
+                f"{file}:\n  parsed:{test.title}\n  metadata:{test.metadata['title']}\n"
             )

@@ -13,16 +13,19 @@ authors = [
 include = ["debug_server.py", "README.md"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-PyMuPDF = "^1.19.2"
-fastapi = "^0.70.0"
+python = ">=3.10,<3.11"
+PyMuPDF = "^1.19.3"
+fastapi = "^0.70.1"
+numpy = "^1.21.5"
 pydantic = "^1.8.2"
 uvicorn = {extras = ["standard"], version = "^0.16.0"}
 requests = "^2.26.0"
 python-multipart = "^0.0.5"
-spacy = "^3.2.0"
+spacy = "^3.2.1"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz"}
 gunicorn = "^20.1.0"
+isort = {extras = ["colors"], version = "^5.10.1"}
+black = "^21.12b0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"
@@ -37,10 +40,20 @@ flake8-blind-except = "^0.2.0"
 flake8-builtins = "^1.5.3"
 flake8-black = "^0.2.3"
 Sphinx = "^4.3.1"
+colorama = "^0.4.4"
+
+[tool.isort]
+profile = "black"
+extend_skip = ["docs"]
 
 [tool.pydocstyle]
 convention = "google"
 match = "(?!__init).*\\.py"
+match-dir = "^(?!(.venv|docs)).*"
+
+[tool.black]
+target-version = ["py310"]
+extend-exclude = "docs"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

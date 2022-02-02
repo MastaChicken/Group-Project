@@ -6,7 +6,7 @@ let count = 0;
  * Checks if file is valid .pdf
  *
  * @param {*} file - file input. Type and Name are two parts of the pdf file.
- * @returns {Boolean}
+ * @returns {boolean} if PDF is valid
  */
 function isValidPDF({ type, name }) {
   if (type === "application/pdf") {
@@ -24,7 +24,7 @@ function isValidPDF({ type, name }) {
 }
 
 /**
- * Takes the the page count and runs checks to see whether the pages-to-summarise slider should be
+ * Takes the page count and runs checks to see whether the pages-to-summarise slider should be
  * displayed or not. If page count is equal to 1 then it is not shown as there is no range of pages
  * to be summarised. Else if it is over 1 then it shows the slider and updates the sliders attributes
  * to match the Page count. Finally it updates the label to reflect this.
@@ -35,28 +35,28 @@ function displaySlider(c) {
   const ptsSlider = $("pages-to-summarise");
   count = c;
   if (count == 1) {
-      $("selection-boxes").style.display = "none";
-    } else if (count > 1) {
-      $("selection-boxes").style.display = "block";
-      ptsSlider.max = count;
-      ptsSlider.value = count;
-      // Then it changes the text for pages to summarise to update with the current value
-      // and the max i.e
-      $(
-        "pts-lbl"
-      ).innerHTML = `Pages to Summarise: ${ptsSlider.value} / ${count}`;
-      }
+    $("selection-boxes").style.display = "none";
+  } else if (count > 1) {
+    $("selection-boxes").style.display = "block";
+    ptsSlider.max = count;
+    ptsSlider.value = count;
+    // Then it changes the text for pages to summarise to update with the current value
+    // and the max i.e
+    $(
+      "pts-lbl"
+    ).innerHTML = `Pages to Summarise: ${ptsSlider.value} / ${count}`;
+  }
 }
 
 /**
  * Creates a reader and reads the PDF document. When the file has been read it tries to set count
- * as result match on Regex for /Type/Page[x]. If this is successful it calls displaySlider(), else
+ * as result match on regex for /Type/Page[x]. If this is successful it calls displaySlider(), else
  * it catches the error, hides the slider and sets count to 0.
  *
- * This is inconsistant so far, as PDFs can be hidden behind multiple layers of obscurification /
+ * This is inconsistent so far, as PDFs can be hidden behind multiple layers of obfuscation /
  * compression which affects the documents readability.
  *
- * @param {*} file - The PDF document stores in file input pdfpicker.
+ * @param {*} file - The PDF document stored in file input pdfpicker.
  */
 function setPagesToSummarise(file) {
   // reads file and function triggers when reader has completed reading.
@@ -66,10 +66,9 @@ function setPagesToSummarise(file) {
     // let count = number of pages. sets the pages to summarise slider attribute max
     // to the number of pages.
     try {
-    let count = reader.result.match(/\/Type[\s]*\/Page[^s]/g).length;
-    displaySlider(count);
-    }
-    catch(e) {
+      let count = reader.result.match(/\/Type[\s]*\/Page[^s]/g).length;
+      displaySlider(count);
+    } catch (e) {
       $("selection-boxes").style.display = "none";
       count = 0;
     }
@@ -80,7 +79,7 @@ function setPagesToSummarise(file) {
  * Adds event listeners for the pdfpicker file input, the pages to summarise slider, size of summary slider.
  *
  * The Event Listener for pdfpicker waits for change in the pdfpicker-file. Once detected this then checks
- * the files in input files for being over zero and and calls isValidPDF(). If true, then calls
+ * the files in input files for being over zero and calls isValidPDF(). If true, then calls
  * setPagesToSymmarise() and changes text in Drag and Drop box.
  *
  * Event for pages-to-summarise slider detects user changing value and updates label accordingly.
@@ -98,14 +97,12 @@ window.onload = function listenForFileUpload() {
       if (files.length > 0 && isValidPDF(files[0])) {
         setPagesToSummarise(files[0]);
         dropText.innerHTML = `File accepted: ${files[0].name}`;
-        $("selection-boxes").style.display =
-          "block";
+        $("selection-boxes").style.display = "block";
       } else {
         // throws alert for wrong file type
         $("pdfpicker-file").value = "";
         dropText.innerHTML = "File Rejected: Please add .pdf file type";
-        $("selection-boxes").style.display =
-          "none";
+        $("selection-boxes").style.display = "none";
       }
     },
     false
@@ -130,11 +127,11 @@ window.onload = function listenForFileUpload() {
     },
     true
   );
-}
+};
 
 /**
  * Function to monitor when files are dragged over the drag over box.
- * Important to remove browsers default functionality i.e chrome wants to copy the pdf file into browser and render.
+ * Important to remove browsers default functionality, i.e chrome wants to copy the pdf file into browser and render.
  *
  * @param {*} ev - dragOverHandler event.
  */
@@ -170,15 +167,13 @@ function dropHandler(ev) {
         dropText.innerHTML = `File accepted: ${file.name}`;
         $("pdfpicker-file").files = ev.dataTransfer.files;
         clearData(ev.dataTransfer);
-        $("selection-boxes").style.display =
-          "block";
+        $("selection-boxes").style.display = "block";
       } else {
         // If not a valid .pdf Add reject messsage and clear data from file input and event data.
         dropText.innerHTML = "File Rejected: Please add .pdf file type";
         $("pdfpicker-file").value = "";
         clearData(ev.dataTransfer);
-        $("selection-boxes").style.display =
-          "none";
+        $("selection-boxes").style.display = "none";
       }
     }
   }
@@ -214,16 +209,17 @@ function openTab(tabName, className) {
     ({ style }) => (style.display = "none")); */
 
   /* For Each element of tab-contents(i.e Upload / URL divs) set display = none */
-  tabs = document.getElementsByClassName(className);
+  var i;
+  var tabs = document.getElementsByClassName(className);
   for (i = 0; i < tabs.length; i++) {
     tabs[i].style.display = "none";
   }
 
   /* Set selected element to be displayed */
-  show = document.getElementsByClassName(tabName);
+  var show = document.getElementsByClassName(tabName);
   for (i = 0; i < show.length; i++) {
     show[i].style.display = "block";
-    if(tabName == "upload-form" && count > 1) {
+    if (tabName == "upload-form" && count > 1) {
       displaySlider(count);
     }
   }
@@ -262,7 +258,7 @@ async function validateURL() {
 
   console.log(code);
 
-  return code == 200
+  return code == 200;
 }
 
 /**
@@ -279,7 +275,7 @@ async function uploadPDF(e) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data) => {
-      $("title-return-display").textContent = data.title
+      $("title-return-display").textContent = data.title;
       $("metadata-return-display").innerHTML = "";
       Object.entries(data.metadata).forEach(([k, v]) => {
         $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
@@ -289,7 +285,9 @@ async function uploadPDF(e) {
       $("common-words-return-display").textContent = data.common_words;
       $("common-words-return-display").innerHTML = "";
       Object.entries(data.common_words).forEach(([k, v]) => {
-        $("common-words-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
+        $(
+          "common-words-return-display"
+        ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
     })
     .catch((e) => {
@@ -323,4 +321,3 @@ function togglePDFDisplay() {
   $("output-main").style.gridTemplateColumns =
     $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
 }
-
