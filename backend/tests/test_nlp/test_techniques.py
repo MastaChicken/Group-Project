@@ -1,13 +1,19 @@
 """Unit tests for the properties and methods in Techniques."""
-from app.nlp.techniques import Techniques
 from pytest import raises
 from spacy import load
 
+from app.nlp.techniques import Techniques
+
 
 class TestTechniques:
-    """Unit tests for Technique methods."""
+    """Unit tests for Technique methods.
+
+    Todo:
+        * Fix empty string test
+    """
 
     empty_string = ""
+    # Lorem ipsum in English
     test_string = """
     But I must explain to you how all this mistaken idea of denouncing
     of a pleasure and praising pain was born and I will give you a complete account of
@@ -38,6 +44,11 @@ class TestTechniques:
     model = load("en_core_web_sm")
 
     def test_word_frequency(self):
+        """Returns top nouns.
+
+        Behaviour might changed when lemmatisation is used
+        Words like `pleasures` will be ignored/merged
+        """
         doc = Techniques(self.model, self.test_string)
         words = doc.top_common_n_words(5)
         assert words == [
@@ -49,5 +60,9 @@ class TestTechniques:
         ]
 
     def test_empty_string(self):
+        """Should fail for now.
+
+        Not sure if this raise a RuntimeError by default
+        """
         with raises(RuntimeError):
             Techniques(self.model, self.empty_string)

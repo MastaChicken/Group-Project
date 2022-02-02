@@ -1,5 +1,4 @@
 // playwright.config.js
-// @ts-check
 import { devices } from "@playwright/test";
 
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
