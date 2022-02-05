@@ -118,8 +118,20 @@ class Parser:
 
         """
         text: list[dict] = []
+        flags = (
+            fitz.TEXT_PRESERVE_WHITESPACE
+            | fitz.TEXT_PRESERVE_IMAGES
+            | fitz.TEXT_MEDIABOX_CLIP
+            | fitz.TEXT_DEHYPHENATE
+        )
         for page in self.__doc:
-            text.append(page.get_text("dict", sort=False))
+            text.append(
+                page.get_text(
+                    "dict",
+                    sort=False,
+                    flags=flags,
+                )
+            )
 
         return text
 
@@ -131,13 +143,61 @@ class Parser:
             Outline level, title, page number and link destination
 
         """
-        return self.__doc.get_toc()
+        return self.__doc.get_toc(simple=False)
+
+    @cached_property
+    def sections(self):
+        # TODO: what about tables? :(
+        # TODO: consider missing toc
+        tocs = [x[1] for x in self.toc]
+
+        current_heading = ""
+        origin_pos = None
+        origin_page = 0
+        last_font = ""
+        naughty_fonts = ["AdvTT5235d5a9+fb"]
+        s = {}
+        for key, value in self.spans.items():
+            try:
+                # TODO: this might be filtering important data like tables
+                avg_font_size = fmean([span["size"] for span in value])
+            except StatisticsError:
+                avg_font_size = 0.0
+            for span in value:
+                if span["text"] in tocs:
+                    origin_pos = span["origin"]
+                    origin_page = key + 1
+                    current_heading = span["text"]
+                if (
+                    current_heading != ""
+                    and span["size"] >= avg_font_size
+                    and origin_pos
+                    and (origin_pos[1] < span["origin"][1] or origin_page < key + 1)
+                ):
+                    text = span["text"]
+                    if current_heading not in s:
+                        s[current_heading] = text
+                    else:
+                        old_last_char = s[current_heading][-1]
+                        if span["font"] in naughty_fonts or last_font in naughty_fonts:
+                            text = text.strip()
+                        elif old_last_char.isalpha() and text[0].isalpha():
+                            text = " " + text
+                        s[current_heading] += text
+
+                    last_font = span["font"]
+
+        # Print out the dict
+        for k, v in s.items():
+            print("\033[1m" + k + "\033[0m")
+            print(v)
+            print("\n")
 
     @cached_property
     def title(self) -> str:
         """Document title.
 
-        Iterates around the first page, concatanating text chunks with large font sizes.
+        Iterates around the first page, concatenating text chunks with large font sizes.
         Ignores text chunks with one words or less.
         If a title is in the PDF metadata, use a similarity ratio to check whether to
         use parsed_title or metadata_title.
@@ -160,8 +220,8 @@ class Parser:
                 # TODO: improve the insertion of whitespace
                 if text_size not in title_chunks:
                     title_chunks[text_size] = str(span["text"])
-                    continue
-                title_chunks[text_size] += " " + str(span["text"])
+                else:
+                    title_chunks[text_size] += " " + str(span["text"])
 
         # Attempt to get title (more than 1 word) with largest font
         parsed_title = ""
@@ -173,6 +233,7 @@ class Parser:
         if title_chunks_max != 0.0:
             parsed_title = title_chunks[title_chunks_max]
 
+        # TODO: Check if the metadata title is more than one word
         metadata_title = self.metadata["title"]
         if not metadata_title or metadata_title == "untitled":
             return " ".join(parsed_title.split())
@@ -213,12 +274,15 @@ if __name__ == "__main__":
     import os
 
     for file in os.listdir("samples"):
-        if not file.endswith(".pdf"):
+        if not file.endswith("25528.pdf"):
             continue
         with (
             open(os.path.join("samples", file), "rb") as pdf,
             Parser(pdf.read()) as test,
         ):
-            print(
-                f"{file}:\n  parsed:{test.title}\n  metadata:{test.metadata['title']}\n"
-            )
+            test.sections
+            # print([print(x[1]) for x in test.toc])
+            # print([print(x[3]) for x in test.toc])
+            # print(
+            #     f"{file}:\n  parsed:{test.title}\n  metadata:{test.metadata['title']}\n"
+            # )
