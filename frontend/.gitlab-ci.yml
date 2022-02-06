@@ -1,5 +1,10 @@
 image: mcr.microsoft.com/playwright:focal
 
+workflow:
+  rules:
+    - changes:
+        - frontend/*
+
 # Cache modules in between jobs
 cache: &package_cache
   key:
