@@ -2,14 +2,16 @@ frontend:
   trigger:
     include: frontend/.gitlab-ci.yml
     strategy: depend
-  only:
-    changes:
+  rules:
+    - changes:
         - frontend/*
+      when: manual
 
 backend:
   trigger:
     include: backend/.gitlab-ci.yml
     strategy: depend
-  only:
-    changes:
+  rules:
+    - changes:
         - backend/*
+      when: manual
