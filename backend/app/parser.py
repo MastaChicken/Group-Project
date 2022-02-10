@@ -154,8 +154,8 @@ class Parser:
         current_heading = ""
         origin_pos = None
         origin_page = 0
-        last_font = ""
-        naughty_fonts = ["AdvTT5235d5a9+fb"]
+        possible_ligatures = {"ff", "fi", "fl", "ffi", "ffl", "ft", "st"}
+        is_ligature = False
         s = {}
         for key, value in self.spans.items():
             try:
@@ -179,13 +179,17 @@ class Parser:
                         s[current_heading] = text
                     else:
                         old_last_char = s[current_heading][-1]
-                        if span["font"] in naughty_fonts or last_font in naughty_fonts:
-                            text = text.strip()
+                        stripped_text = text.strip()
+                        if stripped_text in possible_ligatures:
+                            text = text.rstrip()
+                            is_ligature = True
+                        elif is_ligature:
+                            text = text.lstrip()
+                            s[current_heading] = s[current_heading].rstrip()
+                            is_ligature = False
                         elif old_last_char.isalpha() and text[0].isalpha():
                             text = " " + text
                         s[current_heading] += text
-
-                    last_font = span["font"]
 
         # Print out the dict
         for k, v in s.items():
