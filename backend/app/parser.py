@@ -147,6 +147,7 @@ class Parser:
 
     @cached_property
     def sections(self):
+        # TODO: improve spacing between fullstop, since it can mess-up the sentencizer
         # TODO: what about tables? :(
         # TODO: consider missing toc
         tocs = [x[1] for x in self.toc]
@@ -155,6 +156,7 @@ class Parser:
         origin_pos = None
         origin_page = 0
         possible_ligatures = {"ff", "fi", "fl", "ffi", "ffl", "ft", "st"}
+        sentence_delimitters = {".", "?", "!", ","}
         is_ligature = False
         s = {}
         for key, value in self.spans.items():
@@ -168,7 +170,7 @@ class Parser:
                     origin_pos = span["origin"]
                     origin_page = key + 1
                     current_heading = span["text"]
-                if (
+                elif (
                     current_heading != ""
                     and span["size"] >= avg_font_size
                     and origin_pos
@@ -187,7 +189,9 @@ class Parser:
                             text = text.lstrip()
                             s[current_heading] = s[current_heading].rstrip()
                             is_ligature = False
-                        elif old_last_char.isalpha() and text[0].isalpha():
+                        elif (old_last_char.isalpha() and text[0].isalpha()) or (
+                            old_last_char in sentence_delimitters and text[0].isupper()
+                        ):
                             text = " " + text
                         s[current_heading] += text
 
