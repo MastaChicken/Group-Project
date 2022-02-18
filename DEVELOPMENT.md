@@ -33,8 +33,16 @@ pipeline will check for common errors (static analysis) and formatting. If the
 pipeline fails, you can check the pipeline logs and use that to fix the issue.
 The issue usually should be related to linter errors or formatting errors,
 however, if it fails otherwise, please notify the maintainer. Once the issue is
-fixed locally, amend the commit that caused the pipeline failure. If the changes
-are spread over multiple commits, create a new commit.
+fixed locally, create a new commit and run the pipeline again.
+
+### Pipeline configuration
+
+The CI/CD pipeline is currently set to manually run. A detached pipeline will be
+available after every commit changing files in either the frontend or backend
+folder.
+
+Test coverage reports are available when the pipeline is finished. Upon a
+successful pipeline, the build is available as an artifact for download.
 
 ## Code editor
 
