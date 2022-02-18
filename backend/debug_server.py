@@ -3,6 +3,7 @@
 app object is located in `app/main.py`
 """
 import uvicorn
+
 from app.main import app  # noqa: F401
 
 if __name__ == "__main__":

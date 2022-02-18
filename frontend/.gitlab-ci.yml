@@ -1,0 +1,53 @@
+image: mcr.microsoft.com/playwright:focal
+
+workflow:
+  rules:
+    - changes:
+        - frontend/*
+
+# Cache modules in between jobs
+cache: &package_cache
+  key:
+    files:
+      - frontend/package-lock.json
+      - frontend/.gitlab-ci.yml
+    prefix: npm
+  policy: pull
+  paths:
+    - frontend/.npm/
+  when: always
+
+stages:
+  - prepare
+  - test
+
+before_script:
+  - cd frontend
+  - npm ci --cache .npm --prefer-offline
+
+dependencies:
+  stage: prepare
+  cache:
+    <<: *package_cache
+    policy: pull-push
+  script:
+    - echo Preparing dependencies
+  artifacts:
+    paths:
+      - frontend/.npm/
+    when: on_success
+
+formatting:
+  stage: test
+  script:
+    - npm run format_lint
+
+linting:
+  stage: test
+  script:
+    - npm run lint
+
+e2e:
+  stage: test
+  script:
+    - npm run test

@@ -6,6 +6,7 @@ Todo:
 from datetime import datetime
 
 import fitz
+
 from app.parser import Parser
 
 
@@ -113,6 +114,10 @@ class TestParserMetadata(TestParser):
     TestParser.empty_new_page()
 
     def test_title(self):
+        """Should always pass.
+
+        Title extraction is stored as its own property
+        """
         pdf_title = "Test PDF"
         self.pdf.set_metadata({"title": pdf_title})
         with Parser(self.pdf.tobytes()) as doc:
@@ -121,7 +126,8 @@ class TestParserMetadata(TestParser):
         assert title == pdf_title
 
     def test_pdf_authors(self):
-        pdf_author = "Wil"
+        """Should always pass."""
+        pdf_author = "Lorem"
         self.pdf.set_metadata({"author": pdf_author})
         with Parser(self.pdf.tobytes()) as doc:
             author = doc.metadata["author"]
@@ -129,6 +135,7 @@ class TestParserMetadata(TestParser):
         assert author == pdf_author
 
     def test_pdf_timestamp(self):
+        """Test the parsing of the CreationDate key."""
         pdf_time = fitz.get_pdf_now()
         now_time = float(int(datetime.timestamp(datetime.now())))
         self.pdf.set_metadata({"creationDate": pdf_time})

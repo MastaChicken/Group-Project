@@ -1,0 +1,17 @@
+frontend:
+  trigger:
+    include: frontend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - frontend/*
+      when: manual
+
+backend:
+  trigger:
+    include: backend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - backend/*
+      when: manual
