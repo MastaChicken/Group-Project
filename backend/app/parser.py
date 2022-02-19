@@ -31,9 +31,10 @@ class Parser:
     """
 
     __doc: fitz.Document
+    __preserve_images: bool
 
     # TODO: does string input need to be handled as well?
-    def __init__(self, file: bytes | str):
+    def __init__(self, file: bytes | str, preserve_images: bool = False):
         """Open the document.
 
         Args:
@@ -44,6 +45,7 @@ class Parser:
 
         """
         self.__doc = fitz.open(stream=file, filetype="pdf")
+        self.__preserve_images = preserve_images
         if self.__doc.needs_pass or self.__doc.is_encrypted:
             raise PermissionError("No support for encrypted PDFs")
 
@@ -120,10 +122,12 @@ class Parser:
         text: list[dict] = []
         flags = (
             fitz.TEXT_PRESERVE_WHITESPACE
-            | fitz.TEXT_PRESERVE_IMAGES
             | fitz.TEXT_MEDIABOX_CLIP
             | fitz.TEXT_DEHYPHENATE
         )
+        if self.__preserve_images:
+            flags = flags | fitz.TEXT_PRESERVE_IMAGES
+
         for page in self.__doc:
             text.append(
                 page.get_text(
@@ -143,10 +147,11 @@ class Parser:
             Outline level, title, page number and link destination
 
         """
+
         return self.__doc.get_toc(simple=False)
 
     @cached_property
-    def sections(self):
+    def sections(self) -> dict:
         # TODO: improve spacing between fullstop, since it can mess-up the sentencizer
         # TODO: what about tables? :(
         # TODO: consider missing toc
@@ -159,22 +164,22 @@ class Parser:
         sentence_delimitters = {".", "?", "!", ","}
         is_ligature = False
         s = {}
-        for key, value in self.spans.items():
+        for page_no, spans in self.spans.items():
             try:
                 # TODO: this might be filtering important data like tables
-                avg_font_size = fmean([span["size"] for span in value])
+                avg_font_size = fmean([span["size"] for span in spans])
             except StatisticsError:
                 avg_font_size = 0.0
-            for span in value:
+            for span in spans:
                 if span["text"] in tocs:
                     origin_pos = span["origin"]
-                    origin_page = key + 1
+                    origin_page = page_no + 1
                     current_heading = span["text"]
                 elif (
                     current_heading != ""
                     and span["size"] >= avg_font_size
                     and origin_pos
-                    and (origin_pos[1] < span["origin"][1] or origin_page < key + 1)
+                    and (origin_pos[1] < span["origin"][1] or origin_page < page_no + 1)
                 ):
                     text = span["text"]
                     if current_heading not in s:
@@ -195,11 +200,7 @@ class Parser:
                             text = " " + text
                         s[current_heading] += text
 
-        # Print out the dict
-        for k, v in s.items():
-            print("\033[1m" + k + "\033[0m")
-            print(v)
-            print("\n")
+        return s
 
     @cached_property
     def title(self) -> str:
@@ -269,11 +270,13 @@ class Parser:
         for i, page in enumerate(self.text):
             spans[i] = []
             for block in page["blocks"]:
-                if "lines" not in block:
-                    continue
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        spans[i].append(span)
+                if "lines" in block:
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            spans[i].append(span)
+                elif "image" in block:
+                    print(block)
+                    spans[i].append(block)
 
         return spans
 
@@ -288,7 +291,10 @@ if __name__ == "__main__":
             open(os.path.join("samples", file), "rb") as pdf,
             Parser(pdf.read()) as test,
         ):
-            test.sections
+            for k, v in test.sections.items():
+                print("\033[1m" + k + "\033[0m")
+                print(v)
+                print("\n")
             # print([print(x[1]) for x in test.toc])
             # print([print(x[3]) for x in test.toc])
             # print(
