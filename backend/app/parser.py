@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from functools import cached_property
 from statistics import StatisticsError, fmean
+from urllib import parse
 
 import fitz
 
@@ -32,6 +33,7 @@ class Parser:
 
     __doc: fitz.Document
     __preserve_images: bool
+    __possible_ligatures: set[str] = {"ff", "fi", "fl", "ffi", "ffl", "ft", "st"}
 
     # TODO: does string input need to be handled as well?
     def __init__(self, file: bytes | str, preserve_images: bool = False):
@@ -112,14 +114,14 @@ class Parser:
         return metadata
 
     @cached_property
-    def text(self) -> list[dict]:
-        """Document text.
+    def pages(self) -> dict[int, dict]:
+        """Document pages.
 
         Returns:
-            Text content from entire document
+            Text spans from entire document
 
         """
-        text: list[dict] = []
+        text: dict[int, dict] = {}
         flags = (
             fitz.TEXT_PRESERVE_WHITESPACE
             | fitz.TEXT_MEDIABOX_CLIP
@@ -129,15 +131,29 @@ class Parser:
             flags = flags | fitz.TEXT_PRESERVE_IMAGES
 
         for page in self.__doc:
-            text.append(
-                page.get_text(
-                    "dict",
-                    sort=False,
-                    flags=flags,
-                )
+            text[page.number] = page.get_text(
+                "dict",
+                sort=False,
+                flags=flags,
             )
 
         return text
+
+    @cached_property
+    def bounds(self) -> dict[int, tuple[float, float]]:
+        """Document page bounds.
+
+        Returns:
+            Page bounds within 10% for top and bottom margins
+        """
+        bounds: dict[int, tuple[float, float]] = {}
+
+        for i in range(self.__doc.page_count):
+            rect = self.__doc[i].rect
+            y1 = rect.y1
+            bounds[i] = (y1 * 0.1, y1 * 0.9)
+
+        return bounds
 
     @cached_property
     def toc(self) -> list:
@@ -147,20 +163,48 @@ class Parser:
             Outline level, title, page number and link destination
 
         """
-
         return self.__doc.get_toc(simple=False)
 
     @cached_property
+    def simple_toc(self) -> dict[int, list]:
+        """Document self-correcting ToC."""
+        simple_toc: dict[int, list] = {}
+
+        for i in range(self.__doc.page_count):
+            simple_toc[i] = []
+
+        for toc in self.toc:
+            to = self.__doc[toc[2] - 1].search_for(toc[1])
+            if len(to) == 1:
+                x_center = (to[0].x0 + to[0].x1) / 2
+                y_center = (to[0].y0 + to[0].y1) / 2
+                to = fitz.Point(x_center, y_center)
+            else:
+                to = toc[3]["to"]
+            simple = dict(title=toc[1], to=to)
+            simple_toc[toc[2] - 1].append(simple)
+
+        return simple_toc
+
+    @cached_property
     def sections(self) -> dict:
+        """Document sections per heading.
+
+        Returns:
+            Dictionary of
+        """
         # TODO: improve spacing between fullstop, since it can mess-up the sentencizer
         # TODO: what about tables? :(
         # TODO: consider missing toc
-        tocs = [x[1] for x in self.toc]
+        tocs = [x[1].lower().strip() for x in self.toc]
+        # TODO: split TOC by page
+        # TODO: use ToC element point rather than text to match
+        # TODO: remove incomplete sentences
+        # tocs = [x[1] for x in self.toc]
 
         current_heading = ""
         origin_pos = None
         origin_page = 0
-        possible_ligatures = {"ff", "fi", "fl", "ffi", "ffl", "ft", "st"}
         sentence_delimitters = {".", "?", "!", ","}
         is_ligature = False
         s = {}
@@ -171,7 +215,7 @@ class Parser:
             except StatisticsError:
                 avg_font_size = 0.0
             for span in spans:
-                if span["text"] in tocs:
+                if span["text"].lower().strip() in tocs:
                     origin_pos = span["origin"]
                     origin_page = page_no + 1
                     current_heading = span["text"]
@@ -179,15 +223,19 @@ class Parser:
                     current_heading != ""
                     and span["size"] >= avg_font_size
                     and origin_pos
-                    and (origin_pos[1] < span["origin"][1] or origin_page < page_no + 1)
+                    and (
+                        origin_pos[1] <= span["origin"][1] or origin_page < page_no + 1
+                    )
+                    and (
+                        span["origin"][1] > self.bounds[page_no][0]
+                        and span["origin"][1] < self.bounds[page_no][1]
+                    )
                 ):
                     text = span["text"]
-                    if current_heading not in s:
-                        s[current_heading] = text
-                    else:
+                    stripped_text = text.strip()
+                    if current_heading in s:
                         old_last_char = s[current_heading][-1]
-                        stripped_text = text.strip()
-                        if stripped_text in possible_ligatures:
+                        if stripped_text in self.__possible_ligatures:
                             text = text.rstrip()
                             is_ligature = True
                         elif is_ligature:
@@ -199,6 +247,9 @@ class Parser:
                         ):
                             text = " " + text
                         s[current_heading] += text
+                    else:
+                        if stripped_text:
+                            s[current_heading] = text.lstrip()
 
         return s
 
@@ -261,22 +312,21 @@ class Parser:
 
     @cached_property
     def spans(self) -> dict[int, list]:
-        """Text spans per page.
+        """Spans per page.
 
         Zero-based
         """
         spans: dict[int, list] = {}
 
-        for i, page in enumerate(self.text):
-            spans[i] = []
-            for block in page["blocks"]:
+        for page_no, page_content in self.pages.items():
+            spans[page_no] = []
+            for block in page_content["blocks"]:
                 if "lines" in block:
                     for line in block["lines"]:
                         for span in line["spans"]:
-                            spans[i].append(span)
+                            spans[page_no].append(span)
                 elif "image" in block:
-                    print(block)
-                    spans[i].append(block)
+                    spans[page_no].append(block)
 
         return spans
 
@@ -291,6 +341,10 @@ if __name__ == "__main__":
             open(os.path.join("samples", file), "rb") as pdf,
             Parser(pdf.read()) as test,
         ):
+            # print(test.simple_toc)
+
+            # print(test.spans)
+            # print(test.toc)
             for k, v in test.sections.items():
                 print("\033[1m" + k + "\033[0m")
                 print(v)
