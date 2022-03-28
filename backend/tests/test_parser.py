@@ -136,10 +136,9 @@ class TestParserMetadata(TestParser):
 
     def test_pdf_timestamp(self):
         """Test the parsing of the CreationDate key."""
-        pdf_time = fitz.get_pdf_now()
-        now_time = float(int(datetime.timestamp(datetime.now())))
+        pdf_time: str = fitz.get_pdf_now()
         self.pdf.set_metadata({"creationDate": pdf_time})
         with Parser(self.pdf.tobytes()) as doc:
             c_time = doc.metadata["creationTimestamp"]
 
-        assert c_time == now_time
+        assert Parser.date_to_timestamp(pdf_time) == c_time

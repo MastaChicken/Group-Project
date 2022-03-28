@@ -66,7 +66,8 @@ class Parser:
         """
         self.__doc.close()
 
-    def __date_to_timestamp(self, date: str) -> float:
+    @staticmethod
+    def date_to_timestamp(date: str) -> float:
         """Convert ISO/IEC 8824 date to UNIX timestamp.
 
         Args:
@@ -104,7 +105,7 @@ class Parser:
         metadata["title"] = self.__doc.metadata["title"]
         metadata["author"] = self.__doc.metadata["author"]
         try:
-            metadata["creationTimestamp"] = self.__date_to_timestamp(
+            metadata["creationTimestamp"] = self.date_to_timestamp(
                 self.__doc.metadata["creationDate"]
             )
         except ValueError:
@@ -165,26 +166,26 @@ class Parser:
         """
         return self.__doc.get_toc(simple=False)
 
-    @cached_property
-    def simple_toc(self) -> dict[int, list]:
-        """Document self-correcting ToC."""
-        simple_toc: dict[int, list] = {}
+    # @cached_property
+    # def simple_toc(self) -> dict[int, list]:
+    #     """Document self-correcting ToC."""
+    #     simple_toc: dict[int, list] = {}
 
-        for i in range(self.__doc.page_count):
-            simple_toc[i] = []
+    #     for i in range(self.__doc.page_count):
+    #         simple_toc[i] = []
 
-        for toc in self.toc:
-            to = self.__doc[toc[2] - 1].search_for(toc[1])
-            if len(to) == 1:
-                x_center = (to[0].x0 + to[0].x1) / 2
-                y_center = (to[0].y0 + to[0].y1) / 2
-                to = fitz.Point(x_center, y_center)
-            else:
-                to = toc[3]["to"]
-            simple = dict(title=toc[1], to=to)
-            simple_toc[toc[2] - 1].append(simple)
+    #     for toc in self.toc:
+    #         to = self.__doc[toc[2] - 1].search_for(toc[1])
+    #         if len(to) == 1:
+    #             x_center = (to[0].x0 + to[0].x1) / 2
+    #             y_center = (to[0].y0 + to[0].y1) / 2
+    #             to = fitz.Point(x_center, y_center)
+    #         else:
+    #             to = toc[3]["to"]
+    #         simple = dict(title=toc[1], to=to)
+    #         simple_toc[toc[2] - 1].append(simple)
 
-        return simple_toc
+    #     return simple_toc
 
     @cached_property
     def sections(self) -> dict:
@@ -332,25 +333,19 @@ class Parser:
 
 
 if __name__ == "__main__":
-    import os
+    pass
+    # import os
 
-    for file in os.listdir("samples"):
-        if not file.endswith("25528.pdf"):
-            continue
-        with (
-            open(os.path.join("samples", file), "rb") as pdf,
-            Parser(pdf.read()) as test,
-        ):
-            # print(test.simple_toc)
-
-            # print(test.spans)
-            # print(test.toc)
-            for k, v in test.sections.items():
-                print("\033[1m" + k + "\033[0m")
-                print(v)
-                print("\n")
-            # print([print(x[1]) for x in test.toc])
-            # print([print(x[3]) for x in test.toc])
-            # print(
-            #     f"{file}:\n  parsed:{test.title}\n  metadata:{test.metadata['title']}\n"
-            # )
+    # for file in os.listdir("samples"):
+    #     if not file.endswith("25528.pdf"):
+    #         continue
+    #     with (
+    #         open(os.path.join("samples", file), "rb") as pdf,
+    #         Parser(pdf.read()) as test,
+    #     ):
+    #         print(test.spans)
+    #         print(test.toc)
+    #         for k, v in test.sections.items():
+    #             print("\033[1m" + k + "\033[0m")
+    #             print(v)
+    #             print("\n")
