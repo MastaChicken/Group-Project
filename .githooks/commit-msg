@@ -57,6 +57,7 @@ whitelist = [
     "describe",
     "detect",
     "determine",
+    "disable",
     "display",
     "download",
     "drop",
@@ -72,6 +73,7 @@ whitelist = [
     "establish",
     "evaluate",
     "examine",
+    "exclude",
     "execute",
     "exit",
     "expand",
@@ -298,9 +300,6 @@ def lint_commit_message(argv: Optional[Sequence[str]] = None) -> int:
             print_error("Wrap the body at 72 characters")
             errors += 1
             break
-
-    if errors:
-        print_error(f"{errors}/6 errors need to be resolved")
 
     return errors
 
