@@ -5,7 +5,7 @@ Todo:
     * add more endpoints
 """
 
-import requests
+import httpx
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from spacy import load
 
@@ -59,7 +59,7 @@ async def recieve_file(file: UploadFile = File(...)):
 
 
 @router.get("/validate_url/")
-def validate_pdf_url(url: str):
+async def validate_pdf_url(url: str):
     """Check to see if URL of a PDF is valid.
 
     Args:
@@ -70,7 +70,9 @@ def validate_pdf_url(url: str):
         HTTPException: URL of a PDF is invalid
     """
     try:
-        res = requests.head(url)
+        async with httpx.AsyncClient() as client:
+            res = await client.head(url)
+
         if res.status_code != 200:
             raise HTTPException(
                 status_code=res.status_code, detail="Request unsuccessful"
@@ -81,8 +83,8 @@ def validate_pdf_url(url: str):
                 detail="File has unsupported extension type",
             )
         return {"detail": "PDF URL is valid"}
-    except requests.exceptions.RequestException:
+    except httpx.RequestError as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Parameter has an invalid format",
+            detail=f"An error occurred while requesting {exc.request.url!r}.",
         )

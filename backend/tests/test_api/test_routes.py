@@ -48,13 +48,11 @@ class TestValidateURL:
             "/validate_url/", params={"url": "https://www.orimi.com/pdf-test.pdf"}
         )
         assert response.status_code == 200
-        assert response.json()["detail"] == "PDF URL is valid"
 
     def test_invalid_url(self):
         """Request should return 500 and invalid json response."""
         response = client.get("/validate_url/", params={"url": "invalidlink"})
         assert response.status_code == 500
-        assert response.json()["detail"] == "Parameter has an invalid format"
 
     def test_invalid_request(self):
         """Request shouldn't return 200 status code and unsuccessful json."""
@@ -63,10 +61,8 @@ class TestValidateURL:
             params={"url": "https://www.businessinsider.com/techreference"},
         )
         assert response.status_code != 200
-        assert response.json()["detail"] == "Request unsuccessful"
 
     def test_invalid_pdf(self):
         """Request should return 415 and unsupported json."""
         response = client.get("/validate_url/", params={"url": "http://www.google.com"})
         assert response.status_code == 415
-        assert response.json()["detail"] == "File has unsupported extension type"
