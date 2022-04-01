@@ -3,8 +3,8 @@
 
 from typing import BinaryIO
 
-from app.grobid.file import File
-from app.grobid.form import Form
+from app.grobid.models.file import File
+from app.grobid.models.form import Form
 
 
 class TestFile:
