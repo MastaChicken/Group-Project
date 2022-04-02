@@ -6,10 +6,13 @@ const API = "http://localhost:8000";
 /**
  * Checks if file is valid .pdf
  *
- * @param {*} file - file input. Type and Name are two parts of the pdf file.
+ * @param {*} file - file input. type, name and size are properties of the file.
  * @returns {boolean} if PDF is valid
  */
-function isValidPDF({ type, name }) {
+function isValidPDF({ type, name, size }) {
+  if (size === 0) {
+    return false;
+  }
   if (type === "application/pdf") {
     return true;
   }
@@ -21,6 +24,7 @@ function isValidPDF({ type, name }) {
       fileName.substr(lastDotIndex).toUpperCase() !== "PDF"
     );
   }
+
   return false;
 }
 
@@ -45,6 +49,7 @@ window.onload = () => {
       let files = $("pdfpicker-file").files;
       let dropText = $("drop-text");
       // checks file exists and passes PDF checks.
+
       if (files.length > 0 && isValidPDF(files[0])) {
         dropText.innerHTML = `File accepted: ${files[0].name}`;
         $("selection-boxes").style.display = "block";
