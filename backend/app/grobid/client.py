@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from spacy import load
 from app.grobid.models.file import File
 from app.grobid.models.form import Form
 from app.grobid.models.article import Article
@@ -72,16 +73,17 @@ class Client:
 
 
 if __name__ == "__main__":
-    pdf_file = Path("study/ian-knight.pdf")
-    with open(pdf_file, "rb") as file:
-        form = Form(
-            file=File(
-                payload=file, file_name=pdf_file.name, mime_type="application/pdf"
-            )
-        )
-        c = Client(api_url="http://localhost:8070/api", form=form)
-        t = TEI(c.sync_request().content)
-        print(Article(title=t.title, doi=t.doi))
-    # with open("study/ian-knight.xml", "rb") as f:
-    #     t = TEI(f.read())
-    #     print(Article(title=t.title, doi=t.doi))
+    # pdf_file = Path("study/Simon_Langley-evans.pdf")
+    # with open(pdf_file, "rb") as file:
+    #     form = Form(
+    #         file=File(
+    #             payload=file, file_name=pdf_file.name, mime_type="application/pdf"
+    #         )
+    #     )
+    #     c = Client(api_url="http://localhost:8070/api", form=form)
+    #     t = TEI(c.sync_request().content)
+    #     print(Article(title=t.title, doi=t.doi, keywords=t.keywords))
+    with open("study/Simon_Langley-evans.xml", "rb") as f:
+        t = TEI(f.read(), load("en_core_web_sm"))
+        t.authors
+        print(Article(title=t.title, doi=t.doi, keywords=t.keywords))

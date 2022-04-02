@@ -3,6 +3,7 @@
 Todo:
     * Add model for /validate_url
 """
+from app.grobid.models.article import Article
 from pydantic import BaseModel
 
 
@@ -20,3 +21,7 @@ class UploadResponse(BaseModel):
     toc: list
     summary: list[str]
     common_words: list[tuple[str, int]]
+
+
+class UploadReponseNew(Article):
+    pass
