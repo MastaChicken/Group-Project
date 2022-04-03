@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 from spacy import load
+from app.grobid.models.citation import Citation
 from app.grobid.models.file import File
 from app.grobid.models.form import Form
 from app.grobid.models.article import Article
@@ -85,5 +86,7 @@ if __name__ == "__main__":
     #     print(Article(title=t.title, doi=t.doi, keywords=t.keywords))
     with open("study/Simon_Langley-evans.xml", "rb") as f:
         t = TEI(f.read(), load("en_core_web_sm"))
-        t.authors
-        print(Article(title=t.title, doi=t.doi, keywords=t.keywords))
+        a = t.parse()
+
+        for k, v in a.citations.items():
+            print(k, v.date)

@@ -1,5 +1,6 @@
 # noqa: D100
 from typing import BinaryIO, TextIO
+
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass
 

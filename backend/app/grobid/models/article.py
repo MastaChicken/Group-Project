@@ -1,10 +1,12 @@
-from pydantic import BaseModel
+# TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
+from dataclasses import dataclass
+
+from app.grobid.models.citation import Citation
 
 
-class Article(BaseModel):
-    title: str
-    doi: str
-    keywords: list[str]
-    # bibliography
+@dataclass
+class Article:
+    bibliography: Citation
+    keywords: set[str]
+    citations: dict[str, Citation]
     # sections
-    # citations
