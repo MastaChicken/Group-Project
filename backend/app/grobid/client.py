@@ -89,4 +89,4 @@ if __name__ == "__main__":
         a = t.parse()
 
         for k, v in a.citations.items():
-            print(k, v.date)
+            print(k, v.scope)

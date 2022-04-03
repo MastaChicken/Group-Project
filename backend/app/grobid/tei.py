@@ -11,6 +11,8 @@ from dateutil.parser import ParserError
 from dateutil.parser import parse as date_parse
 from spacy.language import Language
 
+from app.grobid.models.scope import Scope
+
 
 # TODO: use DOI from PyMuPDF to cache XML
 class TEI:
@@ -52,46 +54,53 @@ class TEI:
         citation = Citation(title=self.title(source_tag))
         citation.authors = self.authors(source_tag)
         citation.doi = self.doi(source_tag)
-        citation.date = self.published(source_tag.date)
+        citation.date = self.date(source_tag.date)
         citation.ptr = self.ptr(source_tag)
+        citation.publisher = self.publisher(source_tag)
+        citation.scope = self.scope(source_tag)
 
         return citation
 
-    def title(self, source_tag: Tag) -> str:
+    def title(self, source_tag: Tag | None) -> str:
         title: str = ""
-        if (title_tag := source_tag.title) is not None:
-            title = title_tag.text
+        if source_tag is not None:
+            if (title_tag := source_tag.title) is not None:
+                title = title_tag.text
 
         return title
 
-    def ptr(self, source_tag: Tag) -> str | None:
+    def ptr(self, source_tag: Tag | None) -> str | None:
         # TODO: validate URL
-        if (ptr_tag := source_tag.ptr) is not None:
-            if "target" in ptr_tag.attrs:
-                return ptr_tag.attrs["target"]
+        if source_tag is not None:
+            if (ptr_tag := source_tag.ptr) is not None:
+                if "target" in ptr_tag.attrs:
+                    return ptr_tag.attrs["target"]
 
-    def doi(self, source_tag: Tag) -> str:
-        doi: str = ""
+    def doi(self, source_tag: Tag | None) -> str | None:
         if source_tag is not None:
             doi_tag = source_tag.find("idno", {"type": "DOI"})
             if doi_tag is not None:
-                doi = doi_tag.text
+                return doi_tag.text
 
-        return doi
-
-    def keywords(self, source_tag) -> set[str]:
+    def keywords(self, source_tag: Tag | None) -> set[str]:
         keywords: set[str] = set()
 
         if source_tag is not None:
-            for term in source_tag.find_all("term"):
+            for term_tag in source_tag.find_all("term"):
 
-                doc = self.__model(term.text)
+                doc = self.__model(term_tag.text)
                 for keyword in doc.noun_chunks:
                     keywords.add(self.clean_string(keyword.text))
 
         return keywords
 
-    def published(self, source_tag) -> datetime | None:
+    def publisher(self, source_tag : Tag | None) -> str | None:
+        if source_tag is not None:
+            if (publisher_tag := source_tag.find("publisher")) is not None:
+                return publisher_tag.text
+
+
+    def date(self, source_tag) -> datetime | None:
         published: datetime | None = None
         if source_tag is not None and "when" in source_tag.attrs:
             try:
@@ -101,7 +110,36 @@ class TEI:
 
         return published
 
-    def authors(self, source_tag: Tag) -> list[Author]:
+    def scope(self, source_tag: Tag | None) -> Scope | None:
+        if source_tag is not None:
+            scope = Scope()
+            for scope_tag in source_tag.find_all("biblscope"):
+                match scope_tag.attrs["unit"]:
+                    case "page":
+                        try:
+                            if "from" in scope_tag.attrs and "to" in scope_tag.attrs:
+                                from_page = int(scope_tag["from"])
+                                to_page = int(scope_tag["to"])
+                            else:
+                                from_page = int(scope_tag.text)
+                                to_page = from_page
+
+                            scope.pages = (from_page, to_page)
+                        except ValueError:
+                            pass
+                    case "volume":
+                        try:
+                            volume = int(scope_tag.text)
+                            scope.volume = volume
+                        except ValueError:
+                            pass
+
+
+            return scope
+
+
+
+    def authors(self, source_tag: Tag | None) -> list[Author]:
         authors: list[Author] = []
         if source_tag is not None:
             for author in source_tag.find_all("author"):
@@ -138,7 +176,7 @@ class TEI:
         return authors
 
     @staticmethod
-    def clean_string(s: str):
+    def clean_string(s: str) -> str:
         if s == "":
             return s
 
