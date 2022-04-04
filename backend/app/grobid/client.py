@@ -1,6 +1,7 @@
 # noqa: D100
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass
+import dataclasses
 from pathlib import Path
 from typing import Any
 
@@ -74,19 +75,18 @@ class Client:
 
 
 if __name__ == "__main__":
-    # pdf_file = Path("study/Simon_Langley-evans.pdf")
-    # with open(pdf_file, "rb") as file:
-    #     form = Form(
-    #         file=File(
-    #             payload=file, file_name=pdf_file.name, mime_type="application/pdf"
-    #         )
-    #     )
-    #     c = Client(api_url="http://localhost:8070/api", form=form)
-    #     t = TEI(c.sync_request().content)
-    #     print(Article(title=t.title, doi=t.doi, keywords=t.keywords))
-    with open("study/Simon_Langley-evans.xml", "rb") as f:
-        t = TEI(f.read(), load("en_core_web_sm"))
+    pdf_file = Path("study/Simon_Langley-evans.pdf")
+    with open(pdf_file, "rb") as file:
+        form = Form(
+            file=File(
+                payload=file, file_name=pdf_file.name, mime_type="application/pdf"
+            )
+        )
+        c = Client(api_url="http://localhost:8070/api", form=form)
+        t = TEI(c.sync_request().content, load("en_core_web_sm"))
         a = t.parse()
+    # with open("study/Simon_Langley-evans.xml", "rb") as f:
+    #     t = TEI(f.read(), load("en_core_web_sm"))
+    #     a = t.parse()
 
-        for k, v in a.citations.items():
-            print(k, v.scope)
+    #     print(a)

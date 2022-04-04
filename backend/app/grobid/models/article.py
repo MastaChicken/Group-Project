@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 
 from app.grobid.models.citation import Citation
+from app.grobid.models.section import Section
 
 
 @dataclass
@@ -9,4 +10,4 @@ class Article:
     bibliography: Citation
     keywords: set[str]
     citations: dict[str, Citation]
-    # sections
+    sections: list[Section]
