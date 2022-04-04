@@ -91,6 +91,11 @@ $ python debug_server.py
 Debug mode runs on `localhost:8000` and enables hot-reloading (allows you to
 make changes without having to restart the server)
 
+If you want to use the `/parse` endpoint, you will also need to run the GROBID server:
+```
+$ docker run -p 8070:8070 lfoppiano/grobid:0.7.0
+```
+
 ## Documentation
 
 ### Docstrings

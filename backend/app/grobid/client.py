@@ -75,16 +75,17 @@ class Client:
 
 
 if __name__ == "__main__":
-    pdf_file = Path("study/Simon_Langley-evans.pdf")
+    pdf_file = Path("study/ian-knight.pdf")
     with open(pdf_file, "rb") as file:
         form = Form(
             file=File(
-                payload=file, file_name=pdf_file.name, mime_type="application/pdf"
+                payload=file.read(), file_name=pdf_file.name, mime_type="application/pdf"
             )
         )
         c = Client(api_url="http://localhost:8070/api", form=form)
         t = TEI(c.sync_request().content, load("en_core_web_sm"))
         a = t.parse()
+        print(a)
     # with open("study/Simon_Langley-evans.xml", "rb") as f:
     #     t = TEI(f.read(), load("en_core_web_sm"))
     #     a = t.parse()

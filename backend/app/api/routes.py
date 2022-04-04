@@ -5,13 +5,18 @@ Todo:
     * add more endpoints
 """
 
+import dataclasses
+import fastapi
 import httpx
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
-from spacy import load
-
-from app.api.models import UploadResponse
+from app.api.models import UploadReponseNew, UploadResponse
+from app.grobid.client import Client
+from app.grobid.models.file import File
+from app.grobid.models.form import Form
+from app.grobid.tei import TEI
 from app.nlp.techniques import Techniques
 from app.parser import Parser
+from fastapi import APIRouter, HTTPException, UploadFile, status
+from spacy import load
 
 router = APIRouter()
 
@@ -24,7 +29,7 @@ def load_model():
 
 
 @router.post("/upload", response_model=UploadResponse)
-async def recieve_file(file: UploadFile = File(...)):
+async def recieve_file(file: UploadFile = fastapi.File(...)):
     """Recieves uploaded file and sets it to object.
 
     Args:
@@ -56,6 +61,36 @@ async def recieve_file(file: UploadFile = File(...)):
             summary=summary,
             common_words=common_words,
         )
+
+
+# TODO: add UploadReponseNew as response_model when pydantic is v1.9
+@router.post("/parse")
+async def parse_pdf(file: UploadFile = fastapi.File(...)):
+    if file.content_type != "application/pdf":
+        raise HTTPException(400, detail="Invalid document type")
+
+    contents = await file.read()
+    if not isinstance(contents, bytes):
+        raise HTTPException(400, detail="Couldn't read document")
+    form = Form(
+        file=File(
+            payload=contents, file_name=file.filename, mime_type=file.content_type
+        )
+    )
+
+    # FIXME: API_URL should be a constant and not pointing to docker
+    c = Client(api_url="http://host.docker.internal:8070/api", form=form)
+    r = await c.asyncio_request()
+    t = TEI(r.content, model)
+    a = t.parse()
+
+    if a is None:
+        return HTTPException(400, detail="Couldn't parse document")
+
+    try:
+        return dataclasses.asdict(a)
+    except TypeError:
+        return HTTPException(400, detail="Couldn't serialise response object")
 
 
 @router.get("/validate_url/")
