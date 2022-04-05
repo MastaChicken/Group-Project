@@ -304,71 +304,60 @@ async function uploadPDF(e) {
       console.log(data.citations);
 
       Object.entries(data.citations).forEach(([k, object]) => {
-        Object.entries(object).forEach(([heading, info]) => {
+        Object.entries(object).forEach(([key, value]) => {
           // Using a MLA 8 citation structure for academic journals
 
-          switch (heading) {
+          switch (key) {
             case "authors":
-              authors = info;
+              authors = value;
               console.log(authors);
 
-              display_name = [];
-              Object.entries(authors).forEach(([index, author]) => {
-                person_name = author.person_name;
-                first_name = person_name.first_name;
-                surname = person_name.surname;
+              display_name = "";
+              author_count = 0;
 
-                if (first_name == null) {
-                  first_name = ` `;
+              for (i = 0; i < authors.length; i++) {
+                if (i >= 2) {
+                  display_name += `et al.`;
+                  break;
                 }
-                if (surname == null) {
-                  surname == ` `;
-                }
-                display_name += `${first_name} ${surname}.`;
-              });
+                person_name = authors[i].person_name;
+
+                first_name = person_name.first_name || "";
+                surname = person_name.surname || "";
+
+                display_name += `${first_name} ${surname}, `;
+              }
+
               break;
             case "title":
-              title = info;
+              title = value;
               break;
             case "scope":
-              scope = info;
-              display_volume = `vol. ${scope.volume},`;
+              scope = value;
+              display_pages = "";
               if (scope.volume != null) {
+                volume = `vol. ${scope.volume}.` || "";
                 pages = scope.pages;
                 if (pages != null) {
-                  display_pages = `pp. ${pages.from_page}-${pages.to_page}`;
-                } else {
-                  display_pages = ` `;
+                  display_pages = `pp. ${pages.from_page}-${pages.to_page}.`;
                 }
-              } else {
-                display_volume = ` `;
               }
+              display_volume = volume;
               break;
             case "date":
-              date = info;
+              date = value;
               year = date.year;
-              month = date.month;
-              day = date.day;
+              month = date.month || "";
+              day = date.day || "";
 
-              if (year != null) {
-                date = `${year}.`;
-                if (month != null) {
-                  date = `${month} ${year}.`;
-
-                  if (day != null) {
-                    date = `${day} ${month} ${year}.`;
-                  }
-                }
-              } else {
-                date = ` `;
+              date = `${day} ${month} ${year}`.trim();
+              if (date !== "") {
+                date += ".";
               }
+
               break;
             case "target":
-              target = info;
-
-              if (target == null) {
-                target = ` `;
-              }
+              target = value || "";
               break;
           }
         });
