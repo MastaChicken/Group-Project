@@ -281,7 +281,7 @@ async function uploadPDF(e) {
         $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
       $("summary-return-display").textContent = data.summary;
-      $("references-return-display").textContent = data.toc;
+      $("toc-return-display").textContent = data.toc;
       $("common-words-return-display").textContent = data.common_words;
       $("common-words-return-display").innerHTML = "";
       Object.entries(data.common_words).forEach(([k, v]) => {
@@ -293,6 +293,80 @@ async function uploadPDF(e) {
     .catch((e) => {
       console.log(e);
     });
+
+  await fetch(`${API}/parse`, { method: "POST", body: data })
+    .then(handleErrors)
+    .then((r) => r.json())
+    .then((data) => {
+      $("references-return-display").textContent = data.citations;
+      $("references-return-display").innerHTML = "";
+
+      Object.entries(data.citations).forEach(([k, object]) => {
+        Object.entries(object).forEach(([heading, info]) => {
+          // Using a MLA 8 citation structure for academic journals
+          if (heading == "authors") {
+            authors = info;
+
+            console.log(authors);
+
+            display_name = [];
+            Object.entries(authors).forEach(([index, author]) => {
+              person_name = author.person_name;
+              first_name = person_name.first_name;
+              surname = person_name.surname;
+
+              display_name += first_name + " " + surname + ". ";
+            });
+          }
+          if (heading == "title") {
+            title = info;
+            console.log(info);
+          }
+          if (heading == "scope") {
+            scope = info;
+            display_volume = "vol. " + scope.volume + ", ";
+            if (display_volume != null) {
+              pages = scope.pages;
+              if (pages != null) {
+                display_pages =
+                  "pp. " + pages.from_page + "-" + pages.to_page + ". ";
+              } else {
+                display_pages = "";
+              }
+            } else {
+              display_volume = "";
+            }
+          }
+          if (heading == "date") {
+            date = info;
+            year = date.year;
+            month = date.month;
+            day = date.day;
+          }
+          if (heading == "ptr") {
+            ptr = info;
+          }
+        });
+
+        if (year != null) {
+          date = year + ". ";
+          if (month != null) {
+            date = month + " " + year + ". ";
+
+            if (day != null) {
+              date = day + " " + month + " " + year + ". ";
+            }
+          }
+        } else {
+          date = " ";
+        }
+        $(
+          "references-return-display"
+        ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${ptr}</b><br><br>`;
+      });
+      console.log(data.citations);
+    });
+
   openTab("output-display", "tab-contents");
   $("output-main").scrollIntoView();
   $("summary-link").style.display = "inline-block";
