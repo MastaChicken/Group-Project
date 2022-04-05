@@ -44,11 +44,19 @@ class Author:
     email: str | None = None
 
 @dataclass
+class CitationIDs:
+    doi: str | None = None
+    arxiv: str | None = None
+
+@dataclass
 class Citation:
     title: str
     authors: list[Author] = field(default_factory=list)
     date: Date | None = None
-    doi: str | None = None
-    ptr: str | None = None
+    ids: CitationIDs | None = None
+    target: str | None = None
     publisher: str | None = None
+    journal: str | None = None
     scope: Scope | None = None
+    # meeting: str | None = None
+    # phone: str | None = None

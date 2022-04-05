@@ -7,6 +7,7 @@ from app.grobid.models import (
     Article,
     Author,
     Citation,
+    CitationIDs,
     Date,
     PageRange,
     PersonName,
@@ -88,34 +89,42 @@ class TEI:
         Returns:
             Citation object
         """
-        citation = Citation(title=self.title(source_tag))
+        # NOTE: may return empty string
+        citation = Citation(title=self.title(source_tag, attrs={"type": "main"}))
         citation.authors = self.authors(source_tag)
-        citation.doi = self.doi(source_tag)
+        citation.ids = CitationIDs(
+            doi=self.idno(source_tag, attrs={"type": "DOI"}),
+            arxiv=self.idno(source_tag, attrs={"type": "arXiv"}),
+        )
         citation.date = self.date(source_tag)
-        citation.ptr = self.ptr(source_tag)
+        citation.target = self.target(source_tag)
         citation.publisher = self.publisher(source_tag)
         citation.scope = self.scope(source_tag)
+        if journal := self.title(source_tag, attrs={"level": "j"}):
+            if journal != citation.title:
+                citation.journal = journal
 
         return citation
 
-    def title(self, source_tag: Tag | None) -> str:
+    def title(self, source_tag: Tag | None, attrs: dict[str, str] = {}) -> str:
         """
         Parse title tag text.
 
         Args:
             source_tag : XML tag
+            attrs: dictionary of filters on attribute values. Default is empty dict.
 
         Returns:
             Text in title tag if it exists
         """
         title: str = ""
         if source_tag is not None:
-            if (title_tag := source_tag.title) is not None:
+            if (title_tag := source_tag.find("title", attrs=attrs)) is not None:
                 title = title_tag.text
 
         return title
 
-    def ptr(self, source_tag: Tag | None) -> str | None:
+    def target(self, source_tag: Tag | None) -> str | None:
         """
         Parse ptr tag target.
 
@@ -131,20 +140,20 @@ class TEI:
                     # TODO: validate URL
                     return ptr_tag.attrs["target"]
 
-    def doi(self, source_tag: Tag | None) -> str | None:
+    def idno(self, source_tag: Tag | None, attrs: dict[str, str] = {}) -> str | None:
         """
-        Parse idno tag for DOI.
+        Parse idno tag.
 
         Args:
             source_tag : XML tag
+            attrs: dictionary of filters on attribute values. Default is empty dict.
 
         Returns:
             Text content of idno_tag if it exists
         """
         if source_tag is not None:
-            if (idno_tag := source_tag.idno) is not None:
-                if "type" in idno_tag.attrs and idno_tag["type"] == "DOI":
-                    return idno_tag.text
+            if (idno_tag := source_tag.find("idno", attrs=attrs)) is not None:
+                return idno_tag.text
 
     def keywords(self, source_tag: Tag | None) -> set[str]:
         """
