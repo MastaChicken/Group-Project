@@ -301,73 +301,75 @@ async function uploadPDF(e) {
       $("references-return-display").textContent = data.citations;
       $("references-return-display").innerHTML = "";
 
+      console.log(data.citations);
+
       Object.entries(data.citations).forEach(([k, object]) => {
         Object.entries(object).forEach(([heading, info]) => {
           // Using a MLA 8 citation structure for academic journals
-          if (heading == "authors") {
-            authors = info;
 
-            console.log(authors);
+          switch (heading) {
+            case "authors":
+              authors = info;
+              console.log(authors);
 
-            display_name = [];
-            Object.entries(authors).forEach(([index, author]) => {
-              person_name = author.person_name;
-              first_name = person_name.first_name;
-              surname = person_name.surname;
+              display_name = [];
+              Object.entries(authors).forEach(([index, author]) => {
+                person_name = author.person_name;
+                first_name = person_name.first_name;
+                surname = person_name.surname;
 
-              if (first_name == null) {
-                first_name = " ";
-              }
-              if (surname == null) {
-                surname == " ";
-              }
-              display_name += first_name + " " + surname + ". ";
-            });
-          }
-          if (heading == "title") {
-            title = info;
-            console.log(info);
-          }
-          if (heading == "scope") {
-            scope = info;
-            display_volume = "vol. " + scope.volume + ", ";
-            if (display_volume != null) {
-              pages = scope.pages;
-              if (pages != null) {
-                display_pages =
-                  "pp. " + pages.from_page + "-" + pages.to_page + ". ";
-              } else {
-                display_pages = " ";
-              }
-            } else {
-              display_volume = " ";
-            }
-          }
-          if (heading == "date") {
-            date = info;
-            year = date.year;
-            month = date.month;
-            day = date.day;
-
-            if (year != null) {
-              date = year + ". ";
-              if (month != null) {
-                date = month + " " + year + ". ";
-
-                if (day != null) {
-                  date = day + " " + month + " " + year + ". ";
+                if (first_name == null) {
+                  first_name = ` `;
                 }
+                if (surname == null) {
+                  surname == ` `;
+                }
+                display_name += `${first_name} ${surname}.`;
+              });
+              break;
+            case "title":
+              title = info;
+              break;
+            case "scope":
+              scope = info;
+              display_volume = `vol. ${scope.volume},`;
+              if (display_volume != null) {
+                pages = scope.pages;
+                if (pages != null) {
+                  display_pages = `pp. ${pages.from_page}-${pages.to_page}`;
+                } else {
+                  display_pages = ` `;
+                }
+              } else {
+                display_volume = ` `;
               }
-            } else {
-              date = " ";
-            }
-          }
-          if (heading == "ptr") {
-            ptr = info;
+              break;
+            case "date":
+              date = info;
+              year = date.year;
+              month = date.month;
+              day = date.day;
 
-            if (ptr == null) {
-              ptr = " ";
-            }
+              if (year != null) {
+                date = `${year}.`;
+                if (month != null) {
+                  date = `${month} ${year}.`;
+
+                  if (day != null) {
+                    date = `${day} ${month} ${year}.`;
+                  }
+                }
+              } else {
+                date = ` `;
+              }
+              break;
+            case "ptr":
+              ptr = info;
+
+              if (ptr == null) {
+                ptr = ` `;
+              }
+              break;
           }
         });
 
@@ -375,7 +377,6 @@ async function uploadPDF(e) {
           "references-return-display"
         ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${ptr}</b><br><br>`;
       });
-      console.log(data.citations);
     });
 
   openTab("output-display", "tab-contents");
