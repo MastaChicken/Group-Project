@@ -1,20 +1,18 @@
 import string
-from datetime import datetime
 from typing import Generator
 
 from app.grobid.models.affiliation import Affiliation
 from app.grobid.models.article import Article
 from app.grobid.models.author import Author
 from app.grobid.models.citation import Citation
+from app.grobid.models.date import Date
 from app.grobid.models.person_name import PersonName
 from app.grobid.models.ref import Ref
 from app.grobid.models.ref_text import RefText
-from app.grobid.models.scope import Scope
+from app.grobid.models.scope import PageRange, Scope
 from app.grobid.models.section import Section
 from bs4 import BeautifulSoup
 from bs4.element import CData, NavigableString, Tag
-from dateutil.parser import ParserError
-from dateutil.parser import parse as date_parse
 from spacy.language import Language
 
 
@@ -117,15 +115,23 @@ class TEI:
                 return publisher_tag.text
 
 
-    def date(self, source_tag) -> datetime | None:
-        published: datetime | None = None
+    def date(self, source_tag) -> Date | None:
         if source_tag is not None and "when" in source_tag.attrs:
-            try:
-                published = date_parse(source_tag["when"])
-            except (ParserError, OverflowError):
-                pass
+                return self.__parse_date(source_tag["when"])
 
-        return published
+    def __parse_date(self, date: str) -> Date | None:
+        tokens = date.split(sep="-")
+
+        match len(tokens):
+            case 1:
+                year = tokens[0]
+                return Date(year)
+            case 2:
+                year, month = tokens
+                return Date(year, month)
+            case 3:
+                year, month, day = tokens
+                return Date(year, month, day)
 
     def scope(self, source_tag: Tag | None) -> Scope | None:
         if source_tag is not None:
@@ -141,7 +147,7 @@ class TEI:
                                 from_page = int(scope_tag.text)
                                 to_page = from_page
 
-                            scope.pages = (from_page, to_page)
+                            scope.pages = PageRange(from_page=from_page, to_page=to_page)
                         except ValueError:
                             pass
                     case "volume":
@@ -228,10 +234,10 @@ class TEI:
 
     def ref_text(self, source_tag: Tag | None) -> RefText | None:
         if source_tag is not None:
-            str_and_refs = self.__text_and_refs(source_tag)
+            text_and_refs = self.__text_and_refs(source_tag)
             start = 0
             ref_text = RefText(text="")
-            for el in str_and_refs:
+            for el in text_and_refs:
                 start = len(ref_text.text)
                 if isinstance(el, Tag):
                     end = start + len(el.text)
