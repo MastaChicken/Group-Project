@@ -333,7 +333,7 @@ async function uploadPDF(e) {
             case "scope":
               scope = info;
               display_volume = `vol. ${scope.volume},`;
-              if (display_volume != null) {
+              if (scope.volume != null) {
                 pages = scope.pages;
                 if (pages != null) {
                   display_pages = `pp. ${pages.from_page}-${pages.to_page}`;
