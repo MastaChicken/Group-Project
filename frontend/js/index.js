@@ -315,6 +315,12 @@ async function uploadPDF(e) {
               first_name = person_name.first_name;
               surname = person_name.surname;
 
+              if (first_name == null) {
+                first_name = " ";
+              }
+              if (surname == null) {
+                surname == " ";
+              }
               display_name += first_name + " " + surname + ". ";
             });
           }
@@ -331,10 +337,10 @@ async function uploadPDF(e) {
                 display_pages =
                   "pp. " + pages.from_page + "-" + pages.to_page + ". ";
               } else {
-                display_pages = "";
+                display_pages = " ";
               }
             } else {
-              display_volume = "";
+              display_volume = " ";
             }
           }
           if (heading == "date") {
@@ -342,24 +348,29 @@ async function uploadPDF(e) {
             year = date.year;
             month = date.month;
             day = date.day;
+
+            if (year != null) {
+              date = year + ". ";
+              if (month != null) {
+                date = month + " " + year + ". ";
+
+                if (day != null) {
+                  date = day + " " + month + " " + year + ". ";
+                }
+              }
+            } else {
+              date = " ";
+            }
           }
           if (heading == "ptr") {
             ptr = info;
+
+            if (ptr == null) {
+              ptr = " ";
+            }
           }
         });
 
-        if (year != null) {
-          date = year + ". ";
-          if (month != null) {
-            date = month + " " + year + ". ";
-
-            if (day != null) {
-              date = day + " " + month + " " + year + ". ";
-            }
-          }
-        } else {
-          date = " ";
-        }
         $(
           "references-return-display"
         ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${ptr}</b><br><br>`;
