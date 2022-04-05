@@ -1,13 +1,17 @@
+# noqa: D100
 from httpx import HTTPError
 from pydantic import BaseModel
 
 
 class Response(BaseModel):
+    """Represents the response from GROBID's processFulltextDocument endpoint."""
+
     status_code: int
     content: bytes
     headers: dict[str, str]
 
     def raise_for_status(self):
+        """Only considers GROBID's documented status codes as HTTP errors."""
         http_error_msg = ""
 
         match self.status_code:
@@ -23,5 +27,4 @@ class Response(BaseModel):
                 return
 
         http_error_msg = f"{self.status_code}: {error_msg}"
-        if http_error_msg:
-            raise HTTPError(http_error_msg)
+        raise HTTPError(http_error_msg)

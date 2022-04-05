@@ -103,6 +103,9 @@ class TEI:
         if journal := self.title(source_tag, attrs={"level": "j"}):
             if journal != citation.title:
                 citation.journal = journal
+        if series := self.title(source_tag, attrs={"level": "s"}):
+            if series != citation.title:
+                citation.series = series
 
         return citation
 
@@ -339,8 +342,9 @@ class TEI:
                 return section
 
     def __text_and_refs(
-        self, source_tag: Tag
-    ) -> Generator[Tag | PageElement, str, None]:
+        self,
+        source_tag: Tag,
+    ) -> Generator[PageElement, str, None]:
         # Generator with both strings and ref tags
         types = (NavigableString, CData)
         for descendant in source_tag.descendants:
@@ -350,8 +354,7 @@ class TEI:
             if isinstance(types, type):
                 if descendant_type is not types:
                     continue
-            # using type() here mutes pyright error
-            elif type(descendant) is Tag and descendant.name == "ref":
+            elif descendant_type is Tag and descendant.name == "ref":  # type: ignore
                 yield descendant
             elif types is not None and descendant_type not in types:
                 continue
@@ -378,11 +381,11 @@ class TEI:
                     end = start + len(el.text)
                     ref = Ref(start=start, end=end)
                     if (el_type := el.attrs.get("type")) is not None:
-                        ref.type = el_type
+                        ref.type_ = el_type
 
                     # NOTE: if target[0] is '#', check for citation
-                    if (target := el.attrs.get("target")) is not None:
-                        ref.target = target
+                    if (el_target := el.attrs.get("target")) is not None:
+                        ref.target = el_target
 
                     ref_text.refs.append(ref)
                 else:
