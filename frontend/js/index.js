@@ -363,11 +363,11 @@ async function uploadPDF(e) {
                 date = ` `;
               }
               break;
-            case "ptr":
-              ptr = info;
+            case "target":
+              target = info;
 
-              if (ptr == null) {
-                ptr = ` `;
+              if (target == null) {
+                target = ` `;
               }
               break;
           }
@@ -375,7 +375,7 @@ async function uploadPDF(e) {
 
         $(
           "references-return-display"
-        ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${ptr}</b><br><br>`;
+        ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${target}</b><br><br>`;
       });
     });
 
