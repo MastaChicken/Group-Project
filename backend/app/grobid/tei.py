@@ -1,34 +1,47 @@
+# noqa: D100
 import string
 from typing import Generator
 
-from app.grobid.models.affiliation import Affiliation
-from app.grobid.models.article import Article
-from app.grobid.models.author import Author
-from app.grobid.models.citation import Citation
-from app.grobid.models.date import Date
-from app.grobid.models.person_name import PersonName
-from app.grobid.models.ref import Ref
-from app.grobid.models.ref_text import RefText
-from app.grobid.models.scope import PageRange, Scope
-from app.grobid.models.section import Section
+from app.grobid.models import (
+    Affiliation,
+    Article,
+    Author,
+    Citation,
+    Date,
+    PageRange,
+    PersonName,
+    Ref,
+    RefText,
+    Scope,
+    Section,
+)
 from bs4 import BeautifulSoup
-from bs4.element import CData, NavigableString, Tag
+from bs4.element import CData, NavigableString, PageElement, Tag
 from spacy.language import Language
 
 
 # TODO: use DOI from PyMuPDF to cache XML
 class TEI:
+    """Methods used to parse TEI XML into serializable objects."""
+
     __soup: BeautifulSoup
     __model: Language
     __accepted_entities = {"GPE", "ORG", "PERSON"}
 
     def __init__(self, stream: bytes, model: Language) -> None:
+        """Pass the XML stream to BeautifulSoup."""
         self.__soup = BeautifulSoup(stream, "lxml-xml")
         self.__model = model
 
-    # NOTE: parsing is strict
-    # it should fail only if the sections are missing
     def parse(self) -> Article | None:
+        """
+        Attempt to parse the XML into Article object.
+
+        Parsing is strict (fails if any fields are missing)
+
+        Returns:
+            Article object
+        """
         body = self.__soup.body
 
         if not isinstance(body, Tag):
@@ -66,10 +79,19 @@ class TEI:
         )
 
     def citation(self, source_tag: Tag) -> Citation:
+        """
+        Parse citation.
+
+        Args:
+            source_tag : biblStruct XML Tag
+
+        Returns:
+            Citation object
+        """
         citation = Citation(title=self.title(source_tag))
         citation.authors = self.authors(source_tag)
         citation.doi = self.doi(source_tag)
-        citation.date = self.date(source_tag.date)
+        citation.date = self.date(source_tag)
         citation.ptr = self.ptr(source_tag)
         citation.publisher = self.publisher(source_tag)
         citation.scope = self.scope(source_tag)
@@ -77,6 +99,15 @@ class TEI:
         return citation
 
     def title(self, source_tag: Tag | None) -> str:
+        """
+        Parse title tag text.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Text in title tag if it exists
+        """
         title: str = ""
         if source_tag is not None:
             if (title_tag := source_tag.title) is not None:
@@ -85,19 +116,48 @@ class TEI:
         return title
 
     def ptr(self, source_tag: Tag | None) -> str | None:
-        # TODO: validate URL
+        """
+        Parse ptr tag target.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Target location in ptr tag if it exists
+        """
         if source_tag is not None:
             if (ptr_tag := source_tag.ptr) is not None:
                 if "target" in ptr_tag.attrs:
+                    # TODO: validate URL
                     return ptr_tag.attrs["target"]
 
     def doi(self, source_tag: Tag | None) -> str | None:
+        """
+        Parse idno tag for DOI.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Text content of idno_tag if it exists
+        """
         if source_tag is not None:
-            doi_tag = source_tag.find("idno", {"type": "DOI"})
-            if doi_tag is not None:
-                return doi_tag.text
+            if (idno_tag := source_tag.idno) is not None:
+                if "type" in idno_tag.attrs and idno_tag["type"] == "DOI":
+                    return idno_tag.text
 
     def keywords(self, source_tag: Tag | None) -> set[str]:
+        """
+        Parse all term tags.
+
+        Uses spaCy model to extract noun chunks.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Set of keywords
+        """
         keywords: set[str] = set()
 
         if source_tag is not None:
@@ -105,22 +165,44 @@ class TEI:
 
                 doc = self.__model(term_tag.text)
                 for keyword in doc.noun_chunks:
-                    keywords.add(self.clean_string(keyword.text))
+                    keywords.add(self.clean_title_string(keyword.text))
 
         return keywords
 
-    def publisher(self, source_tag : Tag | None) -> str | None:
+    def publisher(self, source_tag: Tag | None) -> str | None:
+        """
+        Parse publisher tag text.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Text in publisher tag if it exists
+        """
         if source_tag is not None:
             if (publisher_tag := source_tag.find("publisher")) is not None:
                 return publisher_tag.text
 
+    def date(self, source_tag: Tag | None) -> Date | None:
+        """
+        Parse date tag.
 
-    def date(self, source_tag) -> Date | None:
-        if source_tag is not None and "when" in source_tag.attrs:
-                return self.__parse_date(source_tag["when"])
+        Args:
+            source_tag : XML tag
 
-    def __parse_date(self, date: str) -> Date | None:
-        tokens = date.split(sep="-")
+        Returns:
+            Date object if date tag is valid
+        """
+        if source_tag is not None:
+            if (date_tag := source_tag.date) is not None:
+                if "when" in date_tag.attrs:
+                    when = date_tag.attrs["when"]
+
+                    return self.__parse_date(when)
+
+    def __parse_date(self, date: str, sep="-") -> Date | None:
+        # Assumes date uses hyphen as separator by default
+        tokens = date.split(sep=sep)
 
         match len(tokens):
             case 1:
@@ -134,6 +216,15 @@ class TEI:
                 return Date(year, month, day)
 
     def scope(self, source_tag: Tag | None) -> Scope | None:
+        """
+        Parse all biblScope tags.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Scope object if biblScope tags exist
+        """
         if source_tag is not None:
             scope = Scope()
             for scope_tag in source_tag.find_all("biblScope"):
@@ -147,7 +238,9 @@ class TEI:
                                 from_page = int(scope_tag.text)
                                 to_page = from_page
 
-                            scope.pages = PageRange(from_page=from_page, to_page=to_page)
+                            scope.pages = PageRange(
+                                from_page=from_page, to_page=to_page
+                            )
                         except ValueError:
                             pass
                     case "volume":
@@ -157,12 +250,20 @@ class TEI:
                         except ValueError:
                             pass
 
-
             return scope
 
-
-
     def authors(self, source_tag: Tag | None) -> list[Author]:
+        """
+        Parse all author tags.
+
+        Uses NER to check if the author name is valid.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            List of Author objects
+        """
         authors: list[Author] = []
         if source_tag is not None:
             for author in source_tag.find_all("author"):
@@ -199,7 +300,19 @@ class TEI:
         return authors
 
     def section(self, source_tag: Tag | None) -> Section | None:
-        """Represents div."""
+        """
+        Parse div tag with head tag.
+
+        Capitalizes title if not already.
+
+        Section can have an empty body.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Section object if valid section.
+        """
         if source_tag is not None:
             head = source_tag.find("head")
             if isinstance(head, Tag):
@@ -216,7 +329,10 @@ class TEI:
 
                 return section
 
-    def __text_and_refs(self, source_tag) -> Generator[NavigableString, str, None]:
+    def __text_and_refs(
+        self, source_tag: Tag
+    ) -> Generator[Tag | PageElement, str, None]:
+        # Generator with both strings and ref tags
         types = (NavigableString, CData)
         for descendant in source_tag.descendants:
             if types is None and not isinstance(descendant, NavigableString):
@@ -225,7 +341,8 @@ class TEI:
             if isinstance(types, type):
                 if descendant_type is not types:
                     continue
-            elif descendant_type is Tag and descendant.name == "ref":
+            # using type() here mutes pyright error
+            elif type(descendant) is Tag and descendant.name == "ref":
                 yield descendant
             elif types is not None and descendant_type not in types:
                 continue
@@ -233,6 +350,15 @@ class TEI:
                 yield descendant
 
     def ref_text(self, source_tag: Tag | None) -> RefText | None:
+        """
+        Parse text with ref tags.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            RefText object
+        """
         if source_tag is not None:
             text_and_refs = self.__text_and_refs(source_tag)
             start = 0
@@ -242,8 +368,8 @@ class TEI:
                 if isinstance(el, Tag):
                     end = start + len(el.text)
                     ref = Ref(start=start, end=end)
-                    if (type := el.attrs.get("type")) is not None:
-                        ref.type = type
+                    if (el_type := el.attrs.get("type")) is not None:
+                        ref.type = el_type
 
                     # NOTE: if target[0] is '#', check for citation
                     if (target := el.attrs.get("target")) is not None:
@@ -255,9 +381,17 @@ class TEI:
 
             return ref_text
 
-
     @staticmethod
-    def clean_string(s: str) -> str:
+    def clean_title_string(s: str) -> str:
+        """
+        Remove non-alpha leading characters from string.
+
+        Args:
+            s : title string
+
+        Returns:
+            Clean title string
+        """
         if s == "":
             return s
 

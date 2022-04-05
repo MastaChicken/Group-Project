@@ -10,8 +10,7 @@ import fastapi
 import httpx
 from app.api.models import UploadReponseNew, UploadResponse
 from app.grobid.client import Client
-from app.grobid.models.file import File
-from app.grobid.models.form import Form
+from app.grobid.models import File, Form
 from app.grobid.tei import TEI
 from app.nlp.techniques import Techniques
 from app.parser import Parser

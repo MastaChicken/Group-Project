@@ -1,21 +1,18 @@
 # noqa: D100
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass
-import dataclasses
 from pathlib import Path
 from typing import Any
 
 import httpx
-from spacy import load
-from app.grobid.models.citation import Citation
-from app.grobid.models.file import File
-from app.grobid.models.form import Form
-from app.grobid.models.article import Article
+from app.grobid.models import File, Form, Response
 from app.grobid.tei import TEI
-from app.grobid.models.response import Response
+from spacy import load
 
 
 class GrobidClientException(BaseException):
+    """Exception for Client class."""
+
     pass
 
 
@@ -79,7 +76,9 @@ if __name__ == "__main__":
     with open(pdf_file, "rb") as file:
         form = Form(
             file=File(
-                payload=file.read(), file_name=pdf_file.name, mime_type="application/pdf"
+                payload=file.read(),
+                file_name=pdf_file.name,
+                mime_type="application/pdf",
             )
         )
         c = Client(api_url="http://localhost:8070/api", form=form)
