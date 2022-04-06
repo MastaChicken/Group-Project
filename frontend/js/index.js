@@ -300,12 +300,10 @@ async function uploadPDF(e) {
       console.log(e);
     });
 
-  console.log("works?");
   await fetch(`${API}/parse`, { method: "POST", body: data })
     .then(handleErrors)
     .then((r) => r.json())
     .then((data) => {
-      console.log("works2?");
       $("references-return-display").textContent = data.citations;
       $("references-return-display").innerHTML = "";
 
