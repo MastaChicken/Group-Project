@@ -281,7 +281,13 @@ async function uploadPDF(e) {
         $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
       $("summary-return-display").textContent = data.summary;
+      console.log(data.toc);
       $("toc-return-display").textContent = data.toc;
+      $("toc-return-display").innerHTML = "";
+      Object.entries(data.toc).forEach(([k, v]) => {
+        $("toc-return-display").innerHTML += `${v[1]}<br><br>`;
+      });
+
       $("common-words-return-display").textContent = data.common_words;
       $("common-words-return-display").innerHTML = "";
       Object.entries(data.common_words).forEach(([k, v]) => {
@@ -294,10 +300,12 @@ async function uploadPDF(e) {
       console.log(e);
     });
 
+  console.log("works?");
   await fetch(`${API}/parse`, { method: "POST", body: data })
     .then(handleErrors)
     .then((r) => r.json())
     .then((data) => {
+      console.log("works2?");
       $("references-return-display").textContent = data.citations;
       $("references-return-display").innerHTML = "";
 
