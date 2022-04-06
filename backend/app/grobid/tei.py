@@ -287,7 +287,7 @@ class TEI:
                             person_name.first_name = forename_tag.text
 
                         # Use NER to check if it is a name
-                        ents = self.__model(person_name.to_string).ents
+                        ents = self.__model(person_name.to_string()).ents
                         if ents and ents[0].label_ in self.__accepted_entities:
                             author_obj = Author(person_name=person_name)
                             authors.append(author_obj)

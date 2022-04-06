@@ -39,11 +39,11 @@ class Form:
             form_dict["segmentSentences"] = "1"
 
         match self.consolidate_header:
-            case [0, 1, 2]:
+            case (0 | 1 | 2):
                 form_dict["consolidateHeader"] = str(self.consolidate_header)
 
         match self.consolidate_citations:
-            case [0, 1, 2]:
+            case (0 | 1 | 2):
                 form_dict["consolidateCitations"] = str(self.consolidate_citations)
 
         if self.include_raw_citations is not None:

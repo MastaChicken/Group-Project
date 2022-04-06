@@ -37,7 +37,6 @@ class PersonName:
     # middle_name: str | None = None
     # title: str | None = None
 
-    @property
     def to_string(self) -> str:
         """Return string representation of object."""
         if self.first_name:

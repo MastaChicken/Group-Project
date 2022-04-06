@@ -33,7 +33,7 @@ black = "^21.11b0"
 pytest = "^6.2.5"
 isort = "^5.10.1"
 pydocstyle = "^6.1.1"
-coverage = "^6.1.2"
+coverage = {extras = ["toml"], version = "^6.3.2"}
 flake8 = "^4.0.1"
 flake8-docstrings = "^1.6.0"
 pep8-naming = "^0.12.1"
@@ -41,6 +41,8 @@ flake8-blind-except = "^0.2.0"
 flake8-builtins = "^1.5.3"
 Sphinx = "^4.3.1"
 colorama = "^0.4.4"
+pytest-asyncio = "^0.18.3"
+respx = "^0.19.2"
 
 [tool.isort]
 profile = "black"
@@ -54,6 +56,12 @@ match-dir = "^(?!(.venv|docs)).*"
 [tool.black]
 target-version = ["py310"]
 extend-exclude = "docs"
+
+[tool.coverage.run]
+omit = ["*tests*"]
+
+[tool.coverage.report]
+exclude_lines = ["if __name__ == .__main__.:"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
