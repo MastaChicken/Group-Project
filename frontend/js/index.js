@@ -307,9 +307,14 @@ async function uploadPDF(e) {
       $("references-return-display").textContent = data.citations;
       $("references-return-display").innerHTML = "";
 
-      console.log(data.citations);
-
       Object.entries(data.citations).forEach(([k, object]) => {
+        var display_name = "";
+        var title = "";
+        var display_pages = "";
+        var display_volume = "";
+        var date = "";
+        var target = "";
+        var journal = "";
         Object.entries(object).forEach(([key, value]) => {
           // Using a MLA 8 citation structure for academic journals
 
@@ -319,21 +324,19 @@ async function uploadPDF(e) {
 
           switch (key) {
             case "authors":
-              authors = value;
-              console.log(authors);
+              var authors = value;
 
-              display_name = "";
-              author_count = 0;
+              var author_count = 0;
 
-              for (i = 0; i < authors.length; i++) {
+              for (var i = 0; i < authors.length; i++) {
                 if (i >= 2) {
                   display_name += `et al.`;
                   break;
                 }
-                person_name = authors[i].person_name;
+                var person_name = authors[i].person_name;
 
-                first_name = person_name.first_name || "";
-                surname = person_name.surname || "";
+                var first_name = person_name.first_name || "";
+                var surname = person_name.surname || "";
 
                 display_name += `${first_name} ${surname}, `;
               }
@@ -346,22 +349,22 @@ async function uploadPDF(e) {
               title = value;
               break;
             case "scope":
-              scope = value;
+              var scope = value;
               display_pages = "";
               if (scope.volume != null) {
-                volume = `vol. ${scope.volume}.` || "";
-                pages = scope.pages;
+                var volume = `vol. ${scope.volume}.` || "";
+                var pages = scope.pages;
                 if (pages != null) {
                   display_pages = `pp. ${pages.from_page}-${pages.to_page}.`;
                 }
+                display_volume = volume;
               }
-              display_volume = volume;
               break;
             case "date":
               date = value;
-              year = date.year;
-              month = date.month || "";
-              day = date.day || "";
+              var year = date.year;
+              var month = date.month || "";
+              var day = date.day || "";
 
               date = `${day} ${month} ${year}`.trim();
               if (date !== "") {
