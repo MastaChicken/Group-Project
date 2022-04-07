@@ -6,16 +6,18 @@ Todo:
 """
 
 import dataclasses
+
 import fastapi
 import httpx
+from fastapi import APIRouter, HTTPException, UploadFile, status
+from spacy import load
+
 from app.api.models import UploadReponseNew, UploadResponse
 from app.grobid.client import Client
 from app.grobid.models import File, Form
 from app.grobid.tei import TEI
 from app.nlp.techniques import Techniques
 from app.parser import Parser
-from fastapi import APIRouter, HTTPException, UploadFile, status
-from spacy import load
 
 router = APIRouter()
 
@@ -65,6 +67,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
 # TODO: add UploadReponseNew as response_model when pydantic is v1.9
 @router.post("/parse")
 async def parse_pdf(file: UploadFile = fastapi.File(...)):
+    """Temp endpoint."""
     if file.content_type != "application/pdf":
         raise HTTPException(400, detail="Invalid document type")
 

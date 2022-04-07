@@ -2,6 +2,7 @@
 
 
 import fitz
+
 from app.grobid.models import File, Form
 
 with fitz.open(filetype="pdf") as test_pdf:

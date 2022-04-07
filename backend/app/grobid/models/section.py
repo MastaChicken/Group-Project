@@ -5,8 +5,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Ref:
-    """
-    Represents <ref> XML tag.
+    """Represents <ref> XML tag.
 
     Stores the start and end positions of the reference rather than the text.
     """
@@ -19,8 +18,7 @@ class Ref:
 
 @dataclass
 class RefText:
-    """
-    Represents the <p> XML tag.
+    """Represents the <p> XML tag.
 
     Supports embedded <ref> XML tags.
     """

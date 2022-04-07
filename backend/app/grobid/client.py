@@ -5,9 +5,10 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from spacy import load
+
 from app.grobid.models import File, Form, Response
 from app.grobid.tei import TEI
-from spacy import load
 
 
 class GrobidClientError(BaseException):
@@ -46,8 +47,7 @@ class Client:
         return res
 
     async def asyncio_request(self) -> Response:
-        """
-        Request client asynchronously.
+        """Request client asynchronously.
 
         Raises:
             GrobidClientError: if httpx.RequestError or httpx.HTTPError is raised
@@ -65,8 +65,7 @@ class Client:
                 raise GrobidClientError(exc)
 
     def sync_request(self) -> Response:
-        """
-        Request client synchronously.
+        """Request client synchronously.
 
         Raises:
             GrobidClientError: if httpx.RequestError or httpx.HTTPError is raised

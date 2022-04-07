@@ -2,6 +2,10 @@
 import string
 from typing import Generator
 
+from bs4 import BeautifulSoup
+from bs4.element import NavigableString, PageElement, Tag
+from spacy.language import Language
+
 from app.grobid.models import (
     Affiliation,
     Article,
@@ -16,9 +20,6 @@ from app.grobid.models import (
     Scope,
     Section,
 )
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString, PageElement, Tag
-from spacy.language import Language
 
 
 class GrobidParserError(BaseException):
@@ -37,8 +38,7 @@ class TEI:
     __accepted_entities = {"GPE", "ORG", "PERSON"}
 
     def __init__(self, stream: bytes, model: Language) -> None:
-        """
-        TEI class constructor.
+        """TEI class constructor.
 
         Args:
             stream: XML bytes
@@ -53,8 +53,7 @@ class TEI:
         self.__model = model
 
     def parse(self) -> Article:
-        """
-        Attempt to parse the XML into Article object.
+        """Attempt to parse the XML into Article object.
 
         Parsing is strict (fails if any fields are missing)
 
@@ -102,8 +101,7 @@ class TEI:
         )
 
     def citation(self, source_tag: Tag) -> Citation:
-        """
-        Parse citation.
+        """Parse citation.
 
         Args:
             source_tag : biblStruct XML Tag
@@ -135,8 +133,7 @@ class TEI:
         return citation
 
     def title(self, source_tag: Tag | None, attrs: dict[str, str] = {}) -> str:
-        """
-        Parse title tag text.
+        """Parse title tag text.
 
         Args:
             source_tag : XML tag
@@ -153,8 +150,7 @@ class TEI:
         return title
 
     def target(self, source_tag: Tag | None) -> str | None:
-        """
-        Parse ptr tag target.
+        """Parse ptr tag target.
 
         Args:
             source_tag : XML tag
@@ -169,8 +165,7 @@ class TEI:
                     return ptr_tag.attrs["target"]
 
     def idno(self, source_tag: Tag | None, attrs: dict[str, str] = {}) -> str | None:
-        """
-        Parse idno tag.
+        """Parse idno tag.
 
         Args:
             source_tag : XML tag
@@ -184,8 +179,7 @@ class TEI:
                 return idno_tag.text or None
 
     def keywords(self, source_tag: Tag | None) -> set[str]:
-        """
-        Parse all term tags.
+        """Parse all term tags.
 
         Uses spaCy model to extract noun chunks.
 
@@ -208,8 +202,7 @@ class TEI:
         return keywords
 
     def publisher(self, source_tag: Tag | None) -> str | None:
-        """
-        Parse publisher tag text.
+        """Parse publisher tag text.
 
         Args:
             source_tag : XML tag
@@ -222,8 +215,7 @@ class TEI:
                 return publisher_tag.text or None
 
     def date(self, source_tag: Tag | None) -> Date | None:
-        """
-        Parse date tag.
+        """Parse date tag.
 
         Args:
             source_tag : XML tag
@@ -254,8 +246,7 @@ class TEI:
                 return Date(year, month, day)
 
     def scope(self, source_tag: Tag | None) -> Scope | None:
-        """
-        Parse all biblScope tags.
+        """Parse all biblScope tags.
 
         Args:
             source_tag : XML tag
@@ -294,8 +285,7 @@ class TEI:
                 return scope
 
     def authors(self, source_tag: Tag | None) -> list[Author]:
-        """
-        Parse all author tags.
+        """Parse all author tags.
 
         Uses NER to check if the author name is valid.
 
@@ -343,8 +333,7 @@ class TEI:
         return authors
 
     def section(self, source_tag: Tag | None, title: str = "") -> Section | None:
-        """
-        Parse div tag with head tag.
+        """Parse div tag with head tag.
 
         Capitalizes title if not already.
 
@@ -391,8 +380,7 @@ class TEI:
                 yield descendant
 
     def ref_text(self, source_tag: Tag | None) -> RefText | None:
-        """
-        Parse text with ref tags.
+        """Parse text with ref tags.
 
         Args:
             source_tag : XML tag
@@ -424,8 +412,7 @@ class TEI:
 
     @staticmethod
     def clean_title_string(s: str) -> str:
-        """
-        Remove non-alpha leading characters from string.
+        """Remove non-alpha leading characters from string.
 
         Args:
             s : title string
