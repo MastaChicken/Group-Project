@@ -2,7 +2,7 @@
 import httpx
 import pytest
 import respx
-from app.grobid.client import Client, GrobidClientException
+from app.grobid.client import Client, GrobidClientError
 from app.grobid.models import File, Form
 
 
@@ -32,15 +32,13 @@ class TestClient:
 
         # 203
         respx.mock.post(api_url).mock(return_value=httpx.Response(203))
-        with pytest.raises(
-            GrobidClientException, match="Content couldn't be extracted"
-        ):
+        with pytest.raises(GrobidClientError, match="Content couldn't be extracted"):
             c.sync_request()
 
         # 400
         respx.mock.post(api_url).mock(return_value=httpx.Response(400))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Wrong request, missing parameters, missing header",
         ):
             c.sync_request()
@@ -48,7 +46,7 @@ class TestClient:
         # 500
         respx.mock.post(api_url).mock(return_value=httpx.Response(500))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Internal service error",
         ):
             c.sync_request()
@@ -56,7 +54,7 @@ class TestClient:
         # 503
         respx.mock.post(api_url).mock(return_value=httpx.Response(503))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Service not available",
         ):
             c.sync_request()
@@ -70,7 +68,7 @@ class TestClient:
         api_url = "http://invalidurl:8070"
         c = Client(api_url=api_url, form=self.form)
         with pytest.raises(
-            GrobidClientException, match=r"An error occurred while requesting .*"
+            GrobidClientError, match=r"An error occurred while requesting .*"
         ):
             c.sync_request()
 
@@ -83,15 +81,13 @@ class TestClient:
 
         # 203
         respx.mock.post(api_url).mock(return_value=httpx.Response(203))
-        with pytest.raises(
-            GrobidClientException, match="Content couldn't be extracted"
-        ):
+        with pytest.raises(GrobidClientError, match="Content couldn't be extracted"):
             await c.asyncio_request()
 
         # 400
         respx.mock.post(api_url).mock(return_value=httpx.Response(400))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Wrong request, missing parameters, missing header",
         ):
             await c.asyncio_request()
@@ -99,7 +95,7 @@ class TestClient:
         # 500
         respx.mock.post(api_url).mock(return_value=httpx.Response(500))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Internal service error",
         ):
             await c.asyncio_request()
@@ -107,7 +103,7 @@ class TestClient:
         # 503
         respx.mock.post(api_url).mock(return_value=httpx.Response(503))
         with pytest.raises(
-            GrobidClientException,
+            GrobidClientError,
             match="Service not available",
         ):
             await c.asyncio_request()
@@ -123,6 +119,6 @@ class TestClient:
         api_url = "http://invalidurl:8070"
         c = Client(api_url=api_url, form=self.form)
         with pytest.raises(
-            GrobidClientException, match=r"An error occurred while requesting .*"
+            GrobidClientError, match=r"An error occurred while requesting .*"
         ):
             await c.asyncio_request()

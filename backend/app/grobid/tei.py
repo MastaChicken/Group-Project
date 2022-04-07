@@ -17,24 +17,42 @@ from app.grobid.models import (
     Section,
 )
 from bs4 import BeautifulSoup
-from bs4.element import CData, NavigableString, PageElement, Tag
+from bs4.element import NavigableString, PageElement, Tag
 from spacy.language import Language
 
 
+class GrobidParserError(BaseException):
+    """Exception for TEI class."""
+
+    pass
+
+
 # TODO: use DOI from PyMuPDF to cache XML
+# NOTE: shouldn't TEI methods be static?
 class TEI:
     """Methods used to parse TEI XML into serializable objects."""
 
-    __soup: BeautifulSoup
+    soup: BeautifulSoup
     __model: Language
     __accepted_entities = {"GPE", "ORG", "PERSON"}
 
     def __init__(self, stream: bytes, model: Language) -> None:
-        """Pass the XML stream to BeautifulSoup."""
-        self.__soup = BeautifulSoup(stream, "lxml-xml")
+        """
+        TEI class constructor.
+
+        Args:
+            stream: XML bytes
+            model: spaCy language model
+
+        Raises:
+            GrobidParserError: if model arg doesn't have parser pipeline
+        """
+        self.soup = BeautifulSoup(stream, "lxml-xml")
+        if not model.has_pipe("parser"):
+            raise GrobidParserError("Language models require parser pipeline")
         self.__model = model
 
-    def parse(self) -> Article | None:
+    def parse(self) -> Article:
         """
         Attempt to parse the XML into Article object.
 
@@ -43,28 +61,31 @@ class TEI:
         Returns:
             Article object
         """
-        body = self.__soup.body
+        body = self.soup.body
 
         if not isinstance(body, Tag):
-            return
+            raise GrobidParserError("Missing body")
+
+        abstract: Section | None = self.section(self.soup.abstract, title="Abstract")
 
         sections: list[Section] = []
         for div in body.find_all("div"):
             if (section := self.section(div)) is not None:
                 sections.append(section)
 
-        if (source := self.__soup.find("sourceDesc")) is None:
-            return
+        if (source := self.soup.find("sourceDesc")) is None:
+            raise GrobidParserError("Missing source description")
+
         biblstruct_tag = source.find("biblStruct")
         if not isinstance(biblstruct_tag, Tag):
-            return
+            raise GrobidParserError("Missing bibliography")
 
         bibliography = self.citation(biblstruct_tag)
-        keywords = self.keywords(self.__soup.keywords)
+        keywords = self.keywords(self.soup.keywords)
 
-        listbibl_tag = self.__soup.find("listBibl")
+        listbibl_tag = self.soup.find("listBibl")
         if not isinstance(listbibl_tag, Tag):
-            return
+            raise GrobidParserError("Missing citations")
 
         citations = {}
         for struct_tag in listbibl_tag.find_all("biblStruct"):
@@ -73,6 +94,7 @@ class TEI:
                 citations[name] = self.citation(struct_tag)
 
         return Article(
+            abstract=abstract,
             sections=sections,
             bibliography=bibliography,
             keywords=keywords,
@@ -92,10 +114,13 @@ class TEI:
         # NOTE: may return empty string
         citation = Citation(title=self.title(source_tag, attrs={"type": "main"}))
         citation.authors = self.authors(source_tag)
-        citation.ids = CitationIDs(
-            doi=self.idno(source_tag, attrs={"type": "DOI"}),
-            arxiv=self.idno(source_tag, attrs={"type": "arXiv"}),
+        ids = CitationIDs(
+            DOI=self.idno(source_tag, attrs={"type": "DOI"}),
+            arXiv=self.idno(source_tag, attrs={"type": "arXiv"}),
         )
+        if not ids.is_empty():
+            citation.ids = ids
+
         citation.date = self.date(source_tag)
         citation.target = self.target(source_tag)
         citation.publisher = self.publisher(source_tag)
@@ -156,7 +181,7 @@ class TEI:
         """
         if source_tag is not None:
             if (idno_tag := source_tag.find("idno", attrs=attrs)) is not None:
-                return idno_tag.text
+                return idno_tag.text or None
 
     def keywords(self, source_tag: Tag | None) -> set[str]:
         """
@@ -174,10 +199,11 @@ class TEI:
 
         if source_tag is not None:
             for term_tag in source_tag.find_all("term"):
-
-                doc = self.__model(term_tag.text)
-                for keyword in doc.noun_chunks:
-                    keywords.add(self.clean_title_string(keyword.text))
+                if term_tag.text:
+                    doc = self.__model(term_tag.text)
+                    for keyword in doc.noun_chunks:
+                        if clean_keyword := self.clean_title_string(keyword.text):
+                            keywords.add(clean_keyword)
 
         return keywords
 
@@ -193,7 +219,7 @@ class TEI:
         """
         if source_tag is not None:
             if (publisher_tag := source_tag.find("publisher")) is not None:
-                return publisher_tag.text
+                return publisher_tag.text or None
 
     def date(self, source_tag: Tag | None) -> Date | None:
         """
@@ -246,23 +272,26 @@ class TEI:
                             if "from" in scope_tag.attrs and "to" in scope_tag.attrs:
                                 from_page = int(scope_tag["from"])
                                 to_page = int(scope_tag["to"])
-                            else:
+                            elif scope_tag.text:
                                 from_page = int(scope_tag.text)
                                 to_page = from_page
+                            else:
+                                continue
 
                             scope.pages = PageRange(
                                 from_page=from_page, to_page=to_page
                             )
                         except ValueError:
-                            pass
+                            continue
                     case "volume":
                         try:
                             volume = int(scope_tag.text)
                             scope.volume = volume
                         except ValueError:
-                            pass
+                            continue
 
-            return scope
+            if not scope.is_empty():
+                return scope
 
     def authors(self, source_tag: Tag | None) -> list[Author]:
         """
@@ -287,6 +316,7 @@ class TEI:
                             person_name.first_name = forename_tag.text
 
                         # Use NER to check if it is a name
+                        # FIXME: doesn't work very well for surname only
                         ents = self.__model(person_name.to_string()).ents
                         if ents and ents[0].label_ in self.__accepted_entities:
                             author_obj = Author(person_name=person_name)
@@ -298,7 +328,7 @@ class TEI:
 
                     for affiliation_tag in author.find_all("affiliation"):
                         affiliation_obj = Affiliation()
-                        for orgname_tag in affiliation_tag.find_all("orgname"):
+                        for orgname_tag in affiliation_tag.find_all("orgName"):
                             match orgname_tag["type"]:
                                 case "institution":
                                     affiliation_obj.institution = orgname_tag.text
@@ -307,11 +337,12 @@ class TEI:
                                 case "laboratory":
                                     affiliation_obj.laboratory = orgname_tag.text
 
-                        author_obj.affiliations.append(affiliation_obj)
+                        if not affiliation_obj.is_empty():
+                            author_obj.affiliations.append(affiliation_obj)
 
         return authors
 
-    def section(self, source_tag: Tag | None) -> Section | None:
+    def section(self, source_tag: Tag | None, title: str = "") -> Section | None:
         """
         Parse div tag with head tag.
 
@@ -321,6 +352,7 @@ class TEI:
 
         Args:
             source_tag : XML tag
+            title: forces the parsing of the section. Default is empty string (false)
 
         Returns:
             Section object if valid section.
@@ -334,31 +366,28 @@ class TEI:
                         head_text = head_text.capitalize()
 
                 section = Section(title=head_text)
-                paragraphs = source_tag.find_all("p")
-                for p in paragraphs:
-                    if p and (ref_text := self.ref_text(p)) is not None:
-                        section.paragraphs.append(ref_text)
+            elif title:
+                section = Section(title=title)
+            else:
+                return
 
-                return section
+            paragraphs = source_tag.find_all("p")
+            for p in paragraphs:
+                if p and (ref_text := self.ref_text(p)) is not None:
+                    section.paragraphs.append(ref_text)
+
+            return section
 
     def __text_and_refs(
         self,
         source_tag: Tag,
     ) -> Generator[PageElement, str, None]:
-        # Generator with both strings and ref tags
-        types = (NavigableString, CData)
+        # Generator with both NavigableStrings and ref Tags
         for descendant in source_tag.descendants:
-            if types is None and not isinstance(descendant, NavigableString):
-                continue
             descendant_type = type(descendant)
-            if isinstance(types, type):
-                if descendant_type is not types:
-                    continue
-            elif descendant_type is Tag and descendant.name == "ref":  # type: ignore
+            if descendant_type is Tag and descendant.name == "ref":  # type: ignore
                 yield descendant
-            elif types is not None and descendant_type not in types:
-                continue
-            else:
+            elif descendant_type is NavigableString:
                 yield descendant
 
     def ref_text(self, source_tag: Tag | None) -> RefText | None:
@@ -404,9 +433,6 @@ class TEI:
         Returns:
             Clean title string
         """
-        if s == "":
-            return s
-
         s = s.strip()
 
         while s and not s[0].isalpha():

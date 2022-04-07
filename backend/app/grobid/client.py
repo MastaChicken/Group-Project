@@ -10,7 +10,7 @@ from app.grobid.tei import TEI
 from spacy import load
 
 
-class GrobidClientException(BaseException):
+class GrobidClientError(BaseException):
     """Exception for Client class."""
 
     pass
@@ -45,48 +45,60 @@ class Client:
 
         return res
 
-    async def asyncio_request(self) -> Response:  # noqa: D102
+    async def asyncio_request(self) -> Response:
+        """
+        Request client asynchronously.
+
+        Raises:
+            GrobidClientError: if httpx.RequestError or httpx.HTTPError is raised
+        """
         kwargs = self.__build_request()
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(**kwargs)
                 return self.__build_response(response)
             except httpx.RequestError as exc:
-                raise GrobidClientException(
+                raise GrobidClientError(
                     f"An error occurred while requesting {exc.request.url!r}."
                 )
             except httpx.HTTPError as exc:
-                raise GrobidClientException(exc)
+                raise GrobidClientError(exc)
 
-    def sync_request(self) -> Response:  # noqa: D102
+    def sync_request(self) -> Response:
+        """
+        Request client synchronously.
+
+        Raises:
+            GrobidClientError: if httpx.RequestError or httpx.HTTPError is raised
+        """
         kwargs = self.__build_request()
         try:
             response = httpx.post(**kwargs)
             return self.__build_response(response)
         except httpx.RequestError as exc:
-            raise GrobidClientException(
+            raise GrobidClientError(
                 f"An error occurred while requesting {exc.request.url!r}."
             )
         except httpx.HTTPError as exc:
-            raise GrobidClientException(exc)
+            raise GrobidClientError(exc)
 
 
 if __name__ == "__main__":
-    pdf_file = Path("study/ian-knight.pdf")
-    with open(pdf_file, "rb") as file:
-        form = Form(
-            file=File(
-                payload=file.read(),
-                file_name=pdf_file.name,
-                mime_type="application/pdf",
-            )
-        )
-        c = Client(api_url="http://localhost:8070/api", form=form)
-        t = TEI(c.sync_request().content, load("en_core_web_sm"))
-        a = t.parse()
-        print(a)
-    # with open("study/Simon_Langley-evans.xml", "rb") as f:
-    #     t = TEI(f.read(), load("en_core_web_sm"))
+    # pdf_file = Path("study/Simon_Langley-evans.pdf")
+    # with open(pdf_file, "rb") as file:
+    #     form = Form(
+    #         file=File(
+    #             payload=file.read(),
+    #             file_name=pdf_file.name,
+    #             mime_type="application/pdf",
+    #         )
+    #     )
+    #     c = Client(api_url="http://localhost:8070/api", form=form)
+    #     t = TEI(c.sync_request().content, load("en_core_web_sm"))
     #     a = t.parse()
-
     #     print(a)
+    with open("study/ian-knight.xml", "rb") as f:
+        t = TEI(f.read(), load("en_core_web_sm"))
+        a = t.parse()
+
+        # print(a.sections)

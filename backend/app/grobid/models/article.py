@@ -14,3 +14,4 @@ class Article:
     keywords: set[str]
     citations: dict[str, Citation]
     sections: list[Section]
+    abstract: Section | None = None

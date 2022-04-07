@@ -18,6 +18,10 @@ class Scope:
     volume: int | None = None
     pages: PageRange | None = None
 
+    def is_empty(self) -> bool:
+        """Return True if the default values are the same."""
+        return all(attr is None for attr in self.__dict__.values())
+
 
 @dataclass
 class Date:
@@ -55,6 +59,10 @@ class Affiliation:
     laboratory: str | None = None
     # address: Address | None = None
 
+    def is_empty(self) -> bool:
+        """Return True if the default values are the same."""
+        return all(attr is None for attr in self.__dict__.values())
+
 
 @dataclass
 class Author:
@@ -69,11 +77,15 @@ class Author:
 class CitationIDs:
     """Represents the <idno> XML tag."""
 
-    doi: str | None = None
-    arxiv: str | None = None
+    DOI: str | None = None
+    arXiv: str | None = None  # noqa: N815
     # issn: str | None = None
     # pii: str | None = None
     # other: str | None = None
+
+    def is_empty(self) -> bool:
+        """Return True if the default values are the same."""
+        return all(attr is None for attr in self.__dict__.values())
 
 
 @dataclass

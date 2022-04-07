@@ -1,0 +1,516 @@
+import pytest
+from app.grobid.models import (
+    Affiliation,
+    Article,
+    Author,
+    Citation,
+    CitationIDs,
+    Date,
+    PageRange,
+    PersonName,
+    Ref,
+    RefText,
+    Scope,
+    Section,
+)
+from app.grobid.tei import TEI, GrobidParserError
+from spacy import load
+
+nlp = load("en_core_web_sm")
+
+
+class TestConstructor:
+    def test_missing_pipeline(self):
+        with pytest.raises(
+            GrobidParserError, match="Language models require parser pipeline"
+        ):
+            from spacy.lang.en import English
+
+            xml = b""
+
+            TEI(xml, English())
+
+
+class TestParse:
+    @staticmethod
+    def build_xml(article: Article) -> bytes:
+        tei_tags: list[bytes] = [b"<TEI>"]
+
+        tei_tags.append(b"<sourceDesc>")
+        tei_tags.append(TestCitation.build_xml(article.bibliography))
+        tei_tags.append(b"</sourceDesc>")
+
+        tei_tags.append(b"<body>")
+        for section in article.sections:
+            tei_tags.append(TestSection.build_xml(section))
+        tei_tags.append(b"</body>")
+
+        tei_tags.append(b"<listBibl>")
+        for xml_id, citation in article.citations.items():
+            tei_tags.append(TestCitation.build_xml(citation, xml_id=xml_id))
+        tei_tags.append(b"</listBibl>")
+
+        tei_tags.append(b"</TEI>")
+
+        return b"".join(tei_tags)
+
+    def test_no_body(self):
+        xml = b"<TEI></TEI>"
+
+        with pytest.raises(GrobidParserError, match="Missing body"):
+            TEI(xml, nlp).parse()
+
+    def test_no_sourcedesc(self):
+        xml = b"<TEI><body></body></TEI>"
+
+        with pytest.raises(GrobidParserError, match="Missing source description"):
+            TEI(xml, nlp).parse()
+
+    def test_no_biblstruct(self):
+        xml = b"<TEI><sourceDesc></sourceDesc><body></body></TEI>"
+
+        with pytest.raises(GrobidParserError, match="Missing bibliography"):
+            TEI(xml, nlp).parse()
+
+    def test_no_listbibl(self):
+        xml = b"<TEI><sourceDesc><biblStruct></biblStruct></sourceDesc><body></body></TEI>"
+
+        with pytest.raises(GrobidParserError, match="Missing citations"):
+            TEI(xml, nlp).parse()
+
+    def test_valid_article(self):
+        article = Article(
+            bibliography=Citation(
+                title="Test",
+                authors=[
+                    Author(
+                        PersonName("Doe", "John"),
+                    )
+                ],
+            ),
+            keywords=set(),
+            sections=[Section("Introduction", [RefText("Lorem Ipsum")])],
+            citations=dict(
+                test=Citation(
+                    title="Test2",
+                    authors=[Author(PersonName("Doe", "Jane"))],
+                )
+            ),
+        )
+
+        tei = TEI(TestParse.build_xml(article), nlp)
+
+        assert tei.parse() == article
+
+
+class TestTitle:
+    def test_valid_tag(self):
+        title = "Test"
+        xml = bytes(f"<title>{title}</title>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.title(tei.soup) == title
+
+    def test_valid_title_attr(self):
+        title = "Test"
+        xml = bytes(
+            f"<div><title><Invalid</title><title type='main'>{title}</></div>",
+            encoding="utf-8",
+        )
+        tei = TEI(xml, nlp)
+
+        assert tei.title(tei.soup, attrs={"type": "main"}) == title
+
+    def test_invalid_tag(self):
+        xml = b"<nottitle>Invalid</nottitle>"
+        tei = TEI(xml, nlp)
+
+        # NOTE: should it return empty string over None?
+        assert tei.title(tei.soup) == ""
+
+
+class TestTarget:
+    def test_valid_tag(self):
+        target = "http://avalidtarget.org"
+        xml = bytes(f"<ptr target='{target}'/>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.target(tei.soup) == target
+
+    def test_no_target(self):
+        xml = b"<ptr/>"
+        tei = TEI(xml, nlp)
+
+        assert tei.target(tei.soup) is None
+
+    def test_empty_tag(self):
+        xml = b"<ptr/>"
+        tei = TEI(xml, nlp)
+
+        assert tei.target(tei.soup) is None
+
+
+class TestIdno:
+    def test_valid_tag(self):
+        idno = "test"
+        xml = bytes(f"<idno>{idno}</idno>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.idno(tei.soup) == idno
+
+    def test_valid_idno_attr(self):
+        idno = "test"
+        xml = bytes(
+            f"<div><idno>Invalid</idno><idno type='DOI'>{idno}</idno></div>",
+            encoding="utf-8",
+        )
+        tei = TEI(xml, nlp)
+
+        assert tei.idno(tei.soup, attrs={"type": "DOI"}) == idno
+
+    def test_empty_tag(self):
+        xml = bytes("<idno></idno>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.idno(tei.soup) is None
+
+
+class TestPublisher:
+    def test_valid_tag(self):
+        publisher = "Foo Bar"
+        xml = bytes(f"<publisher>{publisher}</publisher>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.publisher(tei.soup) == publisher
+
+    def test_empty_tag(self):
+        xml = bytes("<publisher></publisher>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.publisher(tei.soup) is None
+
+
+class TestKeywords:
+    def test_valid_tags(self):
+        keywords = {"Keywords", "Tags"}  # keywords are nouns
+        term_tags: list[bytes] = [b"<keywords>"]
+        for keyword in keywords:
+            term_tags.append(bytes(f"<term>{keyword}</term>", encoding="utf-8"))
+
+        term_tags.append(b"</keywords>")
+
+        xml = b"".join(term_tags)
+        tei = TEI(xml, nlp)
+
+        assert tei.keywords(tei.soup) == keywords
+
+    def test_empty_tag(self):
+        xml = b"<term></term>"
+        tei = TEI(xml, nlp)
+
+        assert tei.keywords(tei.soup) == set()
+
+
+class TestDate:
+    def test_valid_tag_year(self):
+        year = "2022"
+        date = Date(year=year)
+        xml = bytes(f"<date when='{year}'/>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.date(tei.soup) == date
+
+    def test_valid_tag_year_month(self):
+        year = "2022"
+        month = "05"
+        date = Date(year=year, month=month)
+        xml = bytes(f"<date when='{year}-{month}'/>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.date(tei.soup) == date
+
+    def test_valid_tag_full_date(self):
+        year = "2022"
+        month = "05"
+        day = "03"
+        date = Date(year=year, month=month, day=day)
+        xml = bytes(f"<date when='{year}-{month}-{day}'/>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.date(tei.soup) == date
+
+    def test_empty_tag(self):
+        xml = b"<date/>"
+        tei = TEI(xml, nlp)
+
+        assert tei.date(tei.soup) is None
+
+
+class TestCitation:
+    @staticmethod
+    def build_xml(citation: Citation, xml_id: str | None = None) -> bytes:
+        bibl_tags: list[bytes] = []
+        if xml_id:
+            bibl_tags.append(bytes(f"<biblStruct xml:id='{xml_id}'>", encoding="utf-8"))
+        else:
+            bibl_tags.append(b"<biblStruct>")
+
+        bibl_tags.append(
+            bytes(f"<title type='main'>{citation.title}</title>", encoding="utf-8")
+        )
+
+        bibl_tags.append(TestAuthors.build_xml(citation.authors))
+
+        if citation.ids is not None:
+            for k, v in citation.ids.__dict__.items():
+                if v is None:
+                    continue
+                bibl_tags.append(
+                    bytes(f"<idno type='{k}'>{v}</idno>", encoding="utf-8")
+                )
+
+        if citation.scope is not None:
+            for k, v in citation.scope.__dict__.items():
+                if v is None:
+                    continue
+                bibl_tags.append(
+                    bytes(f"<biblScope unit='{k}'>{v}</biblScope>", encoding="utf-8")
+                )
+
+        if citation.target:
+            bibl_tags.append(
+                bytes(f"<ptr target='{citation.target}' />", encoding="utf-8")
+            )
+
+        if citation.publisher:
+            bibl_tags.append(
+                bytes(f"<publisher>{citation.publisher}</publisher>", encoding="utf-8")
+            )
+
+        if citation.series:
+            bibl_tags.append(
+                bytes(f"<title level='s'>{citation.series}</title>", encoding="utf-8")
+            )
+
+        if citation.journal:
+            bibl_tags.append(
+                bytes(f"<title level='j'>{citation.journal}</title>", encoding="utf-8")
+            )
+
+        bibl_tags.append(b"</biblStruct>")
+
+        return b"".join(bibl_tags)
+
+    def test_valid_tag(self):
+        citation = Citation(
+            title="Test",
+            authors=[Author(PersonName(surname="Doe", first_name="John"))],
+            ids=CitationIDs(DOI="10.1000/182", arXiv="arxivID"),
+            target="http://citationtarget.org",
+            publisher="FooBar",
+            journal="Baz",
+            series="Qux",
+            scope=Scope(volume=1),
+        )
+
+        tei = TEI(TestCitation.build_xml(citation), nlp)
+
+        assert tei.citation(tei.soup) == citation
+
+        citation = Citation(
+            title="Test2",
+            authors=[Author(PersonName(surname="Doe", first_name="Jane"))],
+            ids=CitationIDs(DOI="10.1000/183"),
+            target="http://citationtarget.org",
+            publisher="FooBar",
+            scope=Scope(volume=1),
+        )
+
+        tei = TEI(TestCitation.build_xml(citation), nlp)
+
+        assert tei.citation(tei.soup) == citation
+
+
+class TestScope:
+    def test_valid_tag_volume(self):
+        volume = 7
+        scope = Scope(volume=volume)
+        xml = bytes(f"<biblScope unit='volume'>{volume}</biblScope>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) == scope
+
+    def test_valid_tag_page(self):
+        page = 1
+        scope = Scope(pages=PageRange(page, page))
+        xml = bytes(f"<biblScope unit='page'>{page}</biblScope>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) == scope
+
+    def test_valid_tag_page_range(self):
+        from_page, to_page = 1, 2
+        scope = Scope(pages=PageRange(from_page, to_page))
+        xml = bytes(
+            f"<biblScope unit='page' from='{from_page}' to='{to_page}'>",
+            encoding="utf-8",
+        )
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) == scope
+
+    def test_invalid_page_type(self):
+        page = "one"
+        xml = bytes(f"<biblScope unit='page'>{page}</biblScope>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) is None
+
+    def test_empty_page(self):
+        xml = b"<biblScope unit='page'></biblScope>"
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) is None
+
+    def test_invalid_volume_type(self):
+        volume = "seven"
+        xml = bytes(f"<biblScope unit='volume'>{volume}</biblScope>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        assert tei.scope(tei.soup) is None
+
+
+class TestAuthors:
+    @staticmethod
+    def build_xml(authors: list[Author]) -> bytes:
+        author_tags: list[bytes] = [b"<analytic>"]
+        for author in authors:
+            author_tags.append(b"<author>")
+            author_tags.append(b"<persName>")
+            if (first_name := author.person_name.first_name) is not None:
+                author_tags.append(
+                    bytes(
+                        f"<forename type='first'>{first_name}</forename>",
+                        encoding="utf-8",
+                    )
+                )
+            author_tags.append(
+                bytes(
+                    f"<surname>{author.person_name.surname}</surname>",
+                    encoding="utf-8",
+                )
+            )
+
+            author_tags.append(b"</persName>")
+
+            if (email := author.email) is not None:
+                author_tags.append(bytes(f"<email>{email}</email>", encoding="utf-8"))
+
+            author_tags.append(b"<affiliation>")
+            for affiliation in author.affiliations:
+                for k, v in affiliation.__dict__.items():
+                    if v is None:
+                        continue
+                    author_tags.append(
+                        bytes(f"<orgName type='{k}'>{v}</orgName>", encoding="utf-8")
+                    )
+            author_tags.append(b"</affiliation>")
+            author_tags.append(b"</author>")
+
+        author_tags.append(b"</analytic>")
+
+        return b"".join(author_tags)
+
+    def test_valid_tags(self):
+        """Tests all supported tags."""
+        authors = [
+            Author(
+                PersonName(surname="Smith", first_name="Jane"),
+                email="jamesmith@gmail.com",
+                affiliations=[Affiliation(department="English")],
+            ),
+            Author(
+                PersonName(surname="Doe", first_name="John"),
+                affiliations=[Affiliation(institution="University of Nottingham")],
+            ),
+            Author(
+                PersonName(surname="Schmoe", first_name="Joe"),
+                affiliations=[Affiliation(laboratory="Computer Lab")],
+            ),
+        ]
+
+        tei = TEI(TestAuthors.build_xml(authors), nlp)
+
+        assert tei.authors(tei.soup) == authors
+
+
+class TestSection:
+    @staticmethod
+    def build_xml(section: Section) -> bytes:
+        div_tags: list[bytes] = [b"<div>"]
+
+        div_tags.append(bytes(f"<head>{section.title}</title>", encoding="utf-8"))
+
+        for p in section.paragraphs:
+            text_xml = p.text
+            for ref in p.refs:
+                ref_xml = f"<ref type='{ref.type_}' target='{ref.target}'>{p.text[ref.start:ref.end]}</ref>"
+                text_xml = text_xml[: ref.start] + ref_xml + text_xml[ref.end :]
+            div_tags.append(bytes(f"<p>{text_xml}</p>", encoding="utf-8"))
+
+        div_tags.append(b"</div>")
+
+        return b"".join(div_tags)
+
+    def test_valid_tag(self):
+        section = Section(
+            title="test",
+            paragraphs=[
+                RefText(
+                    text="Lorem ipsum [1]",
+                    refs=[Ref(start=12, end=15, target="#1", type_="bibr")],
+                )
+            ],
+        )
+
+        xml = TestSection.build_xml(section)
+        tei = TEI(xml, nlp)
+        # NOTE: woraround for forced capitalisation
+        section.title = section.title.capitalize()
+
+        assert tei.section(tei.soup) == section
+
+    def test_title_tag(self):
+
+        title = "abstract"
+        xml = bytes(f"<{title}></{title}>", encoding="utf-8")
+        tei = TEI(xml, nlp)
+
+        section = tei.section(tei.soup, title=title)
+
+        assert section is not None
+        assert section.title == title
+
+    def test_empty_tag(self):
+        xml = b"<div></div>"
+        tei = TEI(xml, nlp)
+
+        assert tei.section(tei.soup) is None
+
+
+class TestCleanTitleString:
+    def test_non_alpha_string(self):
+        s = "123"
+
+        assert TEI.clean_title_string(s) == ""
+
+    def test_clean_alpha_string(self):
+        s = "Test"
+
+        assert TEI.clean_title_string(s) == s
+
+    def test_clean_dirty_string(self):
+        s = "Test"
+        dirty = f"21 {s}"
+
+        assert TEI.clean_title_string(dirty) == s
