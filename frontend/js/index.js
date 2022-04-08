@@ -374,10 +374,9 @@ async function uploadPDF(e) {
               break;
           }
         });
-
         $(
           "references-return-display"
-        ).innerHTML += `<b>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} ${target}</b><br><br>`;
+        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} ${target}</b><br><br> </div>`;
       });
     });
 
