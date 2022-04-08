@@ -316,6 +316,7 @@ async function uploadPDF(e) {
         var date = "";
         var target = "";
         var journal = "";
+        var id_array = [];
         Object.entries(object).forEach(([key, value]) => {
           // Using a MLA 8 citation structure for academic journals
 
@@ -371,31 +372,40 @@ async function uploadPDF(e) {
               }
 
               break;
+
+            // case "target":
+            //   target = value || "";
+
+            //   break;
             case "ids":
               ids = value;
 
-              // ids.DOI
               if (ids.DOI != null) {
-                target = `https://doi.org/${ids.DOI}`;
-                url = `https://doi.org/${ids.DOI}`;
-                console.log(`${k} DOI: ${ids.DOI}`);
-                console.log();
-              } else if (ids.arXiv != null) {
-                target = ids.arXiv;
-                url = `https://arxiv.org/abs/${ids.arXiv}`;
-                console.log(`${k} arXiv: ${ids.arXiv}`);
-                console.log();
+                id_array.push({
+                  id: ids.DOI,
+                  url: `https://doi.org/${ids.DOI}`,
+                });
               }
-
+              if (ids.arXiv != null) {
+                id_array.push({
+                  id: ids.arXiv,
+                  url: `https://arxiv.org/abs/${ids.arXiv}`,
+                });
+              }
               break;
-            // case "target":
-            //   target = value || "";
-            //   break;
           }
         });
+
         $(
           "references-return-display"
-        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} <a href=${url} target=_blank rel=noopener noreferrer>${target}</a> </b><br><br> </div>`;
+        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages}`;
+
+        for (i = 0; i < id_array.length; i++) {
+          link = `<a href=${id_array[i].url} target=_blank rel=noopener noreferrer>${id_array[i].id}</a>`;
+          $("references-return-display").innerHTML += `${link}`;
+        }
+
+        $("references-return-display").innerHTML += `</b><br><br> </div>`;
       });
     });
 
