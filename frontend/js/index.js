@@ -307,6 +307,7 @@ async function uploadPDF(e) {
       $("references-return-display").textContent = data.citations;
       $("references-return-display").innerHTML = "";
 
+      console.log(data.citations);
       Object.entries(data.citations).forEach(([k, object]) => {
         var display_name = "";
         var title = "";
@@ -326,8 +327,6 @@ async function uploadPDF(e) {
             case "authors":
               var authors = value;
 
-              var author_count = 0;
-
               for (var i = 0; i < authors.length; i++) {
                 if (i >= 2) {
                   display_name += `et al.`;
@@ -335,15 +334,15 @@ async function uploadPDF(e) {
                 }
                 var person_name = authors[i].person_name;
 
-                var first_name = person_name.first_name || "";
+                var first_name = `${person_name.first_name} ` || "";
                 var surname = person_name.surname || "";
 
-                display_name += `${first_name} ${surname}, `;
+                display_name += `${first_name}${surname}, `;
               }
 
               break;
             case "journal":
-              journal = value || "";
+              journal = `${value},` || "";
               break;
             case "title":
               title = value;
