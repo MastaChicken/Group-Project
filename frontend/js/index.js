@@ -405,7 +405,7 @@ async function uploadPDF(e) {
           $("references-return-display").innerHTML += `${link}`;
         }
         encoded = encodeURI(
-          `${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages}`
+          `${display_name} "${title}". ${journal} ${display_volume} ${date}`
         );
         google_scholar_url = `https://scholar.google.co.uk/scholar?q=${encoded}`;
         console.log(encoded);
