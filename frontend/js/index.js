@@ -228,8 +228,8 @@ function openTab(tabName, className) {
 /**
  * Handle non-network errors
  *
- * @param {*} response - response state from fetch call.
- * @returns {*} response
+ * @param {Response} response - response state from fetch call.
+ * @returns {Response} response
  */
 function handleErrors(response) {
   if (!response.ok) throw new Error(response.status);
@@ -239,7 +239,7 @@ function handleErrors(response) {
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
  * If response is 200 then it is a valid url
  *
- * @returns {*} Boolean  - Returns true if the URL is valid
+ * @returns {boolean} Returns true if the URL is valid
  */
 async function validateURL() {
   var url = $("pdfpicker-url").value;
@@ -264,13 +264,13 @@ async function validateURL() {
 /**
  * Sends request to API with the pdf uploaded to form
  *
- * @param {*} e - only called to prevent default.
+ * @param {Event} event - only called to prevent default.
  */
-async function uploadPDF(e) {
-  e.preventDefault();
+async function uploadPDF(event) {
+  event.preventDefault();
   const data = new FormData();
   // Add first file in file input, the PDF, as "file"
-  data.append("file", e.target.file.files[0]);
+  data.append("file", event.target.file.files[0]);
   await fetch(`${API}/upload`, { method: "POST", body: data })
     .then(handleErrors)
     .then((r) => r.json())
@@ -281,10 +281,9 @@ async function uploadPDF(e) {
         $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
       $("summary-return-display").textContent = data.summary;
-      console.log(data.toc);
       $("toc-return-display").textContent = data.toc;
       $("toc-return-display").innerHTML = "";
-      Object.entries(data.toc).forEach(([k, v]) => {
+      Object.entries(data.toc).forEach(([_, v]) => {
         $("toc-return-display").innerHTML += `${v[1]}<br><br>`;
       });
 
@@ -304,121 +303,177 @@ async function uploadPDF(e) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data) => {
-      $("references-return-display").textContent = data.citations;
-      $("references-return-display").innerHTML = "";
+      const oLinkEl = document.createElement("ol");
+      Object.entries(data.citations).forEach(([ref, citation]) => {
+        let citationObj = new MLA8Citation(citation);
 
-      console.log(data.citations);
-      Object.entries(data.citations).forEach(([k, object]) => {
-        var display_name = "";
-        var title = "";
-        var display_pages = "";
-        var display_volume = "";
-        var date = "";
-        var target = "";
-        var journal = "";
-        var id_array = [];
-        Object.entries(object).forEach(([key, value]) => {
-          // Using a MLA 8 citation structure for academic journals
-
-          if (value == null) {
-            return;
-          }
-
-          switch (key) {
-            case "authors":
-              var authors = value;
-
-              for (var i = 0; i < authors.length; i++) {
-                if (i >= 2) {
-                  display_name += `et al.`;
-                  break;
-                }
-                var person_name = authors[i].person_name;
-
-                var first_name = `${person_name.first_name} ` || "";
-                var surname = person_name.surname || "";
-
-                display_name += `${first_name}${surname}, `;
-              }
-
-              break;
-            case "journal":
-              journal = `${value},` || "";
-              break;
-            case "title":
-              title = value;
-              break;
-            case "scope":
-              var scope = value;
-              display_pages = "";
-              if (scope.volume != null) {
-                var volume = `vol. ${scope.volume}.` || "";
-                var pages = scope.pages;
-                if (pages != null) {
-                  display_pages = `pp. ${pages.from_page}-${pages.to_page}.`;
-                }
-                display_volume = volume;
-              }
-              break;
-            case "date":
-              date = value;
-              var year = date.year;
-              var month = date.month || "";
-              var day = date.day || "";
-
-              date = `${day} ${month} ${year}`.trim();
-              if (date !== "") {
-                date += ".";
-              }
-
-              break;
-
-            // case "target":
-            //   target = value || "";
-
-            //   break;
-            case "ids":
-              ids = value;
-
-              if (ids.DOI != null) {
-                id_array.push({
-                  id: ids.DOI,
-                  url: `https://doi.org/${ids.DOI}`,
-                });
-              }
-              if (ids.arXiv != null) {
-                id_array.push({
-                  id: ids.arXiv,
-                  url: `https://arxiv.org/abs/${ids.arXiv}`,
-                });
-              }
-              break;
-          }
-        });
-
-        $(
-          "references-return-display"
-        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages}`;
-
-        for (i = 0; i < id_array.length; i++) {
-          link = `<a href=${id_array[i].url} target=_blank rel=noopener noreferrer>${id_array[i].id}</a>`;
-          $("references-return-display").innerHTML += `${link}`;
+        let listEl = document.createElement("li");
+        listEl.id = ref;
+        let pEl = document.createElement("p");
+        pEl.innerHTML = citationObj.entryHTMLString;
+        if (citationObj.target) {
+          let anchorEl = document.createElement("a");
+          anchorEl.href = citationObj.target;
+          anchorEl.text = ` ${citationObj.target}`;
+          anchorEl.target = "_blank";
+          pEl.append(anchorEl);
         }
-        encoded = encodeURI(
-          `${display_name} "${title}". ${journal} ${display_volume} ${date}`
-        );
-        google_scholar_url = `https://scholar.google.co.uk/scholar?q=${encoded}`;
-        console.log(encoded);
-        $(
-          "references-return-display"
-        ).innerHTML += `</b><br> <a href=${google_scholar_url} target=_blank rel=noopener noreferrer> <img src=google_scholar.png width=25 height=25></a><br></br> </div>`;
+        listEl.appendChild(pEl);
+
+        // TODO: use a grid
+        // Show ids
+        // if (idUrlArr?.length) {
+        //   pEl = document.createElement("p")
+        //   idUrlArr.forEach(idUrl => {
+        //     let anchorEl = document.createElement("a")
+        //     anchorEl.href = idUrl.url
+        //     anchorEl.text = idUrl.id
+        //     anchorEl.target = "_blank"
+        //     pEl.append(anchorEl)
+        //   });
+        //   listEl.appendChild(pEl)
+        // }
+
+        // Google scholar link
+        listEl.appendChild(citationObj.googleScholarAnchor);
+
+        oLinkEl.append(listEl);
       });
+      $("references-return-display").append(oLinkEl);
     });
 
   openTab("output-display", "tab-contents");
   $("output-main").scrollIntoView();
   $("summary-link").style.display = "inline-block";
 }
+
+class MLA8Citation {
+  constructor(citation) {
+    this.citation = citation;
+  }
+  /**
+   * @param {boolean} all - whether it should truncate at 2 authors.
+   * Default is False
+   * @returns {string} - concatenated author strings
+   */
+  joinAuthors(all = false) {
+    if (all) return this.authors.join(", ");
+    if (this.authors.length == 1) return this.authors[0];
+
+    var authorNames = "";
+    for (let index = 0; index < this.authors.length; index++) {
+      if (index == 2) {
+        authorNames += "et al.";
+        break;
+      }
+      authorNames += `${this.authors[index]}, `;
+    }
+
+    return authorNames;
+  }
+
+  get googleScholarAnchor() {
+    let rawDisplayName = this.joinAuthors();
+    let encodedQuery = encodeURI(
+      `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
+    );
+    let anchorEl = document.createElement("a");
+    anchorEl.href = `https://scholar.google.co.uk/scholar?q=${encodedQuery}`;
+    anchorEl.text = "Google Scholar";
+    anchorEl.target = "_blank";
+
+    return anchorEl;
+  }
+
+  // TODO: using string literal is too naive
+  get entryHTMLString() {
+    let displayName = this.joinAuthors(this.authors);
+    return `${displayName} ${this.title} <i>${this.journal}</i> ${this.date} ${this.pages}`;
+  }
+
+  get title() {
+    return this.citation.title;
+  }
+
+  get authors() {
+    let authors = [];
+    for (let index = 0; index < this.citation.authors.length; index++) {
+      const person_name = this.citation.authors[index].person_name;
+      let first_name = `${person_name.first_name} ` || "";
+      let surname = person_name.surname || "";
+      authors.push(`${first_name}${surname}`);
+    }
+    return authors;
+  }
+
+  // NOTE: add to MLA8 citation string
+  get publisher() {
+    return this.citation.publisher || "";
+  }
+
+  get journal() {
+    return this.citation.journal || "";
+  }
+
+  // NOTE: add to MLA8 citation string
+  get series() {
+    return this.citation.series || "";
+  }
+
+  get pages() {
+    let pages = this.citation.scope.pages;
+    if (pages === null) return "";
+
+    if (pages.from_page === pages.to_page) return `p. ${pages.to_page}.`;
+
+    return `pp. ${pages.from_page}-${pages.to_page}.`;
+  }
+
+  get volume() {
+    let volume = this.citation.scope.volume;
+    if (volume === null) return "";
+
+    return `vol. ${volume}`;
+  }
+
+  get date() {
+    let date = this.citation.date;
+    let year = date.year;
+    let month = date.month || "";
+    let day = date.day || "";
+
+    date = [year, month, day].join(" ").trim();
+    if (date !== "") {
+      date += ".";
+    }
+
+    return date;
+  }
+
+  get target() {
+    return this.citation.target || "";
+  }
+
+  get ids() {
+    let idUrlArr = [];
+    let citationIds = this.citation.ids;
+    if (citationIds.doi != null) {
+      idUrlArr.push({
+        id: citationIds.doi,
+        url: `https://doi.org/${citationIds.citation}`,
+      });
+    }
+    if (citationIds.arxiv != null) {
+      idUrlArr.push({
+        id: citationIds.arxiv,
+        url: `https://arxiv.org/abs/${citationIds.arxiv}`,
+      });
+    }
+
+    return idUrlArr;
+  }
+}
+
 
 /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
 
