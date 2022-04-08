@@ -372,14 +372,31 @@ async function uploadPDF(e) {
               }
 
               break;
-            case "target":
-              target = value || "";
+            case "ids":
+              ids = value;
+
+              // ids.DOI
+              if (ids.DOI != null) {
+                target = `https://doi.org/${ids.DOI}`;
+                url = `https://doi.org/${ids.DOI}`;
+                console.log(`${k} DOI: ${ids.DOI}`);
+                console.log();
+              } else if (ids.arXiv != null) {
+                target = ids.arXiv;
+                url = `https://arxiv.org/abs/${ids.arXiv}`;
+                console.log(`${k} arXiv: ${ids.arXiv}`);
+                console.log();
+              }
+
               break;
+            // case "target":
+            //   target = value || "";
+            //   break;
           }
         });
         $(
           "references-return-display"
-        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} ${target}</b><br><br> </div>`;
+        ).innerHTML += `<div id=${k}>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} <a href=${url} target=_blank rel=noopener noreferrer>${target}</a> </b><br><br> </div>`;
       });
     });
 
