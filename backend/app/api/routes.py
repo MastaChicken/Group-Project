@@ -9,15 +9,13 @@ import dataclasses
 
 import fastapi
 import httpx
-from fastapi import APIRouter, HTTPException, UploadFile, status
-from spacy import load
 
-from app.api.models import UploadResponse
+# f# rom app.api.models import UploadReponseNew, UploadResponse
 from app.grobid.client import Client
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI
-from app.nlp.techniques import Word
-from app.parser import Parser
+from fastapi import APIRouter, HTTPException, UploadFile, status
+from spacy import load
 
 router = APIRouter()
 
@@ -29,47 +27,21 @@ def load_model():
     model = load("en_core_web_sm")
 
 
-@router.post("/upload", response_model=UploadResponse)
+@router.post("/upload")
 async def recieve_file(file: UploadFile = fastapi.File(...)):
-    """Recieves uploaded file and sets it to object.
+    """Parse uploaded file.
 
     Args:
         file: file which is uploaded
     Returns:
-        Metadata, text and table of contents
+        Article object
     Raises:
-        SizeError: if given file is too large
+        HTTPException: the file cannot be parsed
     """
     contents = await file.read()
 
-    with Parser(contents) as doc:
-        text = ""
-        spans = doc.spans.get(1, {})
-        for values in spans:
-            text += values["text"] + " "
-
-        summary = []
-        common_words = []
-        # FIXME: this is a workaround to ensure that tests continue to pass
-        if text:
-            nlp = Word(model, text)
-            summary = nlp.extractive_summarisation(5)
-            common_words = nlp.words_threshold_n(10)
-        return UploadResponse(
-            title=doc.title,
-            metadata=doc.metadata,
-            toc=doc.toc,
-            summary=summary,
-            common_words=common_words,
-        )
-
-
-# TODO: add UploadReponseNew as response_model when pydantic is v1.9
-@router.post("/parse")
-async def parse_pdf(file: UploadFile = fastapi.File(...)):
-    """Temp endpoint."""
     if file.content_type != "application/pdf":
-        raise HTTPException(400, detail="Invalid document type")
+        raise HTTPException(415, detail="Invalid document type")
 
     contents = await file.read()
     if not isinstance(contents, bytes):
@@ -92,7 +64,7 @@ async def parse_pdf(file: UploadFile = fastapi.File(...)):
     try:
         return dataclasses.asdict(a)
     except TypeError:
-        return HTTPException(400, detail="Couldn't serialise response object")
+        return HTTPException(500, detail="Couldn't serialise response object")
 
 
 @router.get("/validate_url/")
