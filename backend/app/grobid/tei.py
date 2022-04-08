@@ -230,19 +230,21 @@ class TEI:
 
                     return self.__parse_date(when)
 
-    def __parse_date(self, date: str, sep="-") -> Date | None:
-        # Assumes date uses hyphen as separator by default
-        tokens = date.split(sep=sep)
+    def __parse_date(self, date: str) -> Date | None:
+        # Naive ISO 8601 date parser
+        tokens = date.split(sep="-")
 
         match len(tokens):
+            case 0:
+                return
             case 1:
                 year = tokens[0]
                 return Date(year)
             case 2:
                 year, month = tokens
                 return Date(year, month)
-            case 3:
-                year, month, day = tokens
+            case _:
+                year, month, day = tokens[0:3]
                 return Date(year, month, day)
 
     def scope(self, source_tag: Tag | None) -> Scope | None:
