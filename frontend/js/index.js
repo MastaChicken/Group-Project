@@ -313,6 +313,10 @@ async function uploadPDF(e) {
         Object.entries(object).forEach(([key, value]) => {
           // Using a MLA 8 citation structure for academic journals
 
+          if (value == null) {
+            return;
+          }
+
           switch (key) {
             case "authors":
               authors = value;
@@ -334,6 +338,9 @@ async function uploadPDF(e) {
                 display_name += `${first_name} ${surname}, `;
               }
 
+              break;
+            case "journal":
+              journal = value || "";
               break;
             case "title":
               title = value;
@@ -370,7 +377,7 @@ async function uploadPDF(e) {
 
         $(
           "references-return-display"
-        ).innerHTML += `<b>${display_name} "${title}". ${display_volume} ${date} ${display_pages} ${target}</b><br><br>`;
+        ).innerHTML += `<b>${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages} ${target}</b><br><br>`;
       });
     });
 
