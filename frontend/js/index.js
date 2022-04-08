@@ -404,8 +404,14 @@ async function uploadPDF(e) {
           link = `<a href=${id_array[i].url} target=_blank rel=noopener noreferrer>${id_array[i].id}</a>`;
           $("references-return-display").innerHTML += `${link}`;
         }
-
-        $("references-return-display").innerHTML += `</b><br><br> </div>`;
+        encoded = encodeURI(
+          `${display_name} "${title}". <i>${journal}</i> ${display_volume} ${date} ${display_pages}`
+        );
+        google_scholar_url = `https://scholar.google.co.uk/scholar?q=${encoded}`;
+        console.log(encoded);
+        $(
+          "references-return-display"
+        ).innerHTML += `</b><br> <a href=${google_scholar_url} target=_blank rel=noopener noreferrer> <img src=google_scholar.png width=25 height=25></a><br></br> </div>`;
       });
     });
 
