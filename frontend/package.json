@@ -2,13 +2,16 @@
   "name": "frontend",
   "version": "0.1.0",
   "description": "Frontend for the Content Visualisation project",
-  "main": "index.js",
   "type": "module",
+  "private": true,
   "scripts": {
-    "test": "playwright test",
-    "doc": "jsdoc -d docs js/index.js",
-    "lint": "eslint js",
-    "format_lint": "prettier --check js"
+    "e2e": "playwright test",
+    "doc": "jsdoc -d docs -r src",
+    "lint": "eslint src",
+    "format_lint": "prettier --check src",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "author": "",
   "license": "UNLICENSED",
@@ -19,6 +22,8 @@
     "eslint-plugin-jsdoc": "^37.2.0",
     "jsdoc": "^3.6.7",
     "playwright": "^1.17.1",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "sass": "^1.50.0",
+    "vite": "^2.9.1"
   }
 }
