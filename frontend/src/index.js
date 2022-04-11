@@ -1,8 +1,7 @@
-import MLA8Citation from "./modules/MLA8Citation";
-import { validateURL } from "./modules/URL";
+import { validateURL, uploadPDF } from "./modules/API";
 import { dropHandler, dragOverHandler } from "./modules/DragDropHandlers";
 import { isValidPDF } from "./modules/PDF";
-import { $, API } from "./constants";
+import { $ } from "./constants";
 
 // TODO: move event listeners to modules
 /**
@@ -102,102 +101,6 @@ function openTab(tabName, className) {
   }
 }
 
-/**
- * Handle non-network errors
- *
- * @param {Response} response - response state from fetch call.
- * @returns {Response} response
- */
-function handleErrors(response) {
-  if (!response.ok) throw new Error(response.status);
-  return response;
-}
-
-/**
- * Sends request to API with the pdf uploaded to form
- *
- * @param {Event} event - only called to prevent default.
- */
-async function uploadPDF(event) {
-  event.preventDefault();
-  const data = new FormData();
-  // Add first file in file input, the PDF, as "file"
-  data.append("file", event.target.file.files[0]);
-  await fetch(`${API}/upload`, { method: "POST", body: data })
-    .then(handleErrors)
-    .then((r) => r.json())
-    .then((data) => {
-      $("title-return-display").textContent = data.title;
-      $("metadata-return-display").innerHTML = "";
-      Object.entries(data.metadata).forEach(([k, v]) => {
-        $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
-      $("summary-return-display").textContent = data.summary;
-      $("toc-return-display").textContent = data.toc;
-      $("toc-return-display").innerHTML = "";
-      Object.entries(data.toc).forEach(([_, v]) => {
-        $("toc-return-display").innerHTML += `${v[1]}<br><br>`;
-      });
-
-      $("common-words-return-display").textContent = data.common_words;
-      $("common-words-return-display").innerHTML = "";
-      Object.entries(data.common_words).forEach(([k, v]) => {
-        $(
-          "common-words-return-display"
-        ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
-    })
-    .catch((e) => {
-      console.log(e);
-    });
-
-  await fetch(`${API}/parse`, { method: "POST", body: data })
-    .then(handleErrors)
-    .then((r) => r.json())
-    .then((data) => {
-      const oLinkEl = document.createElement("ol");
-      Object.entries(data.citations).forEach(([ref, citation]) => {
-        let citationObj = new MLA8Citation(citation);
-
-        let listEl = document.createElement("li");
-        listEl.id = ref;
-        let pEl = document.createElement("p");
-        pEl.innerHTML = citationObj.entryHTMLString();
-        if (citationObj.target) {
-          let anchorEl = document.createElement("a");
-          anchorEl.href = citationObj.target;
-          anchorEl.text = ` ${citationObj.target}`;
-          anchorEl.target = "_blank";
-          pEl.append(anchorEl);
-        }
-        listEl.appendChild(pEl);
-
-        // TODO: use a grid of icons instead of paragraphs
-        // Show ids
-        if (citationObj.ids?.length) {
-          pEl = document.createElement("p");
-          citationObj.ids.forEach((idUrl) => {
-            let anchorEl = document.createElement("a");
-            anchorEl.href = idUrl.url;
-            anchorEl.text = idUrl.id;
-            anchorEl.target = "_blank";
-            pEl.append(anchorEl);
-          });
-          listEl.appendChild(pEl);
-        }
-
-        // Google scholar link
-        listEl.appendChild(citationObj.googleScholarAnchor());
-
-        oLinkEl.append(listEl);
-      });
-      $("references-return-display").append(oLinkEl);
-    });
-
-  openTab("output-display", "tab-contents");
-  $("output-main").scrollIntoView();
-  // $("summary-link").style.display = "inline-block";
-}
 
 /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
 
