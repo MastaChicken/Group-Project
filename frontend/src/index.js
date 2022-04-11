@@ -1,4 +1,4 @@
-import MLA8Citation from "./modules/MLA8Citation.js";
+import MLA8Citation from "./modules/MLA8Citation.ts";
 
 const $ = (id) => document.getElementById(id);
 const API = "http://localhost:8000";

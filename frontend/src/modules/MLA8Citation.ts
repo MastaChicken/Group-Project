@@ -1,14 +1,15 @@
 /** @module MLA8Citation */
 
-/**
- * @typedef {object} idURL
- * @property {string} id  - ID
- * @property {string} url - URL based on ID
- */
+type IDUrl = {
+  id: string;
+  url: string;
+};
 
 /** @class */
 export default class MLA8Citation {
-  constructor(citation) {
+  private citation: any;
+
+  constructor(citation: any) {
     this.citation = citation;
   }
   /**
@@ -16,7 +17,7 @@ export default class MLA8Citation {
    * Default is false
    * @returns {string} - concatenated author strings
    */
-  joinAuthors(all = false) {
+  joinAuthors(all: boolean = false): string {
     if (all) return this.authors.join(", ");
     if (this.authors.length == 1) return this.authors[0];
 
@@ -35,7 +36,7 @@ export default class MLA8Citation {
   /**
    * @returns {HTMLAnchorElement} Google scholar query link
    */
-  googleScholarAnchor() {
+  googleScholarAnchor(): HTMLAnchorElement {
     let rawDisplayName = this.joinAuthors(true);
     let encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
@@ -52,18 +53,18 @@ export default class MLA8Citation {
   /**
    * @returns {string} HTML string structured as an MLA8 Citation entry
    */
-  entryHTMLString() {
+  entryHTMLString(): string {
     let displayName = this.joinAuthors();
     return `${displayName} ${this.title} <i>${this.journal}</i> ${this.date} ${this.pages}`;
   }
 
   /** @returns {string} citation title */
-  get title() {
+  get title(): string {
     return this.citation.title;
   }
 
   /** @returns {Array<string>} authors full names */
-  get authors() {
+  get authors(): Array<string> {
     let authors = [];
     for (let index = 0; index < this.citation.authors.length; index++) {
       const person_name = this.citation.authors[index].person_name;
@@ -76,18 +77,18 @@ export default class MLA8Citation {
 
   // NOTE: add to MLA8 citation string
   /** @returns  {string} citation publisher (can be empty string) */
-  get publisher() {
+  get publisher(): string {
     return this.citation.publisher || "";
   }
 
   /** @returns  {string} citation journal (can be empty string) */
-  get journal() {
+  get journal(): string {
     return this.citation.journal || "";
   }
 
   // NOTE: add to MLA8 citation string
   /** @returns  {string} citation series (can be empty string) */
-  get series() {
+  get series(): string {
     return this.citation.series || "";
   }
 
@@ -96,7 +97,7 @@ export default class MLA8Citation {
    *
    * @returns {string} formatted string of pages (can be empty)
    */
-  get pages() {
+  get pages(): string {
     let scope = this.citation.scope;
     if (scope === null) return "";
     let pages = scope.pages;
@@ -108,7 +109,7 @@ export default class MLA8Citation {
   }
 
   /** @returns  {string} formatted citation volume (can be empty string) */
-  get volume() {
+  get volume(): string {
     let scope = this.citation.scope;
     if (scope === null) return "";
     let volume = scope.volume;
@@ -118,7 +119,7 @@ export default class MLA8Citation {
   }
 
   /** @returns  {string} formatted citation date (can be empty string) */
-  get date() {
+  get date(): string {
     let date = this.citation.date;
     if (date === null) return "";
     let year = date.year;
@@ -134,19 +135,19 @@ export default class MLA8Citation {
   }
 
   /** @returns  {string} citation target (can be empty string) */
-  get target() {
+  get target(): string {
     return this.citation.target || "";
   }
 
   /**
    * Supported types: DOI and arXiv
    *
-   * @returns {idURL[]} - array of {idURL}
+   * @returns {IDUrl[]} - array of {idURL}
    */
-  get ids() {
-    let idUrlArr = [];
+  get ids(): IDUrl[] {
+    let idUrlArr: IDUrl[] = [];
     let citationIds = this.citation.ids;
-    if (citationIds === null) return "";
+    if (citationIds === null) return [];
 
     if (citationIds.doi != null) {
       idUrlArr.push({

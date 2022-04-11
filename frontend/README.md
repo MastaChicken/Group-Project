@@ -1,6 +1,7 @@
 # Frontend
 
-The frontend is written in HTML, (S)CSS and JavaScript (ES6 Modules).
+The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
+(ES6 Modules).
 
 
 ## Requirements
@@ -13,9 +14,13 @@ Once Node is installed, it should also include the `npm` binary.
 
 `$ npm install`
 
-This should install all the dependencies listed in the `package.json` file.
+This should install all the dependencies listed in the `package.json` file,
+including the TypeScript compiler.
 
-The `src` folder is where the CSS and JS is stored.
+The `src` folder is where the CSS, JS and TS is stored.
+
+Using TypeScript for writing modules is preferred due to its type checker, however,
+using JavaScript is also acceptable.
 
 ## Serve
 
@@ -32,6 +37,9 @@ We use the `Vite` build tool for development and bundling.
 By default, the server runs on [http://localhost:3000](http://localhost:3000).
 
 If port 3000 is unaviable, the next free port will be used.
+
+The development server will run ESLint and compile TypeScript files on file
+change.
 
 ### VSCode
 
@@ -97,11 +105,13 @@ By default, the server runs on [http://localhost:4173](http://localhost:4173).
 ## Code style
 
 We aim to follow the latest JavaScript Standard, ES12 (2021).
-We follow Google's HTML/CSS and JavaScript style guides.
+We follow Google's HTML/CSS, JavaScript and TypeScript style guides.
 
 > <https://google.github.io/styleguide/htmlcssguide.html>
 
 > <https://google.github.io/styleguide/jsguide.html>
+
+> <https://google.github.io/styleguide/tsguide.html>
 
 ### ES6 Modules
 
