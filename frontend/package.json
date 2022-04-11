@@ -40,6 +40,7 @@
   "dependencies": {
     "@patternfly/pfe-accordion": "^1.12.3",
     "@patternfly/pfe-icon": "^1.12.3",
-    "navaid": "^1.2.0"
+    "navaid": "^1.2.0",
+    "wordcloud": "^1.2.2"
   }
 }

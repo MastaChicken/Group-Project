@@ -1,4 +1,5 @@
 import MLA8Citation from "./mla8_citation";
+import makeWordCloud from "./wordcloud";
 import { $, API } from "../constants";
 
 /**
@@ -76,6 +77,7 @@ export async function uploadPDF(event: SubmitEvent) {
           "common-words-return-display"
         ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
+      makeWordCloud(data.common_words);
     })
     .catch((e) => {
       console.log(e);
