@@ -4,10 +4,10 @@ import { $, API } from "../constants";
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
  * If response is 200 then it is a valid url
  *
- * @returns {boolean} Returns true if the URL is valid
+ * @returns Returns true if the URL is valid
  */
 export async function validateURL(): Promise<boolean> {
-  var url = ($("pdfpicker-url") as HTMLInputElement).value;
+  const url = ($("pdfpicker-url") as HTMLInputElement).value;
 
   if (!url.endsWith(".pdf")) {
     // TODO: handle this error
@@ -15,7 +15,9 @@ export async function validateURL(): Promise<boolean> {
     return false;
   }
 
-  var code = await fetch(`${API}/validate_url/?url=${encodeURIComponent(url)}`)
+  const code = await fetch(
+    `${API}/validate_url/?url=${encodeURIComponent(url)}`
+  )
     .then(handleErrors)
     .then((response) => response.json())
     .then((response) => response.status)
@@ -29,11 +31,11 @@ export async function validateURL(): Promise<boolean> {
 /**
  * Handle non-network errors
  *
- * @param {Response} response - response state from fetch call.
- * @returns {Response} response
+ * @param response - response state from fetch call.
+ * @returns response
  * @throws {Error}
  */
-function handleErrors(response: Response): any {
+function handleErrors(response: Response): Response {
   if (!response.ok) throw new Error(response.status.toString());
   return response;
 }

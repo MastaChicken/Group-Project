@@ -1,10 +1,11 @@
-import { $ } from '../constants';
+import { $ } from "../constants";
+import { isValidPDF } from "./PDF";
 
 /**
  * Function to monitor when files are dragged over the drag over box.
  * Important to remove browsers default functionality, i.e chrome wants to copy the pdf file into browser and render.
  *
- * @param {DragEvent} ev - dragOverHandler event.
+ * @param ev - dragOverHandler event.
  */
 export function dragOverHandler(ev: DragEvent): void {
   console.log("File(s) in drop zone");
@@ -16,7 +17,7 @@ export function dragOverHandler(ev: DragEvent): void {
  * Function for handling drop events. Handles the file transfer from event.datatransfer file to being stored in the input="file".
  * clears dataTransfer data after stored, or determined not valid .pdf filetype.
  *
- * @param {DragEvent} ev - dropHandler event.
+ * @param ev - dropHandler event.
  */
 export function dropHandler(ev: DragEvent): void {
   console.log("File(s) dropped");
@@ -27,8 +28,8 @@ export function dropHandler(ev: DragEvent): void {
   if (ev.dataTransfer.items) {
     // If dropped items aren't files, reject them
     if (ev.dataTransfer.items[0].kind === "file") {
-      let file = ev.dataTransfer.items[0].getAsFile();
-      let dropText = $("drop-text");
+      const file = ev.dataTransfer.items[0].getAsFile();
+      const dropText = $("drop-text");
 
       if (isValidPDF(file)) {
         // If file is .pdf adjust the page summary slider and set the file input box as the data files then clear event data.
@@ -52,7 +53,7 @@ export function dropHandler(ev: DragEvent): void {
 /**
  * Handles clearing data with check for items.
  *
- * @param {DataTransfer} data - dataTransfer data.
+ * @param data - dataTransfer data.
  */
 function clearData(data: DataTransfer): void {
   if (data.items) {

@@ -78,7 +78,7 @@ Visual Studio Code should automatically generate [JSDoc](https://code.visualstud
 
 ### Building
 
-We use `JSDoc` to generate documentation. `JSDoc` is installed as a developer
+We use `typedoc` to generate documentation. `typedoc` is installed as a developer
 dependency through `npm`
 
 `$ npm run doc`

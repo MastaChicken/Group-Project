@@ -13,15 +13,15 @@ export default class MLA8Citation {
     this.citation = citation;
   }
   /**
-   * @param {boolean} all - whether it should truncate at 2 authors.
+   * @param all - whether it should truncate at 2 authors.
    * Default is false
-   * @returns {string} - concatenated author strings
+   * @returns concatenated author strings
    */
-  joinAuthors(all: boolean = false): string {
+  joinAuthors(all = false): string {
     if (all) return this.authors.join(", ");
     if (this.authors.length == 1) return this.authors[0];
 
-    var authorNames = "";
+    let authorNames = "";
     for (let index = 0; index < this.authors.length; index++) {
       if (index == 2) {
         authorNames += "et al.";
@@ -34,14 +34,14 @@ export default class MLA8Citation {
   }
 
   /**
-   * @returns {HTMLAnchorElement} Google scholar query link
+   * @returns Google scholar query link
    */
   googleScholarAnchor(): HTMLAnchorElement {
-    let rawDisplayName = this.joinAuthors(true);
-    let encodedQuery = encodeURI(
+    const rawDisplayName = this.joinAuthors(true);
+    const encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
     );
-    let anchorEl = document.createElement("a");
+    const anchorEl = document.createElement("a");
     anchorEl.href = `https://scholar.google.co.uk/scholar?q=${encodedQuery}`;
     anchorEl.text = "Google Scholar";
     anchorEl.target = "_blank";
@@ -51,43 +51,43 @@ export default class MLA8Citation {
 
   // TODO: using string literal is too naive
   /**
-   * @returns {string} HTML string structured as an MLA8 Citation entry
+   * @returns HTML string structured as an MLA8 Citation entry
    */
   entryHTMLString(): string {
-    let displayName = this.joinAuthors();
+    const displayName = this.joinAuthors();
     return `${displayName} ${this.title} <i>${this.journal}</i> ${this.date} ${this.pages}`;
   }
 
-  /** @returns {string} citation title */
+  /** @returns citation title */
   get title(): string {
     return this.citation.title;
   }
 
-  /** @returns {Array<string>} authors full names */
+  /** @returns authors full names */
   get authors(): Array<string> {
-    let authors = [];
+    const authors: Array<string> = [];
     for (let index = 0; index < this.citation.authors.length; index++) {
       const person_name = this.citation.authors[index].person_name;
-      let first_name = person_name.first_name || "";
-      let surname = person_name.surname || "";
+      const first_name = person_name.first_name || "";
+      const surname = person_name.surname || "";
       authors.push(`${first_name} ${surname}`.trim());
     }
     return authors;
   }
 
   // NOTE: add to MLA8 citation string
-  /** @returns  {string} citation publisher (can be empty string) */
+  /** @returns citation publisher (can be empty string) */
   get publisher(): string {
     return this.citation.publisher || "";
   }
 
-  /** @returns  {string} citation journal (can be empty string) */
+  /** @returns  citation journal (can be empty string) */
   get journal(): string {
     return this.citation.journal || "";
   }
 
   // NOTE: add to MLA8 citation string
-  /** @returns  {string} citation series (can be empty string) */
+  /** @returns  citation series (can be empty string) */
   get series(): string {
     return this.citation.series || "";
   }
@@ -95,12 +95,12 @@ export default class MLA8Citation {
   /**
    * Format depends on if there is a range of pages
    *
-   * @returns {string} formatted string of pages (can be empty)
+   * @returns formatted string of pages (can be empty)
    */
   get pages(): string {
-    let scope = this.citation.scope;
+    const scope = this.citation.scope;
     if (scope === null) return "";
-    let pages = scope.pages;
+    const pages = scope.pages;
     if (pages === null) return "";
 
     if (pages.from_page === pages.to_page) return `p. ${pages.to_page}.`;
@@ -108,23 +108,23 @@ export default class MLA8Citation {
     return `pp. ${pages.from_page}-${pages.to_page}.`;
   }
 
-  /** @returns  {string} formatted citation volume (can be empty string) */
+  /** @returns formatted citation volume (can be empty string) */
   get volume(): string {
-    let scope = this.citation.scope;
+    const scope = this.citation.scope;
     if (scope === null) return "";
-    let volume = scope.volume;
+    const volume = scope.volume;
     if (volume === null) return "";
 
     return `vol. ${volume}`;
   }
 
-  /** @returns  {string} formatted citation date (can be empty string) */
+  /** @returns formatted citation date (can be empty string) */
   get date(): string {
     let date = this.citation.date;
     if (date === null) return "";
-    let year = date.year;
-    let month = date.month || "";
-    let day = date.day || "";
+    const year = date.year;
+    const month = date.month || "";
+    const day = date.day || "";
 
     date = [year, month, day].join(" ").trim();
     if (date !== "") {
@@ -134,7 +134,7 @@ export default class MLA8Citation {
     return date;
   }
 
-  /** @returns  {string} citation target (can be empty string) */
+  /** @returns citation target (can be empty string) */
   get target(): string {
     return this.citation.target || "";
   }
@@ -142,11 +142,11 @@ export default class MLA8Citation {
   /**
    * Supported types: DOI and arXiv
    *
-   * @returns {IDUrl[]} - array of {idURL}
+   * @returns array of {idURL}
    */
   get ids(): IDUrl[] {
-    let idUrlArr: IDUrl[] = [];
-    let citationIds = this.citation.ids;
+    const idUrlArr: IDUrl[] = [];
+    const citationIds = this.citation.ids;
     if (citationIds === null) return [];
 
     if (citationIds.doi != null) {
