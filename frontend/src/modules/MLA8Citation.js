@@ -97,7 +97,9 @@ export default class MLA8Citation {
    * @returns {string} formatted string of pages (can be empty)
    */
   get pages() {
-    let pages = this.citation.scope.pages;
+    let scope = this.citation.scope;
+    if (scope === null) return "";
+    let pages = scope.pages;
     if (pages === null) return "";
 
     if (pages.from_page === pages.to_page) return `p. ${pages.to_page}.`;
@@ -107,7 +109,9 @@ export default class MLA8Citation {
 
   /** @returns  {string} formatted citation volume (can be empty string) */
   get volume() {
-    let volume = this.citation.scope.volume;
+    let scope = this.citation.scope;
+    if (scope === null) return "";
+    let volume = scope.volume;
     if (volume === null) return "";
 
     return `vol. ${volume}`;
@@ -116,6 +120,7 @@ export default class MLA8Citation {
   /** @returns  {string} formatted citation date (can be empty string) */
   get date() {
     let date = this.citation.date;
+    if (date === null) return "";
     let year = date.year;
     let month = date.month || "";
     let day = date.day || "";
@@ -141,6 +146,8 @@ export default class MLA8Citation {
   get ids() {
     let idUrlArr = [];
     let citationIds = this.citation.ids;
+    if (citationIds === null) return "";
+
     if (citationIds.doi != null) {
       idUrlArr.push({
         id: citationIds.doi,
