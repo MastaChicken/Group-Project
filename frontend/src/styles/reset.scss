@@ -1,0 +1,16 @@
+html {
+  scroll-behavior: smooth;
+
+  &:focus-within {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  text-rendering: optimizeSpeed;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+}

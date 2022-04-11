@@ -31,7 +31,8 @@ This is the easiest method of running the server
 $ docker-compose up
 ```
 
-This will run the server in production mode using `gunicorn`
+This will run the API server in production mode using `gunicorn` on
+`http://localhost:8000` and the web app in development mode on `http://localhost:3000`
 
 ### Source
 

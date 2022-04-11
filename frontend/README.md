@@ -1,6 +1,7 @@
 # Frontend
 
-The frontend is written in HTML, CSS and JavaScript.
+The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
+(ES6 Modules).
 
 
 ## Requirements
@@ -13,7 +14,38 @@ Once Node is installed, it should also include the `npm` binary.
 
 `$ npm install`
 
-This should install all the dependencies listed in the `package.json` file.
+This should install all the dependencies listed in the `package.json` file,
+including the TypeScript compiler.
+
+The `src` folder is where the CSS, JS and TS is stored.
+
+Using TypeScript for writing modules is preferred due to its type checker, however,
+using JavaScript is also acceptable.
+
+## Serve
+
+We use the `Vite` build tool for development and bundling.
+
+[Vite guide](https://vitejs.dev/guide/)
+
+### CLI
+
+> Run the development server
+
+`$ npm run dev`
+
+By default, the server runs on [http://localhost:3000](http://localhost:3000).
+
+If port 3000 is unaviable, the next free port will be used.
+
+The development server will run ESLint and compile TypeScript files on file
+change.
+
+### VSCode
+
+Install the [VSCode](https://marketplace.visualstudio.com/items?itemName=antfu.vite) extension.
+
+VSCode should automatically start the dev server when you open the project.
 
 ## Testing
 
@@ -21,7 +53,7 @@ We use `playwright` to create and run end-to-end tests.
 
 ### Create
 
-Test names should have the following format `tests/<name>.spec.js`
+Test names should have the following format `e2e/<name>.spec.js`
 
 Tests can also be written in typescript if preferred, however, they must be
 written as [ECMAScript modules](https://nodejs.org/docs/latest/api/esm.html).
@@ -30,9 +62,11 @@ written as [ECMAScript modules](https://nodejs.org/docs/latest/api/esm.html).
 
 ### Running
 
-`$ npm run test`
+> If this is the first time, Playwright will prompt you to install the required dependencies
 
-This will run all the tests in the `tests/` folder on Chromium and Firefox.
+`$ npm run e2e`
+
+This will run all the tests in the `e2e/` folder on Chromium and Firefox.
 
 `$ npx playwright test <filepath>`
 
@@ -44,21 +78,64 @@ Visual Studio Code should automatically generate [JSDoc](https://code.visualstud
 
 ### Building
 
-We use `JSDoc` to generate documentation. `JSDoc` is installed as a developer
+We use `typedoc` to generate documentation. `typedoc` is installed as a developer
 dependency through `npm`
 
 `$ npm run doc`
 
 This will build the documentation in `docs/`
 
+## Bundling
+
+### CLI
+
+> Build for production
+
+`$ npm run build`
+
+This will create a folder, `dist/`, which will contain the files needed for
+production
+
+> Locally preview the production build (live server)
+
+`$ npm run preview`
+
+By default, the server runs on [http://localhost:4173](http://localhost:4173).
+
 ## Code style
 
-We aim to follow the latest JavaScript Standard, ES12.
-We follow Google's HTML/CSS and JavaScript style guides.
+We aim to follow the latest JavaScript Standard, ES12 (2021).
+We follow Google's HTML/CSS, JavaScript and TypeScript style guides.
 
 > <https://google.github.io/styleguide/htmlcssguide.html>
 
 > <https://google.github.io/styleguide/jsguide.html>
+
+> <https://google.github.io/styleguide/tsguide.html>
+
+### ES6 Modules
+
+Similar to classes in OOP languages, we can use the [Module design pattern](https://coryrylan.com/blog/javascript-module-pattern-basics) to 
+ensure a maintainable codebase.
+
+Modules allow us to use the `import` and `export` statements.
+
+In the `index.js` file, ensure that you use [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+instead of polluting the global namespace (exporting to window) when you want to
+add an interaction between a HTMLElement and Javascript.
+
+To create a module, create a Javascript file in the `src/modules/` folder. Make
+sure to `export` any functions/classes/variables you want to use in other
+Javascript modules.
+
+In order to use your module externally, add an `import` statement at the top of
+a given module.
+
+> Example
+
+`import MyClass from './MyModule.js';`
+
+[Guide on modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
 
 ### ESLint
 
@@ -66,7 +143,25 @@ We use [ESLint](https://eslint.org/) as our code linter. If using Visual Studio
 Code, you should install the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) extension.
 Additional ESLint rules for JSDoc are also included.
 
+#### CLI
+
+To run ESLint manually, navigate to the root of the project `frontend/` and run
+
+`$ npm run lint`
+
 ### Prettier
 
 We use [Prettier](https://prettier.io/) as our code formatter. If using Visual Studio Code, you should
 install the [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extension.
+
+#### CLI
+
+To run Prettier manually, navigate to the root of the project `frontend` and run
+
+`$ npm run format_lint`
+
+This will check any files need formatting.
+
+In order to format the files, inplace (this will modify the files!)
+
+`$ npx prettier src --write`
