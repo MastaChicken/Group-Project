@@ -282,15 +282,15 @@ async function uploadPDF(event) {
         // TODO: use a grid of icons instead of paragraphs
         // Show ids
         if (citationObj.ids?.length) {
-          pEl = document.createElement("p")
-          citationObj.ids.forEach(idUrl => {
-            let anchorEl = document.createElement("a")
-            anchorEl.href = idUrl.url
-            anchorEl.text = idUrl.id
-            anchorEl.target = "_blank"
-            pEl.append(anchorEl)
+          pEl = document.createElement("p");
+          citationObj.ids.forEach((idUrl) => {
+            let anchorEl = document.createElement("a");
+            anchorEl.href = idUrl.url;
+            anchorEl.text = idUrl.id;
+            anchorEl.target = "_blank";
+            pEl.append(anchorEl);
           });
-          listEl.appendChild(pEl)
+          listEl.appendChild(pEl);
         }
 
         // Google scholar link

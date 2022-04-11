@@ -4,13 +4,13 @@ html {
   &:focus-within {
     scroll-behavior: smooth;
   }
-
 }
 
 body {
   text-rendering: optimizeSpeed;
 }
 
-a, a:visited {
+a,
+a:visited {
   text-decoration: none;
 }

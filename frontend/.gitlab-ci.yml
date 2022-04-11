@@ -20,6 +20,7 @@ cache: &package_cache
 stages:
   - prepare
   - test
+  - build
 
 before_script:
   - cd frontend
@@ -50,4 +51,12 @@ linting:
 e2e:
   stage: test
   script:
-    - npm run test
+    - npm run e2e
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/*
