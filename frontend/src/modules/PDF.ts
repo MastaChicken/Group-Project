@@ -22,5 +22,3 @@ export function isValidPDF({ type, name, size }: File): boolean {
 
   return false;
 }
-
-

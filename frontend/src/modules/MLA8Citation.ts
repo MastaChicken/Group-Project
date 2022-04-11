@@ -1,5 +1,8 @@
 /** @module MLA8Citation */
 
+/**
+ * Represents a document ID and its respective URL
+ */
 type IDUrl = {
   id: string;
   url: string;
