@@ -1,33 +1,10 @@
-import MLA8Citation from "./modules/MLA8Citation.ts";
+import MLA8Citation from "./modules/MLA8Citation";
+import { validateURL } from "./modules/URL";
+import { dropHandler, dragOverHandler } from "./modules/DragDropHandlers";
+import { isValidPDF } from "./modules/PDF";
+import { $, API } from "./constants";
 
-const $ = (id) => document.getElementById(id);
-const API = "http://localhost:8000";
-
-/**
- * Checks if file is valid .pdf
- *
- * @param {*} file - file input. type, name and size are properties of the file.
- * @returns {boolean} if PDF is valid
- */
-function isValidPDF({ type, name, size }) {
-  if (size === 0) {
-    return false;
-  }
-  if (type === "application/pdf") {
-    return true;
-  }
-  if (type === "" && name) {
-    let fileName = name;
-    let lastDotIndex = fileName.lastIndexOf(".");
-    return !(
-      lastDotIndex === -1 ||
-      fileName.substr(lastDotIndex).toUpperCase() !== "PDF"
-    );
-  }
-
-  return false;
-}
-
+// TODO: move event listeners to modules
 /**
  * Adds event listeners for the pdfpicker file input, the pages to summarise slider, size of summary slider.
  *
@@ -97,70 +74,6 @@ window.onload = () => {
 };
 
 /**
- * Function to monitor when files are dragged over the drag over box.
- * Important to remove browsers default functionality, i.e chrome wants to copy the pdf file into browser and render.
- *
- * @param {DragEvent} ev - dragOverHandler event.
- */
-function dragOverHandler(ev) {
-  console.log("File(s) in drop zone");
-  // Prevent default behavior (Prevent file from being opened)
-  ev.preventDefault();
-}
-
-/**
- * Function for handling drop events. Handles the file transfer from event.datatransfer file to being stored in the input="file".
- * clears dataTransfer data after stored, or determined not valid .pdf filetype.
- *
- * @param {DragEvent} ev - dropHandler event.
- */
-function dropHandler(ev) {
-  console.log("File(s) dropped");
-
-  // Prevent default behavior (Prevent file from being opened)
-  ev.preventDefault();
-
-  if (ev.dataTransfer.items) {
-    // If dropped items aren't files, reject them
-    if (ev.dataTransfer.items[0].kind === "file") {
-      let file = ev.dataTransfer.items[0].getAsFile();
-      let dropText = $("drop-text");
-
-      if (isValidPDF(file)) {
-        // If file is .pdf adjust the page summary slider and set the file input box as the data files then clear event data.
-        // This ensures we are only dealing with 1 file at a time and from the same source, so when sending to backend
-        // we only have to target the input file.
-        dropText.innerHTML = `File accepted: ${file.name}`;
-        $("pdfpicker-file").files = ev.dataTransfer.files;
-        clearData(ev.dataTransfer);
-        $("selection-boxes").style.display = "block";
-      } else {
-        // If not a valid .pdf Add reject messsage and clear data from file input and event data.
-        dropText.innerHTML = "File Rejected: Please add .pdf file type";
-        $("pdfpicker-file").value = "";
-        clearData(ev.dataTransfer);
-        $("selection-boxes").style.display = "none";
-      }
-    }
-  }
-}
-
-/**
- * Handles clearing data with check for items.
- *
- * @param {*} data - dataTransfer data.
- */
-function clearData(data) {
-  if (data.items) {
-    // Use DataTransferItemList interface to remove the drag data
-    data.items.clear();
-  } else {
-    // Use DataTransfer interface to remove the drag data
-    data.clearData();
-  }
-}
-
-/**
  * Changes between upload / URL / Summary tabs.
  *
  * @param {*} tabName - Desired tab to switch to.
@@ -198,31 +111,6 @@ function openTab(tabName, className) {
 function handleErrors(response) {
   if (!response.ok) throw new Error(response.status);
   return response;
-}
-/**
- * Checks url is has .pdf suffix, passes it to backend to get a status response.
- * If response is 200 then it is a valid url
- *
- * @returns {boolean} Returns true if the URL is valid
- */
-async function validateURL() {
-  var url = $("pdfpicker-url").value;
-
-  if (!url.endsWith(".pdf")) {
-    // TODO: handle this error
-    console.log(url);
-    return false;
-  }
-
-  var code = await fetch(`${API}/validate_url/?url=${encodeURIComponent(url)}`)
-    .then(handleErrors)
-    .then((response) => response.json())
-    .then((response) => response.status)
-    .catch((e) => e.message);
-
-  console.log(code);
-
-  return code == 200;
 }
 
 /**
