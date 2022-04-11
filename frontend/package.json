@@ -9,9 +9,9 @@
     "doc": "jsdoc -d docs -r src",
     "lint": "eslint src",
     "format_lint": "prettier --check src",
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --host 0.0.0.0"
   },
   "author": "",
   "license": "UNLICENSED",

@@ -10,5 +10,7 @@ services:
       - "8000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  # client:
-  #   build: ./frontend
+  client:
+    build: ./frontend
+    ports:
+      - "3000:3000"
