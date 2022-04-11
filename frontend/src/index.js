@@ -279,19 +279,19 @@ async function uploadPDF(event) {
         }
         listEl.appendChild(pEl);
 
-        // TODO: use a grid
+        // TODO: use a grid of icons instead of paragraphs
         // Show ids
-        // if (idUrlArr?.length) {
-        //   pEl = document.createElement("p")
-        //   idUrlArr.forEach(idUrl => {
-        //     let anchorEl = document.createElement("a")
-        //     anchorEl.href = idUrl.url
-        //     anchorEl.text = idUrl.id
-        //     anchorEl.target = "_blank"
-        //     pEl.append(anchorEl)
-        //   });
-        //   listEl.appendChild(pEl)
-        // }
+        if (citationObj.ids?.length) {
+          pEl = document.createElement("p")
+          citationObj.ids.forEach(idUrl => {
+            let anchorEl = document.createElement("a")
+            anchorEl.href = idUrl.url
+            anchorEl.text = idUrl.id
+            anchorEl.target = "_blank"
+            pEl.append(anchorEl)
+          });
+          listEl.appendChild(pEl)
+        }
 
         // Google scholar link
         listEl.appendChild(citationObj.googleScholarAnchor());

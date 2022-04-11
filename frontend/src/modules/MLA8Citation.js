@@ -13,7 +13,7 @@ export default class MLA8Citation {
   }
   /**
    * @param {boolean} all - whether it should truncate at 2 authors.
-   * Default is False
+   * Default is false
    * @returns {string} - concatenated author strings
    */
   joinAuthors(all = false) {
@@ -36,7 +36,7 @@ export default class MLA8Citation {
    * @returns {HTMLAnchorElement} Google scholar query link
    */
   googleScholarAnchor() {
-    let rawDisplayName = this.joinAuthors();
+    let rawDisplayName = this.joinAuthors(true);
     let encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
     );
@@ -53,7 +53,7 @@ export default class MLA8Citation {
    * @returns {string} HTML string structured as an MLA8 Citation entry
    */
   entryHTMLString() {
-    let displayName = this.joinAuthors(this.authors);
+    let displayName = this.joinAuthors();
     return `${displayName} ${this.title} <i>${this.journal}</i> ${this.date} ${this.pages}`;
   }
 
@@ -67,9 +67,9 @@ export default class MLA8Citation {
     let authors = [];
     for (let index = 0; index < this.citation.authors.length; index++) {
       const person_name = this.citation.authors[index].person_name;
-      let first_name = `${person_name.first_name} ` || "";
+      let first_name = person_name.first_name || "";
       let surname = person_name.surname || "";
-      authors.push(`${first_name}${surname}`);
+      authors.push(`${first_name} ${surname}`.trim());
     }
     return authors;
   }
