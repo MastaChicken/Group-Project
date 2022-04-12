@@ -1,6 +1,7 @@
 import * as WordCloud from "wordcloud";
+import { $ } from "../constants";
 
- 
+
 export default function makeWordCloud(list){
-    WordCloud(document.getElementById('wordcloud'), { list: list } );
+    WordCloud($('wordcloud'), { list: list } );
 }
