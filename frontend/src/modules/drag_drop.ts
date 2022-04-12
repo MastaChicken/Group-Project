@@ -64,3 +64,11 @@ function clearData(data: DataTransfer): void {
     data.clearData();
   }
 }
+
+/**
+ * Resets form and sets the text to default state.
+ */
+export function resetForm(): void {
+  ($("upload-form") as HTMLFormElement).reset();
+  ($("drop-text") as HTMLLabelElement).innerText = "Drop your .pdf files here!";
+}

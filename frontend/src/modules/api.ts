@@ -1,5 +1,6 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
+import { resetForm } from "./drag_drop";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -52,6 +53,9 @@ export async function uploadPDF(event: SubmitEvent) {
   // Add first file in file input, the PDF, as "file"
   const target = event.target as HTMLFormElement;
   data.append("file", target.file.files[0]);
+
+  resetForm();
+
   await fetch(`${API}/upload`, { method: "POST", body: data })
     .then(handleErrors)
     .then((r) => r.json())
