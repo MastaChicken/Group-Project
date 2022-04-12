@@ -10,7 +10,8 @@
     "lint": "eslint src",
     "format_lint": "prettier --check src",
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build:prod": "vite build",
+    "build:dev": "vite build -m development",
     "preview": "vite preview --host 0.0.0.0"
   },
   "author": "",

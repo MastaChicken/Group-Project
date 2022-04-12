@@ -56,7 +56,8 @@ e2e:
 build:
   stage: build
   script:
-    - npm run build
+    # TODO: build for production by using Gitlab environment secret
+    - npm run build:dev
   artifacts:
     paths:
       - frontend/dist/*

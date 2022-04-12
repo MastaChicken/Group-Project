@@ -7,13 +7,13 @@ import EnvironmentPlugin from "vite-plugin-environment";
  */
 export default defineConfig({
   plugins: [
-    checker(
-      { typescript: true },
-      { eslint: { lintCommand: 'eslint"./src/**/*.{js,ts}"' } }
-    ),
+    checker({
+      typescript: true,
+      eslint: { lintCommand: 'eslint "./src/**/*.{js,ts}"' },
+    }),
     EnvironmentPlugin({
-      // Uses 'development' if the NODE_ENV environment variable is not defined.
-      NODE_ENV: "development",
+      // Required: will fail if the API_URL environment variable is not provided.
+      API_URL: undefined,
     }),
   ],
   build: {
