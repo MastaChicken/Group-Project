@@ -1,4 +1,4 @@
-import MLA8Citation from "./MLA8Citation";
+import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 
 /**

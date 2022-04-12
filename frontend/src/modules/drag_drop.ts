@@ -1,5 +1,5 @@
 import { $ } from "../constants";
-import { isValidPDF } from "./PDF";
+import { isValidPDF } from "./pdf";
 
 /**
  * Function to monitor when files are dragged over the drag over box.
