@@ -1,6 +1,6 @@
-import { validateURL, uploadPDF } from "./modules/API";
-import { dropHandler, dragOverHandler } from "./modules/DragDropHandlers";
-import { isValidPDF } from "./modules/PDF";
+import { validateURL, uploadPDF } from "./modules/api";
+import { dropHandler, dragOverHandler } from "./modules/drag_drop";
+import { isValidPDF } from "./modules/pdf";
 import { $ } from "./constants";
 
 // TODO: move event listeners to modules
