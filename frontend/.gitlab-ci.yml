@@ -20,6 +20,7 @@ cache: &package_cache
 stages:
   - prepare
   - test
+  - build
 
 before_script:
   - cd frontend
@@ -50,4 +51,13 @@ linting:
 e2e:
   stage: test
   script:
-    - npm run test
+    - npm run e2e
+
+build:
+  stage: build
+  script:
+    # TODO: build for production by using Gitlab environment secret
+    - npm run build:dev
+  artifacts:
+    paths:
+      - frontend/dist/*

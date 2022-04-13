@@ -15,3 +15,7 @@ node_modules/
 
 # JSDoc
 docs/
+
+# Vite
+dist
+dist-ssr
