@@ -13,6 +13,7 @@ from collections import Counter
 from functools import cached_property
 from heapq import nlargest
 
+
 from spacy.lang.en.stop_words import STOP_WORDS
 from spacy.language import Language
 from spacy.tokens.doc import Doc
@@ -36,11 +37,13 @@ class Techniques:
             text : chunk of text from scholarly article
 
         Raises:
-            RuntimeError: if text is empty
+            RunTimeError: if pipeline doesn't contain lemmatizer
 
         """
-        if text == "":
-            raise RuntimeError("Text cannot be empty")
+
+        if not model.has_pipe("lemmatizer"):
+            raise RuntimeError("Language models require lemmatizer pipeline")
+
         self.__doc = model(text)
 
     @cached_property
@@ -59,14 +62,14 @@ class Techniques:
         # Lemmatization maybe
         for word in self.__doc:
             if (
-                word.text.lower() not in STOP_WORDS
-                and word.text.lower() not in punctuation
+                word.lemma_.lower() not in STOP_WORDS
+                and word.lemma_.lower() not in punctuation
                 and word.pos_ == "NOUN"
             ):
-                if word.text not in word_frequencies.keys():
-                    word_frequencies[word.text] = 1
+                if word.lemma_ not in word_frequencies.keys():
+                    word_frequencies[word.lemma_] = 1
                 else:
-                    word_frequencies[word.text] += 1
+                    word_frequencies[word.lemma_] += 1
 
         return word_frequencies
 
