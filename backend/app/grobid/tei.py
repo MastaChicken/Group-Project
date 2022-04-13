@@ -416,6 +416,30 @@ class TEI:
 
             return ref_text
 
+    
+    
+    def table(self, source_tag: Tag | None) -> list[list[str]]:
+        """Parse rows with cell tags.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            matrix with table cells
+        """
+        rows = source_tag.findAll('row')
+        
+        table = []
+
+        for row in rows:
+            row_list = []
+            for cell in row.findAll('cell'):
+                row_list.append(cell.getText())
+            table.append(row_list)
+
+        return table
+
+
     @staticmethod
     def clean_title_string(s: str) -> str:
         """Remove non-alpha leading characters from string.
@@ -432,3 +456,7 @@ class TEI:
             s = s[1:]
 
         return s.capitalize()
+
+
+
+
