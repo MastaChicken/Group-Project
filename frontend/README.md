@@ -1,7 +1,9 @@
 # Frontend
 
 The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
-(ES6 Modules).
+(ES6 Modules). Refer to [Code Style](#code-style) guide for more information.
+
+[[_TOC_]]
 
 
 ## Requirements
@@ -136,6 +138,20 @@ a given module.
 `import MyClass from './MyModule.js';`
 
 [Guide on modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+
+### Web Components
+
+We make use of [PatternFly Elements](https://patternflyelements.org/) for
+components that we require in the web app.
+
+> Example usage (accordion)
+> <https://patternflyelements.org/components/accordion/>
+
+1. `$ npm install @patternfly/pfe-accordion`
+2. Add `import "@patternfly/pfe-accordion";` to top of `src/index.js` file
+3. You can use the `<pfe-accordion></pfe-accordion>` HTML tags now.
+
+Check the component documentation for all available tags.
 
 ### ESLint
 

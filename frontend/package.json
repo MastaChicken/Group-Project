@@ -30,5 +30,9 @@
     "vite": "^2.9.1",
     "vite-plugin-checker": "^0.4.5",
     "vite-plugin-environment": "^1.1.1"
+  },
+  "dependencies": {
+    "@patternfly/pfe-accordion": "^1.12.3",
+    "@patternfly/pfe-icon": "^1.12.3"
   }
 }
