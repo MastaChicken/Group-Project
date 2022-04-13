@@ -43,25 +43,39 @@ class TestTechniques:
     avoid worse pains
     """
 
+    test_dic = {"pineapple": 5, "biscuit": 7, "apple": 3}
+
     model = load("en_core_web_sm")
 
-    def test_word_frequency(self):
-        """Returns top nouns.
+    # def test_word_frequency(self):
+    #     """Returns top nouns.
 
-        Behaviour might changed when lemmatisation is used
-        Words like `pleasures` will be ignored/merged
-        """
-        doc = Techniques(self.model, self.test_string)
-        words = doc.top_common_n_words(5)
-        assert words == [
-            ("pleasure", 9),
-            ("pain", 8),
-            ("pleasures", 3),
-            ("consequences", 2),
-            ("circumstances", 2),
-        ]
+    #     Behaviour might changed when lemmatisation is used
+    #     Words like `pleasures` will be ignored/merged
+    #     """
+    #     doc = Techniques(self.model, self.test_string)
+    #     words = doc.word_freq()
+    #     assert words == [
+    #         ("pleasure", 9),
+    #         ("pain", 8),
+    #         ("pleasures", 3),
+    #         ("consequences", 2),
+    #         ("circumstances", 2),
+    #     ]
+
+    def test_noun_frequency(self):
+        """Test for the frequency of manually lemmatized nouns"""
+
+        text_test = ""
+        for k, v in self.test_dic.items():
+            for n in range(0, v):
+                text_test += k + " "
+        techniques = Techniques(self.model, text_test)
+        words = techniques.noun_freq
+        # print(words, "LISTEN HERE")
+        assert words == self.test_dic
 
     def test_invalid_pipeline(self):
-        """ """
+        """Test for pipeline without lemmatizer component"""
         with raises(RuntimeError):
             Techniques(English(), self.empty_string)

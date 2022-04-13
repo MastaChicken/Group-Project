@@ -47,8 +47,8 @@ class Techniques:
         self.__doc = model(text)
 
     @cached_property
-    def word_freq(self) -> dict[str, int]:
-        """Calculate the frequencies of word lemmas in a given document.
+    def noun_freq(self) -> dict[str, int]:
+        """Calculate the frequencies of noun lemmas in a given document.
 
         Returns:
             Dictionary containing the frequency of each word
@@ -64,12 +64,15 @@ class Techniques:
             if (
                 word.lemma_.lower() not in STOP_WORDS
                 and word.lemma_.lower() not in punctuation
-                and word.pos_ == "NOUN"
+                and (word.pos_ == "NOUN" or word.pos_ == "PROPN")
             ):
                 if word.lemma_ not in word_frequencies.keys():
                     word_frequencies[word.lemma_] = 1
                 else:
                     word_frequencies[word.lemma_] += 1
+                print(word.text, word.lemma_, word.pos_, "TRUE")
+            else:
+                print(word.text, word.lemma_, word.pos_, "FALSE")
 
         return word_frequencies
 
@@ -82,7 +85,7 @@ class Techniques:
         Returns:
             List of strings containing the extractive summarisation
         """
-        word_frequencies = self.word_freq
+        word_frequencies = self.noun_freq
 
         max_frequency = max(word_frequencies.values())
         normalized_frequencies: dict[str, float] = {}
@@ -112,6 +115,7 @@ class Techniques:
         return final_sentences
 
     def top_common_n_words(self, n: int) -> list[tuple[str, int]]:
+        # change such that only returns word if not shown less than n times
         """Return tuple containing most common n amount of words in given text.
 
         Args:
@@ -120,7 +124,7 @@ class Techniques:
         Returns:
             List of n words including their frequency
         """
-        word_frequencies = self.word_freq
+        word_frequencies = self.noun_freq
 
         noun_freq = Counter(word_frequencies)
         common_nouns = noun_freq.most_common(n)
