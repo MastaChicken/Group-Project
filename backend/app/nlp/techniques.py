@@ -114,12 +114,12 @@ class Techniques:
 
         return final_sentences
 
-    def top_common_n_words(self, n: int) -> list[tuple[str, int]]:
+    def words_threshold_n(self, n: int) -> list[tuple[str, int]]:
         # change such that only returns word if not shown less than n times
-        """Return tuple containing most common n amount of words in given text.
+        """Return list of tuples containing words that occur more than n times.
 
         Args:
-            n : amount of common words to return
+            n : threshold of occurances for word to be returned
 
         Returns:
             List of n words including their frequency
@@ -129,4 +129,10 @@ class Techniques:
         noun_freq = Counter(word_frequencies)
         common_nouns = noun_freq.most_common(n)
 
-        return common_nouns
+        result = {}
+
+        for k, v in word_frequencies.items():
+            if v >= n:
+                result[k] = v
+
+        return list(zip(result.keys(), result.values()))

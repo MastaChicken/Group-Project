@@ -54,7 +54,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         if text:
             nlp = Techniques(model, text)
             summary = nlp.extractive_summarisation(5)
-            common_words = nlp.top_common_n_words(10)
+            common_words = nlp.words_threshold_n(10)
         return UploadResponse(
             title=doc.title,
             metadata=doc.metadata,

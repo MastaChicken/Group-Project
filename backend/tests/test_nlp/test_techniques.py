@@ -79,3 +79,16 @@ class TestTechniques:
         """Test for pipeline without lemmatizer component"""
         with raises(RuntimeError):
             Techniques(English(), self.empty_string)
+
+    test_list_tuple = [("pineapple", 5), ("biscuit", 7), ("apple", 3)]
+
+    def test_threshold_words(self):
+        """Test for words over threshold of n"""
+        text_test = ""
+        for word_freq in self.test_list_tuple:
+            for n in range(0, word_freq[1]):
+                text_test += word_freq[0] + " "
+        techniques = Techniques(self.model, text_test)
+        result = techniques.words_threshold_n(3)
+        print(result)
+        assert result == self.test_list_tuple
