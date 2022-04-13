@@ -10,21 +10,27 @@ export default class extends AbstractView {
   getHtml() {
     return html`
       <div class="tab-contents output-display">
+        <h1 id="title-return-display"></h1>
         <div id="output-main">
           <div id="pdf-renderer">
-            <h2>PDF RENDERER</h2>
-          </div>
-          <div id="summary-info" class="summary-boxes">
-            <div class="output-boxes" id="title-output">
-              <h2>TITLE</h2>
-              <div
-                id="title-return-display"
-                class="output-box-info"
-                style="display: none"
-              >
-                <p></p>
+            <div id="my_pdf_viewer">
+              <div id="canvas_container">
+                <canvas id="pdf_renderer"></canvas>
+              </div>
+
+              <div id="navigation_controls">
+                <button id="go_previous">Previous</button>
+                <input id="current_page" value="1" type="number" />
+                <button id="go_next">Next</button>
+              </div>
+
+              <div id="zoom_controls">
+                <button id="zoom_in">+</button>
+                <button id="zoom_out">-</button>
               </div>
             </div>
+          </div>
+          <div id="summary-info" class="summary-boxes">
             <div class="output-boxes" id="metadata-output">
               <h2>METADATA</h2>
               <div
@@ -39,14 +45,6 @@ export default class extends AbstractView {
               <h2>TABLE OF CONTENTS</h2>
               <div
                 id="toc-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
-            </div>
-            <div class="output-boxes" id="summary-output">
-              <h2>SUMMARY</h2>
-              <div
-                id="summary-return-display"
                 class="output-box-info"
                 style="display: none"
               ></div>
@@ -67,6 +65,10 @@ export default class extends AbstractView {
                 style="display: none"
               ></div>
             </div>
+          </div>
+          <div id="summary-output">
+            <h2>SUMMARY PAGE</h2>
+            <div id="summary-return-display"></div>
           </div>
         </div>
         <label id="output-show-document-label" for="output-show-document"
@@ -118,8 +120,6 @@ export default class extends AbstractView {
     const outputBoxes = document.querySelectorAll(".output-boxes");
 
     outputBoxes.forEach((box) => box.addEventListener("click", toggleOpen));
-
-    /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
 
     /**
      * Toggles adding the open css class to a div.
