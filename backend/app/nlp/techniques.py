@@ -48,7 +48,7 @@ class Techniques:
 
     @cached_property
     def word_freq(self) -> dict[str, int]:
-        """Calculate the frequencies of word in a given document.
+        """Calculate the frequencies of word lemmas in a given document.
 
         Returns:
             Dictionary containing the frequency of each word

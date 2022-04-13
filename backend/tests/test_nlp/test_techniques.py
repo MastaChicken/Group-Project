@@ -3,6 +3,7 @@ from pytest import raises
 from spacy import load
 
 from app.nlp.techniques import Techniques
+from spacy.lang.en import English
 
 
 class TestTechniques:
@@ -41,6 +42,7 @@ class TestTechniques:
     rejects pleasures to secure other greater pleasures, or else he endures pains to
     avoid worse pains
     """
+
     model = load("en_core_web_sm")
 
     def test_word_frequency(self):
@@ -59,10 +61,7 @@ class TestTechniques:
             ("circumstances", 2),
         ]
 
-    def test_empty_string(self):
-        """Should fail for now.
-
-        Not sure if this raise a RuntimeError by default
-        """
+    def test_invalid_pipeline(self):
+        """ """
         with raises(RuntimeError):
-            Techniques(self.model, self.empty_string)
+            Techniques(English(), self.empty_string)
