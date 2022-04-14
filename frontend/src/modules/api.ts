@@ -1,6 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
+import { UploadResponse } from "../models/api";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -48,13 +49,13 @@ function handleErrors(response: Response): Response {
  * @param file - pdf file to be uploaded and parsed.
  */
 export async function uploadPDF(file: File) {
-  const data = new FormData();
-  data.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-  await fetch(`${API}/upload`, { method: "POST", body: data })
+  await fetch(`${API}/upload`, { method: "POST", body: formData })
     .then(handleErrors)
     .then((r) => r.json())
-    .then((data) => {
+    .then((data: UploadResponse) => {
       const article = data.article;
       // Summary
       // NOTE: currently empty
@@ -70,7 +71,7 @@ export async function uploadPDF(file: File) {
       // TODO: display the rest of the bibliography
 
       // References
-      const oLinkEl = document.createElement("ol");
+      const oListEl = document.createElement("ol");
       Object.entries(article.citations).forEach(([ref, citation]) => {
         const citationObj = new MLA8Citation(citation);
 
@@ -104,9 +105,12 @@ export async function uploadPDF(file: File) {
         // Google scholar link
         listEl.appendChild(citationObj.googleScholarAnchor());
 
-        oLinkEl.append(listEl);
+        oListEl.append(listEl);
       });
-      $("references-return-display").append(oLinkEl);
+      $("references-return-display").append(oListEl);
+    })
+    .catch((error) => {
+      console.log(error);
     });
 
   $("output-main").scrollIntoView();
