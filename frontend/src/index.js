@@ -5,7 +5,6 @@ import { $ } from "./constants";
 
 import Upload from "./views/Upload.js";
 import Display from "./views/Display.js";
-import Settings from "./views/Settings.js";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -32,7 +31,6 @@ const router = async () => {
   const routes = [
     { path: "/", view: Upload },
     { path: "/display", view: Display },
-    { path: "/settings", view: Settings },
   ];
 
   // Test each route for potential match
@@ -52,11 +50,36 @@ const router = async () => {
       route: routes[0],
       result: [location.pathname],
     };
+    console.log(match);
   }
 
   const view = new match.route.view(getParams(match));
 
   document.querySelector("#app").innerHTML = await view.getHtml();
+
+  // console.log(match.route.path);
+  if (match.route.path === "/") {
+    // Adds event listener to the upload button, so it executes on change.
+    $("pdfpicker-file").addEventListener(
+      "change",
+      () => {
+        let files = $("pdfpicker-file").files;
+        let dropText = $("drop-text");
+        // checks file exists and passes PDF checks.
+
+        if (files.length > 0 && isValidPDF(files[0])) {
+          dropText.innerHTML = `File accepted: ${files[0].name}`;
+          $("selection-boxes").style.display = "block";
+        } else {
+          // throws alert for wrong file type
+          $("pdfpicker-file").value = "";
+          dropText.innerHTML = "File Rejected: Please add .pdf file type";
+          $("selection-boxes").style.display = "none";
+        }
+      },
+      false
+    );
+  }
 };
 
 window.addEventListener("popstate", router);
@@ -71,27 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   router();
 });
-
-// // Adds event listener to the upload button, so it executes on change.
-// $("pdfpicker-file").addEventListener(
-//   "change",
-//   () => {
-//     let files = $("pdfpicker-file").files;
-//     let dropText = $("drop-text");
-//     // checks file exists and passes PDF checks.
-
-//     if (files.length > 0 && isValidPDF(files[0])) {
-//       dropText.innerHTML = `File accepted: ${files[0].name}`;
-//       $("selection-boxes").style.display = "block";
-//     } else {
-//       // throws alert for wrong file type
-//       $("pdfpicker-file").value = "";
-//       dropText.innerHTML = "File Rejected: Please add .pdf file type";
-//       $("selection-boxes").style.display = "none";
-//     }
-//   },
-//   false
-// );
 
 // let sos = $("size-of-summary");
 // sos.addEventListener(
