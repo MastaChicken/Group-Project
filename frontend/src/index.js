@@ -57,7 +57,7 @@ const router = async () => {
 
   document.querySelector("#app").innerHTML = await view.getHtml();
 
-  // console.log(match.route.path);
+  console.log(match.route.path);
   if (match.route.path === "/") {
     // Adds event listener to the upload button, so it executes on change.
     $("pdfpicker-file").addEventListener(
@@ -79,6 +79,42 @@ const router = async () => {
       },
       false
     );
+    // Upload PDF form
+    let uploadForm = $("upload-form");
+    uploadForm.addEventListener("submit", (ev) => {
+      navigateTo("/display");
+      uploadPDF(ev);
+    });
+
+    // Upload URL
+    let urlInput = $("url-input");
+    urlInput.addEventListener("click", validateURL);
+
+    // Drophandler
+    let dropZone = $("drop-zone");
+    dropZone.addEventListener("drop", (ev) => dropHandler(ev));
+    dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
+  }
+
+  if (match.route.path === "/display") {
+    let sos = $("size-of-summary");
+    sos.addEventListener(
+      "change",
+      () => {
+        $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
+      },
+      true
+    );
+
+    // Toggle PDF
+    let pdfToggleInput = $("output-show-document");
+    // TODO: use event to check if its toggled or not
+    pdfToggleInput.addEventListener("change", togglePDFDisplay);
+
+    // Output display
+    let outputBoxes = document.querySelectorAll(".output-boxes");
+
+    outputBoxes.forEach((box) => box.addEventListener("click", toggleOpen));
   }
 };
 
@@ -95,54 +131,22 @@ document.addEventListener("DOMContentLoaded", () => {
   router();
 });
 
-// let sos = $("size-of-summary");
-// sos.addEventListener(
-//   "change",
-//   () => {
-//     $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
-//   },
-//   true
-// );
+/***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
 
-// // Upload PDF form
-// let uploadForm = $("upload-form");
-// uploadForm.addEventListener("submit", (ev) => uploadPDF(ev));
+/**
+ * Toggles adding the open css class to a div.
+ */
+function toggleOpen() {
+  this.classList.toggle("open");
+}
 
-// // Upload URL
-// let urlInput = $("url-input");
-// urlInput.addEventListener("click", validateURL);
-
-// // Drophandler
-// let dropZone = $("drop-zone");
-// dropZone.addEventListener("drop", (ev) => dropHandler(ev));
-// dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
-
-// // Toggle PDF
-// let pdfToggleInput = $("output-show-document");
-// // TODO: use event to check if its toggled or not
-// pdfToggleInput.addEventListener("change", togglePDFDisplay);
-
-// // Output display
-// let outputBoxes = document.querySelectorAll(".output-boxes");
-
-// outputBoxes.forEach((box) => box.addEventListener("click", toggleOpen));
-
-// /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
-
-// /**
-//  * Toggles adding the open css class to a div.
-//  */
-// function toggleOpen() {
-//   this.classList.toggle("open");
-// }
-
-// /**
-//  * Toggle whether the pdf renderer is being displayed or not. If it is not displayed then then changes grid template to
-//  * one column as opposed to 2 and vice versa.
-//  */
-// function togglePDFDisplay() {
-//   $("pdf-renderer").style.display =
-//     $("pdf-renderer").style.display == "none" ? "block" : "none";
-//   $("output-main").style.gridTemplateColumns =
-//     $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
-// }
+/**
+ * Toggle whether the pdf renderer is being displayed or not. If it is not displayed then then changes grid template to
+ * one column as opposed to 2 and vice versa.
+ */
+function togglePDFDisplay() {
+  $("pdf-renderer").style.display =
+    $("pdf-renderer").style.display == "none" ? "block" : "none";
+  $("output-main").style.gridTemplateColumns =
+    $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
+}
