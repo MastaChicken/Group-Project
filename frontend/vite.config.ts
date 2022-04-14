@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { resolve } from "path";
 import checker from "vite-plugin-checker";
 import EnvironmentPlugin from "vite-plugin-environment";
 
@@ -18,5 +19,11 @@ export default defineConfig({
   ],
   build: {
     minify: true,
+    manifest: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+      },
+    },
   },
 });

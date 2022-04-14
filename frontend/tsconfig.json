@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es6",
-    "allowJs": true
+    "allowJs": true,
+    "types": ["vite/client", "node"],
+    "rootDir": "./src",
+    "outDir": "./types",
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": [
     "node_modules"

@@ -10,14 +10,17 @@
     "lint": "eslint src",
     "format_lint": "prettier --check src",
     "dev": "vite --host 0.0.0.0",
-    "build:prod": "vite build",
-    "build:dev": "vite build -m development",
-    "preview": "vite preview --host 0.0.0.0"
+    "build:prod": "tsc && vite build",
+    "build:dev": "tsc && vite build -m development",
+    "serve:prod": "tsc && vite preview --host 0.0.0.0",
+    "serve:dev": "tsc && vite preview --host 0.0.0.0 -m development",
+    "generate-client": "openapi --input http://localhost:8001/openapi.json --output ./src/client --client fetch"
   },
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
     "@playwright/test": "^1.17.1",
+    "@types/node": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "autoprefixer": "^10.4.4",

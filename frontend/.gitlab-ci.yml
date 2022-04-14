@@ -58,6 +58,8 @@ build:
   script:
     # TODO: build for production by using Gitlab environment secret
     - npm run build:dev
+    - npm run doc
   artifacts:
     paths:
       - frontend/dist/*
+      - fronend/doc/*

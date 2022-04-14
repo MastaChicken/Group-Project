@@ -16,6 +16,9 @@ node_modules/
 # JSDoc
 docs/
 
+# Typescript
+types/
+
 # Vite
-dist
-dist-ssr
+dist/
+dist-ssr.
