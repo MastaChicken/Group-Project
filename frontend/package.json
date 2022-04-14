@@ -10,25 +10,35 @@
     "lint": "eslint src",
     "format_lint": "prettier --check src",
     "dev": "vite --host 0.0.0.0",
-    "build:prod": "vite build",
-    "build:dev": "vite build -m development",
-    "preview": "vite preview --host 0.0.0.0"
+    "build:prod": "tsc && vite build",
+    "build:dev": "tsc && vite build -m development",
+    "serve:prod": "tsc && vite preview --host 0.0.0.0",
+    "serve:dev": "tsc && vite preview --host 0.0.0.0 -m development",
+    "generate-client": "openapi --input http://localhost:8001/openapi.json --output ./src/client --client fetch"
   },
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
     "@playwright/test": "^1.17.1",
+    "@types/node": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "autoprefixer": "^10.4.4",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "playwright": "^1.17.1",
+    "postcss": "^8.4.12",
     "prettier": "^2.5.1",
     "sass": "^1.50.0",
+    "tailwindcss": "^3.0.24",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.3",
     "vite": "^2.9.1",
     "vite-plugin-checker": "^0.4.5",
     "vite-plugin-environment": "^1.1.1"
+  },
+  "dependencies": {
+    "@patternfly/pfe-accordion": "^1.12.3",
+    "@patternfly/pfe-icon": "^1.12.3"
   }
 }
