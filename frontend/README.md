@@ -93,14 +93,22 @@ This will build the documentation in `docs/`
 
 > Build for production
 
-`$ npm run build`
+`$ npm run build:prod`
 
 This will create a folder, `dist/`, which will contain the files needed for
 production
 
+> Build for development
+
+`$ npm run build:dev`
+
 > Locally preview the production build (live server)
 
-`$ npm run preview`
+`$ npm run preview:prod`
+
+> Locally preview the dev build (live server)
+
+`$ npm run preview:dev`
 
 By default, the server runs on [http://localhost:4173](http://localhost:4173).
 
