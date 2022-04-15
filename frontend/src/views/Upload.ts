@@ -13,7 +13,7 @@ export default class extends AbstractView {
   getHtml() {
     return html`
       <div class="tab-contents">
-        <form id="upload-form" >
+        <form id="upload-form">
           <div id="drop-zone">
             <label for="pdfpicker-file" id="drop-text">
               Drop your .pdf files here!</label
@@ -60,7 +60,7 @@ export default class extends AbstractView {
           </div>
         </form>
       </div>
-        `;
+    `;
   }
 
   setupListeners() {

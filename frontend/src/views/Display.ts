@@ -95,7 +95,7 @@ export default class extends AbstractView {
           id="size-of-summary"
         />
       </div>
-        `;
+    `;
   }
 
   setupListeners() {
