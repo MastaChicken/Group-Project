@@ -3,18 +3,17 @@ import { $ } from "../constants";
 import { validateURL, uploadPDF } from "../modules/api";
 import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
-import { navigateTo } from "../index.js";
 
 export default class extends AbstractView {
-  constructor(params) {
-    super(params);
+  constructor() {
+    super();
     this.setTitle("Upload");
   }
 
   async getHtml() {
     return `
     <body>
-    
+
     <div class="main">
 
       <h1>Content Visualisation</h1>
@@ -95,7 +94,7 @@ export default class extends AbstractView {
     // Upload PDF form
     const uploadForm = $("upload-form");
     uploadForm.addEventListener("submit", (ev) => {
-      navigateTo("/display");
+      history.pushState(null, null, "/display");
       uploadPDF(ev);
     });
 

@@ -2,8 +2,8 @@ import AbstractView from "./AbstractView";
 import { $ } from "../constants";
 
 export default class extends AbstractView {
-  constructor(params) {
-    super(params);
+  constructor() {
+    super();
     this.setTitle("Display");
   }
 
