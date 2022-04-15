@@ -1,5 +1,5 @@
 import AbstractView from "./AbstractView";
-import { $ } from "../constants";
+import { $, html } from "../constants";
 
 export default class extends AbstractView {
   constructor() {
@@ -7,13 +7,8 @@ export default class extends AbstractView {
     this.setTitle("Display");
   }
 
-  async getHtml() {
-    return `
-    <body>
-
-    <div class="main">
-      <h1>Content Visualisation</h1>
-
+  getHtml() {
+    return html`
       <div class="tab-contents output-display">
         <div id="output-main">
           <div id="pdf-renderer">
@@ -100,8 +95,6 @@ export default class extends AbstractView {
           id="size-of-summary"
         />
       </div>
-    </div>
-
         `;
   }
 

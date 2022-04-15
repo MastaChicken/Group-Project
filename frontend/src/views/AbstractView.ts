@@ -3,9 +3,7 @@ export default abstract class {
     document.title = title;
   }
 
-  async getHtml() {
-    return "";
-  }
+  abstract getHtml(): string;
 
   abstract setupListeners(): void;
 }

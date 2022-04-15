@@ -1,5 +1,5 @@
 import AbstractView from "./AbstractView";
-import { $ } from "../constants";
+import { $, html } from "../constants";
 import { validateURL, uploadPDF } from "../modules/api";
 import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
@@ -10,13 +10,8 @@ export default class extends AbstractView {
     this.setTitle("Upload");
   }
 
-  async getHtml() {
-    return `
-    <body>
-
-    <div class="main">
-
-      <h1>Content Visualisation</h1>
+  getHtml() {
+    return html`
       <div class="tab-contents">
         <form id="upload-form" >
           <div id="drop-zone">
@@ -65,8 +60,6 @@ export default class extends AbstractView {
           </div>
         </form>
       </div>
-    </div>
-  </body>
         `;
   }
 

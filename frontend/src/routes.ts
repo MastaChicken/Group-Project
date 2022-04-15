@@ -2,17 +2,20 @@ import Navaid from "navaid";
 import Upload from "./views/Upload";
 import Display from "./views/Display";
 
+import { $ } from "./constants";
+
 const router = Navaid();
+const outlet = $("outlet");
 
 router
-  .on("/", async () => {
+  .on("/", () => {
     const upload = new Upload();
-    document.getElementById("app").innerHTML = await upload.getHtml();
+    outlet.innerHTML = upload.getHtml();
     upload.setupListeners();
   })
-  .on("/display", async () => {
+  .on("/display", () => {
     const display = new Display();
-    document.getElementById("app").innerHTML = await display.getHtml();
+    outlet.innerHTML = display.getHtml();
     display.setupListeners();
   });
 
