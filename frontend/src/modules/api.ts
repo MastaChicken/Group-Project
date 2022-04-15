@@ -1,6 +1,6 @@
 import MLA8Citation from "./mla8_citation";
-import makeWordCloud from "./wordcloud";
 import { $, API } from "../constants";
+import makeWordCloudCanvas from "./wordcloud";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -77,7 +77,7 @@ export async function uploadPDF(event: SubmitEvent) {
           "common-words-return-display"
         ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
       });
-      makeWordCloud(data.common_words);
+      $("outlet").appendChild(makeWordCloudCanvas(data.common_words));
     })
     .catch((e) => {
       console.log(e);
