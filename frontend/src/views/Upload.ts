@@ -1,4 +1,9 @@
-import AbstractView from "./AbstractView.js";
+import AbstractView from "./AbstractView";
+import { $ } from "../constants";
+import { validateURL, uploadPDF } from "../modules/api";
+import { dropHandler, dragOverHandler } from "../modules/drag_drop";
+import { isValidPDF } from "../modules/pdf";
+import { navigateTo } from "../index.js";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -64,5 +69,43 @@ export default class extends AbstractView {
     </div>
   </body>
         `;
+  }
+
+  setupListeners() {
+    $("pdfpicker-file").addEventListener(
+      "change",
+      () => {
+        const fileElem = $("pdfpicker-file") as HTMLInputElement;
+        const files = fileElem.files;
+        const dropText = $("drop-text");
+        // checks file exists and passes PDF checks.
+
+        if (files.length > 0 && isValidPDF(files[0])) {
+          dropText.innerHTML = `File accepted: ${files[0].name}`;
+          $("selection-boxes").style.display = "block";
+        } else {
+          // throws alert for wrong file type
+          fileElem.value = "";
+          dropText.innerHTML = "File Rejected: Please add .pdf file type";
+          $("selection-boxes").style.display = "none";
+        }
+      },
+      false
+    );
+    // Upload PDF form
+    const uploadForm = $("upload-form");
+    uploadForm.addEventListener("submit", (ev) => {
+      navigateTo("/display");
+      uploadPDF(ev);
+    });
+
+    // Upload URL
+    const urlInput = $("url-input");
+    urlInput.addEventListener("click", validateURL);
+
+    // Drophandler
+    const dropZone = $("drop-zone");
+    dropZone.addEventListener("drop", (ev) => dropHandler(ev));
+    dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
   }
 }

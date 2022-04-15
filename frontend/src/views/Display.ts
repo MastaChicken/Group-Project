@@ -1,4 +1,5 @@
-import AbstractView from "./AbstractView.js";
+import AbstractView from "./AbstractView";
+import { $ } from "../constants";
 
 export default class extends AbstractView {
   constructor(params) {
@@ -102,5 +103,46 @@ export default class extends AbstractView {
     </div>
 
         `;
+  }
+
+  setupListeners() {
+    const sos = $("size-of-summary") as HTMLInputElement;
+    sos.addEventListener(
+      "change",
+      () => {
+        $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
+      },
+      true
+    );
+
+    // Toggle PDF
+    const pdfToggleInput = $("output-show-document");
+    // TODO: use event to check if its toggled or not
+    pdfToggleInput.addEventListener("change", togglePDFDisplay);
+
+    // Output display
+    const outputBoxes = document.querySelectorAll(".output-boxes");
+
+    outputBoxes.forEach((box) => box.addEventListener("click", toggleOpen));
+
+    /***********************************************FOR THE OUTPUT DISPLAY*******************************************************/
+
+    /**
+     * Toggles adding the open css class to a div.
+     */
+    function toggleOpen() {
+      this.classList.toggle("open");
+    }
+
+    /**
+     * Toggle whether the pdf renderer is being displayed or not. If it is not displayed then then changes grid template to
+     * one column as opposed to 2 and vice versa.
+     */
+    function togglePDFDisplay() {
+      $("pdf-renderer").style.display =
+        $("pdf-renderer").style.display == "none" ? "block" : "none";
+      $("output-main").style.gridTemplateColumns =
+        $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
+    }
   }
 }
