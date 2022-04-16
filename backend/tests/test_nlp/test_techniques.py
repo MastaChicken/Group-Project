@@ -1,10 +1,9 @@
 """Unit tests for the properties and methods in Techniques."""
-import unittest
 from pytest import raises
 from spacy import load
+from spacy.lang.en import English
 
 from app.nlp.techniques import Techniques
-from spacy.lang.en import English
 
 
 class TestTechniques:

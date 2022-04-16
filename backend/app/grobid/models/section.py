@@ -28,6 +28,10 @@ class RefText:
 
     @property
     def plain_text(self) -> str:
+        """Return text without any references.
+
+        Trailing whitespace is removed.
+        """
         if len(self.refs) == 0:
             return self.text
 
@@ -49,6 +53,7 @@ class Section:
     paragraphs: list[RefText] = field(default_factory=list)
 
     def to_str(self) -> str:
+        """Return paragraphs in plain text format."""
         text = ""
         for paragraph in self.paragraphs:
             text += paragraph.plain_text

@@ -551,7 +551,6 @@ class TestSection:
 
         assert tei.section(tei.soup) == section
 
-
     def test_title_tag(self):
         """Test for divs that don't have <head> tag (i.e. <abstract>)."""
         title = "abstract"

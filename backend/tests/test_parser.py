@@ -3,8 +3,6 @@
 Todo:
     * Add tests for future methods
 """
-from datetime import datetime
-
 import fitz
 
 from app.parser import Parser

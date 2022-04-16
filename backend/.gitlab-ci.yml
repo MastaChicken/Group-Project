@@ -74,7 +74,7 @@ linting:
   script:
     - poetry install
     - poetry run pydocstyle . --verbose
-    - poetry run flake8 --config .flake8 --extend-ignore=D --diff --verbose
+    - poetry run flake8 --config .flake8 --extend-ignore=D,E203 --verbose --statistics
 
 coverage:
   stage: test

@@ -13,7 +13,6 @@ from collections import Counter
 from functools import cached_property
 from heapq import nlargest
 
-
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span

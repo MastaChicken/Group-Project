@@ -12,9 +12,9 @@ import httpx
 from fastapi import APIRouter, HTTPException, UploadFile, status
 from spacy import load
 
-from app.api.models import UploadReponseNew, UploadResponse
+from app.api.models import UploadResponse
 from app.grobid.client import Client
-from app.grobid.models import File, Form
+from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI
 from app.nlp.techniques import Techniques
 from app.parser import Parser
