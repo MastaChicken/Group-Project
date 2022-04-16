@@ -28,8 +28,9 @@ export function renderPDF(pdf) {
   let loadingTask = PDFJS.getDocument(pdf);
   loadingTask.promise.then(function (pdf) {
     myState.pdf = pdf;
+    myState.zoom = 1;
+    myState.currentPage = 1;
     myState.totalPages = pdf.numPages;
-    console.log(pdf);
     render();
   });
 }
