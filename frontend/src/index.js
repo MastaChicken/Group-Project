@@ -3,9 +3,7 @@ import { validateURL } from "./modules/URL";
 import { dropHandler, dragOverHandler } from "./modules/DragDropHandlers";
 import { isValidPDF } from "./modules/PDF";
 import { $, API } from "./constants";
-import * as PDFJS from "pdfjs-dist";
-PDFJS.GlobalWorkerOptions.workerSrc =
-  "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.13.216/build/pdf.worker.js";
+import * as PDFViewer from "./modules/PDFRenderer";
 
 // TODO: move event listeners to modules
 /**
@@ -37,7 +35,7 @@ window.onload = () => {
         let fileReader = new FileReader();
         fileReader.onload = function () {
           let pdfArray = new Uint8Array(this.result);
-          renderPDF(pdfArray);
+          PDFViewer.renderPDF(pdfArray);
         };
         fileReader.readAsArrayBuffer(files[0]);
       } else {
@@ -231,136 +229,3 @@ function togglePDFDisplay() {
       ? "1fr 1fr 1fr"
       : "1fr 1fr";
 }
-
-let myState = {
-  pdf: null,
-  currentPage: 1,
-  totalPages: 1,
-  zoom: 1,
-};
-
-let pageRendering = false,
-  pageNum = 1,
-  pageNumPending = null;
-
-/**
- * Loads pdf into a loading task and then renders the page from a promise.
- * Loads pdf and details into state object.
- * @param {*} pdf - pdf file passed as Uint8Array
- */
-function renderPDF(pdf) {
-  let loadingTask = PDFJS.getDocument(pdf);
-  loadingTask.promise.then(function (pdf) {
-    myState.pdf = pdf;
-    myState.totalPages = pdf.numPages;
-    console.log(pdf);
-    render();
-  });
-}
-
-/**
- *
- */
-function render() {
-  pageRendering = true;
-  myState.pdf.getPage(myState.currentPage).then((page) => {
-    var scale = myState.zoom;
-    var viewport = page.getViewport({scale: scale});
-    // Support HiDPI-screens.
-    var outputScale = window.devicePixelRatio || 1;
-
-    var canvas = $("pdf_renderer");
-    var context = canvas.getContext("2d");
-
-    canvas.width = Math.floor(viewport.width * outputScale);
-    canvas.height = Math.floor(viewport.height * outputScale);
-    canvas.style.width = Math.floor(viewport.width) + "px";
-    canvas.style.height = Math.floor(viewport.height) + "px";
-
-    var transform =
-      outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
-
-    var renderContext = {
-      canvasContext: context,
-      transform: transform,
-      viewport: viewport,
-    };
-    page.render(renderContext);
-    pageRendering = false;
-
-    // renderTask.promise.then(function () {
-    //   pageRendering = false;
-    //   if (pageNumPending !== null) {
-    //     // New page rendering is pending
-    //     render();
-    //     pageNumPending = null;
-    //   }
-    // });
-  });
-  $("current_page").value = myState.currentPage;
-}
-
-/**
- * If another page rendering in progress, waits until the rendering is
- * finised. Otherwise, executes rendering immediately.
- */
-function queueRenderPage() {
-  if (pageRendering) {
-    pageNumPending = myState.currentPage;
-  } else {
-    render();
-  }
-}
-
-/**
- * Displays previous page.
- */
-function onPrevPage() {
-  if (myState.currentPage <= 1) {
-    return;
-  }
-  myState.currentPage--;
-  queueRenderPage(myState.currentPage);
-}
-$("go_previous").addEventListener("click", onPrevPage);
-
-/**
- * Displays next page.
- */
-function onNextPage() {
-  if (myState.currentPage >= myState.totalPages) {
-    return;
-  }
-  myState.currentPage++;
-  queueRenderPage(myState.currentPage);
-}
-$("go_next").addEventListener("click", onNextPage);
-
-/**
- * Zoom into page by 0.1 scale.
- */
-function zoomIntoPage() {
-  myState.zoom += 0.1;
-  render();
-}
-$("zoom_in").addEventListener("click", zoomIntoPage);
-
-/**
- * Zoom Out of page by 0.1 scale.
- */
-function zoomOutPage() {
-  myState.zoom -= 0.1;
-  render();
-}
-$("zoom_out").addEventListener("click", zoomOutPage);
-
-/**
- * Asynchronously downloads PDF.
- */
-// pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
-//   pdfDoc = pdfDoc_;
-//   document.getElementById("page_count").textContent = pdfDoc.numPages;
-
-//   // Initial/first page rendering
-//   renderPage(pageNum);
-// });
