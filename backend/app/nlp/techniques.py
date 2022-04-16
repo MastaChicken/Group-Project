@@ -16,6 +16,7 @@ from heapq import nlargest
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
+import pytextrank
 
 
 class Techniques:
@@ -39,8 +40,10 @@ class Techniques:
             RunTimeError: if pipeline doesn't contain lemmatizer
 
         """
-        if not model.has_pipe("lemmatizer"):
-            raise RuntimeError("Language models require lemmatizer pipeline")
+        if not model.has_pipe("lemmatizer") or not model.has_pipe("textrank"):
+            raise RuntimeError(
+                "Language models requires lemmatizer and textrank within pipeline"
+            )
 
         self.__doc = model(text)
 
@@ -117,3 +120,20 @@ class Techniques:
         noun_freq = Counter({k: c for k, c in word_frequencies.items() if c >= n})
 
         return noun_freq.most_common()
+
+    def phrase_extraction(self) -> dict[str, int]:
+        """Returns sorted dictionary with phrases ranked by their rank
+
+        In textrank, the rank fo a phrase is defined by its amount of links to
+        other phrases.
+        Returns:
+            Dictionary of phrases mapping to their rank
+        """
+        phrases = {}
+        # examine the top-ranked phrases in the document
+        for phrase in self.__doc._.phrases:
+            phrases[phrase.text] = phrase.rank
+
+        dict(sorted(phrases.items(), key=lambda item: item[1]))
+
+        return phrases
