@@ -26,6 +26,20 @@ class RefText:
     text: str
     refs: list[Ref] = field(default_factory=list)
 
+    @property
+    def plain_text(self) -> str:
+        if len(self.refs) == 0:
+            return self.text
+
+        ranges = [(ref.start, ref.end) for ref in self.refs]
+        text = ""
+        left_bound = 0
+        for start, end in ranges:
+            text += self.text[left_bound:start].rstrip()
+            left_bound = end
+        text += self.text[ranges[-1][1] :].rstrip()
+        return text
+
 
 @dataclass
 class Section:
@@ -33,3 +47,10 @@ class Section:
 
     title: str
     paragraphs: list[RefText] = field(default_factory=list)
+
+    def to_str(self) -> str:
+        text = ""
+        for paragraph in self.paragraphs:
+            text += paragraph.plain_text
+
+        return text
