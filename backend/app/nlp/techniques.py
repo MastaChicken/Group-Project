@@ -124,7 +124,7 @@ class Techniques:
     def phrase_extraction(self) -> dict[str, int]:
         """Returns sorted dictionary with phrases ranked by their rank
 
-        In textrank, the rank fo a phrase is defined by its amount of links to
+        In textrank, the rank of a phrase is defined by its amount of links to
         other phrases.
         Returns:
             Dictionary of phrases mapping to their rank
