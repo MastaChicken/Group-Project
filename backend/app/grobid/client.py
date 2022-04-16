@@ -1,13 +1,13 @@
 # noqa: D100
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import httpx
 from spacy import load
 
-from app.grobid.models import File, Form, Response
+from app.grobid.models.form import Form
+from app.grobid.models.response import Response
 from app.grobid.tei import TEI
 
 

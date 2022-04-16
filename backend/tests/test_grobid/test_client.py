@@ -4,7 +4,7 @@ import pytest
 import respx
 
 from app.grobid.client import Client, GrobidClientError
-from app.grobid.models import File, Form
+from app.grobid.models.form import File, Form
 
 
 class TestClient:

@@ -503,15 +503,46 @@ class TestSection:
         return b"".join(div_tags)
 
     def test_valid_tag(self):  # noqa: D102
+        text = "Lorem ipsum"
         section = Section(
             title="test",
             paragraphs=[
                 RefText(
-                    text="Lorem ipsum [1]",
+                    text=f"{text} [1]",
                     refs=[Ref(start=12, end=15, target="#1", type_="bibr")],
                 )
             ],
         )
+
+        for paragraph in section.paragraphs:
+            assert paragraph.plain_text == text
+
+        assert section.to_str() == text
+
+        xml = TestSection.build_xml(section)
+        tei = TEI(xml, nlp)
+        # NOTE: woraround for forced capitalisation
+        section.title = section.title.capitalize()
+
+        assert tei.section(tei.soup) == section
+
+    def test_valid_tag_no_ref(self):
+        """Test for text that doesn't contain a reference."""
+        text = "Lorem ipsum"
+        section = Section(
+            title="test",
+            paragraphs=[
+                RefText(
+                    text=text,
+                    refs=[],
+                )
+            ],
+        )
+
+        for paragraph in section.paragraphs:
+            assert paragraph.plain_text == text
+
+        assert section.to_str() == text
 
         xml = TestSection.build_xml(section)
         tei = TEI(xml, nlp)

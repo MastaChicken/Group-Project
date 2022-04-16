@@ -19,7 +19,6 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from functools import cached_property
 from statistics import StatisticsError, fmean
-from urllib import parse
 
 import fitz
 

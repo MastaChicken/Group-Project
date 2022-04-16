@@ -1,6 +1,7 @@
 """Unit tests for the properties and methods in Techniques."""
 from pytest import raises
 from spacy import load
+from spacy.lang.en import English
 
 from app.nlp.techniques import Techniques
 
@@ -41,28 +42,35 @@ class TestTechniques:
     rejects pleasures to secure other greater pleasures, or else he endures pains to
     avoid worse pains
     """
+
     model = load("en_core_web_sm")
 
-    def test_word_frequency(self):
-        """Returns top nouns.
+    def test_noun_frequency(self):
+        """Test dictionary contain nouns in their lemma form."""
+        test_dic = {"pineapple": 5, "biscuit": 7, "apple": 3}
+        text_test = ""
+        for k, v in test_dic.items():
+            text_test += (k + " ") * v
+        techniques = Techniques(self.model, text_test)
+        words = techniques.noun_freq
+        assert words == test_dic
 
-        Behaviour might changed when lemmatisation is used
-        Words like `pleasures` will be ignored/merged
-        """
-        doc = Techniques(self.model, self.test_string)
-        words = doc.top_common_n_words(5)
-        assert words == [
-            ("pleasure", 9),
-            ("pain", 8),
-            ("pleasures", 3),
-            ("consequences", 2),
-            ("circumstances", 2),
-        ]
-
-    def test_empty_string(self):
-        """Should fail for now.
-
-        Not sure if this raise a RuntimeError by default
-        """
+    def test_invalid_pipeline(self):
+        """Language model needs to contain Lemmatizer pipeline."""
         with raises(RuntimeError):
-            Techniques(self.model, self.empty_string)
+            Techniques(English(), self.empty_string)
+
+    def test_threshold_words(self):
+        """Test for words over threshold of n."""
+        test_list_tuple: list[tuple[str, int]] = [
+            ("pineapple", 5),
+            ("biscuit", 7),
+            ("apple", 3),
+        ]
+        text_test = ""
+        for word, freq in test_list_tuple:
+            text_test += (word + " ") * freq
+        techniques = Techniques(self.model, text_test)
+        result = techniques.words_threshold_n(4)
+
+        assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])
