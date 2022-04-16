@@ -1,4 +1,5 @@
 """Unit tests for the properties and methods in Techniques."""
+import unittest
 from pytest import raises
 from spacy import load
 
@@ -46,30 +47,31 @@ class TestTechniques:
     model = load("en_core_web_sm")
 
     def test_noun_frequency(self):
-        """Test for the frequency of manually lemmatized nouns"""
+        """Test dictionary contain nouns in their lemma form."""
         test_dic = {"pineapple": 5, "biscuit": 7, "apple": 3}
         text_test = ""
         for k, v in test_dic.items():
-            for n in range(0, v):
-                text_test += k + " "
+            text_test += (k + " ") * v
         techniques = Techniques(self.model, text_test)
         words = techniques.noun_freq
-        # print(words, "LISTEN HERE")
         assert words == test_dic
 
     def test_invalid_pipeline(self):
-        """Test for pipeline without lemmatizer component"""
+        """Language model needs to contain Lemmatizer pipeline."""
         with raises(RuntimeError):
             Techniques(English(), self.empty_string)
 
     def test_threshold_words(self):
-        """Test for words over threshold of n"""
-        test_list_tuple = [("pineapple", 5), ("biscuit", 7), ("apple", 3)]
+        """Test for words over threshold of n."""
+        test_list_tuple: list[tuple[str, int]] = [
+            ("pineapple", 5),
+            ("biscuit", 7),
+            ("apple", 3),
+        ]
         text_test = ""
-        for word_freq in test_list_tuple:
-            for n in range(0, word_freq[1]):
-                text_test += word_freq[0] + " "
+        for word, freq in test_list_tuple:
+            text_test += (word + " ") * freq
         techniques = Techniques(self.model, text_test)
         result = techniques.words_threshold_n(4)
-        print(result)
-        assert result == test_list_tuple[:-1]
+
+        assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])

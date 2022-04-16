@@ -14,7 +14,6 @@ from functools import cached_property
 from heapq import nlargest
 
 
-from spacy.lang.en.stop_words import STOP_WORDS
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
@@ -28,6 +27,7 @@ class Techniques:
     """
 
     __doc: Doc
+    __accepted_pos_tags = {"NOUN", "PROPN"}
 
     def __init__(self, model: Language, text: str):
         """Run English spacy model on text chunk.
@@ -40,7 +40,6 @@ class Techniques:
             RunTimeError: if pipeline doesn't contain lemmatizer
 
         """
-
         if not model.has_pipe("lemmatizer"):
             raise RuntimeError("Language models require lemmatizer pipeline")
 
@@ -53,26 +52,17 @@ class Techniques:
         Returns:
             Dictionary containing the frequency of each word
         """
-        from string import punctuation
-
-        punctuation += "\n"
-
         word_frequencies = {}
-        # TODO: Remove similar words
-        # Lemmatization maybe
         for word in self.__doc:
             if (
-                word.lemma_.lower() not in STOP_WORDS
-                and word.lemma_.lower() not in punctuation
-                and (word.pos_ == "NOUN" or word.pos_ == "PROPN")
+                not word.is_punct
+                and not word.is_stop
+                and word.pos_ in self.__accepted_pos_tags
             ):
                 if word.lemma_ not in word_frequencies.keys():
                     word_frequencies[word.lemma_] = 1
                 else:
                     word_frequencies[word.lemma_] += 1
-                print(word.text, word.lemma_, word.pos_, "TRUE")
-            else:
-                print(word.text, word.lemma_, word.pos_, "FALSE")
 
         return word_frequencies
 
@@ -115,7 +105,6 @@ class Techniques:
         return final_sentences
 
     def words_threshold_n(self, n: int) -> list[tuple[str, int]]:
-        # change such that only returns word if not shown less than n times
         """Return list of tuples containing words that occur more than n times.
 
         Args:
@@ -126,13 +115,6 @@ class Techniques:
         """
         word_frequencies = self.noun_freq
 
-        noun_freq = Counter(word_frequencies)
-        common_nouns = noun_freq.most_common(n)
+        noun_freq = Counter({k: c for k, c in word_frequencies.items() if c >= n})
 
-        result = {}
-
-        for k, v in word_frequencies.items():
-            if v >= n:
-                result[k] = v
-
-        return list(zip(result.keys(), result.values()))
+        return noun_freq.most_common()
