@@ -3,7 +3,8 @@ from pytest import raises
 from spacy import load
 from spacy.lang.en import English
 
-from app.nlp.techniques import Techniques
+from app.nlp.techniques import Word, Phrase
+import pytextrank
 
 
 class TestTechniques:
@@ -52,14 +53,14 @@ class TestTechniques:
         text_test = ""
         for k, v in test_dic.items():
             text_test += (k + " ") * v
-        techniques = Techniques(self.model, text_test)
-        words = techniques.noun_freq
+        word_techniques = Word(self.model, text_test)
+        words = word_techniques.noun_freq
         assert words == test_dic
 
     def test_invalid_pipeline(self):
         """Language model needs to contain Lemmatizer pipeline."""
         with raises(RuntimeError):
-            Techniques(English(), self.empty_string)
+            Word(English(), self.empty_string)
 
     def test_threshold_words(self):
         """Test for words over threshold of n."""
@@ -71,7 +72,7 @@ class TestTechniques:
         text_test = ""
         for word, freq in test_list_tuple:
             text_test += (word + " ") * freq
-        techniques = Techniques(self.model, text_test)
-        result = techniques.words_threshold_n(4)
+        word_techniques = Word(self.model, text_test)
+        result = word_techniques.words_threshold_n(4, word_techniques.noun_freq)
 
         assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])

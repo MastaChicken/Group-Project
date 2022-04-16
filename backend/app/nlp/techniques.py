@@ -12,14 +12,15 @@ Todo:
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
+from typing_extensions import runtime
 
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
-import pytextrank
+import spacy
 
 
-class Techniques:
+class Word:
     """Apply NLP techiniques on text.
 
     Attributes:
@@ -40,10 +41,8 @@ class Techniques:
             RunTimeError: if pipeline doesn't contain lemmatizer
 
         """
-        if not model.has_pipe("lemmatizer") or not model.has_pipe("textrank"):
-            raise RuntimeError(
-                "Language models requires lemmatizer and textrank within pipeline"
-            )
+        if not model.has_pipe("lemmatizer"):
+            raise RuntimeError("Language models requires lemmatizer pipeline")
 
         self.__doc = model(text)
 
@@ -106,7 +105,7 @@ class Techniques:
 
         return final_sentences
 
-    def words_threshold_n(self, n: int) -> list[tuple[str, int]]:
+    def words_threshold_n(self, n: int, dic: dict[str, int]) -> list[tuple[str, int]]:
         """Return list of tuples containing words that occur more than n times.
 
         Args:
@@ -115,13 +114,29 @@ class Techniques:
         Returns:
             List of n words including their frequency
         """
-        word_frequencies = self.noun_freq
 
-        noun_freq = Counter({k: c for k, c in word_frequencies.items() if c >= n})
+        noun_freq = Counter({k: c for k, c in dic.items() if c >= n})
 
         return noun_freq.most_common()
 
-    def phrase_extraction(self) -> dict[str, int]:
+
+class Phrase:
+
+    __doc: Doc
+
+    def __init__(self, model: Language, text: str):
+        # consider how to add it to pipeline if already has positionrank
+        if model.has_pipe("positionrank"):
+            model.remove_pipe("positionrank")
+
+        model.add_pipe(
+            "positionrank",
+            config={"scrubber": {"@misc": "prefix_scrubber"}},
+        )
+        self.__doc = model(text)
+
+    @cached_property
+    def ranks(self) -> dict[str, int]:
         """Returns sorted dictionary with phrases ranked by their rank
 
         In textrank, the rank of a phrase is defined by its amount of links to
@@ -132,8 +147,51 @@ class Techniques:
         phrases = {}
         # examine the top-ranked phrases in the document
         for phrase in self.__doc._.phrases:
-            phrases[phrase.text] = phrase.rank
-
-        dict(sorted(phrases.items(), key=lambda item: item[1]))
+            if phrase.text:
+                phrases[phrase.text] = phrase.rank
 
         return phrases
+
+    @cached_property
+    def counts(self) -> dict[str, int]:
+        """Returns sorted dictionary with phrases ranked by their count
+
+        Returns:
+            Dictionary of phrases mapping to their count
+        """
+        phrases = {}
+        # examine the top-ranked phrases in the document
+        for phrase in self.__doc._.phrases:
+            if phrase.text:
+                phrases[phrase.text] = phrase.count
+
+        return dict(sorted(phrases.items(), key=lambda item: item[1], reverse=True))
+
+    @spacy.registry.misc("prefix_scrubber")
+    def prefix_scrubber():
+        """Contains function for scrubbing the document
+
+        Ensures that it removes leading determinants, punctuation, stopwords and also
+        single word results.
+
+        Returns:
+            scrubed string
+        """
+
+        def scrubber_func(span: Span) -> str:
+
+            result = []
+
+            while span[0].pos_ == "DET":
+                span = span[1:]
+
+            for token in span:
+                if not token.is_punct and not token.is_stop:
+                    result.append(token.text.lower())
+
+            if len(result) == 1:
+                return ""
+
+            return " ".join(result)
+
+        return scrubber_func
