@@ -44,6 +44,7 @@ class TestTechniques:
     """
 
     model = load("en_core_web_sm")
+    model.add_pipe("textrank")
 
     def test_noun_frequency(self):
         """Test dictionary contain nouns in their lemma form."""
