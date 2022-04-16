@@ -27,6 +27,7 @@ black = "^21.12b0"
 httpx = "^0.22.0"
 bs4 = "^0.0.1"
 lxml = "^4.8.0"
+pytextrank = "^3.2.3"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"
