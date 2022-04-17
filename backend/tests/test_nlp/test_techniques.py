@@ -57,7 +57,7 @@ class TestTechniques:
         words = word_techniques.noun_freq
         assert words == test_dic
 
-    def test_invalid_pipeline(self):
+    def test_invalid_pipeline_word(self):
         """Language model needs to contain Lemmatizer pipeline."""
         with raises(RuntimeError):
             Word(English(), self.empty_string)
@@ -76,3 +76,44 @@ class TestTechniques:
         result = word_techniques.words_threshold_n(4, word_techniques.noun_freq)
 
         assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])
+
+    def test_invalid_pipeline_phrase(self):
+        """Ensure phrase pipeline works when model fed in twice."""
+        phrase = Phrase(self.model, self.empty_string)
+        phrase2 = Phrase(self.model, self.empty_string)
+        phrase.ranks
+        phrase2.ranks
+
+    text_test_phrase = """
+Our investigation identified a series of opportunities for HCIR systems to support systematic reviews through automation of tasks that were described as laborious and repetitive. One initial observation is that this multi-stage process may be facilitated better by systems that, overall, model search stages explicitly. The breadth of expertise observed in those conducting systematic reviews indicates that great care must be taken when designing any technologies for systematic review automation to enable as many people as possible to participate in the review production process, particularly in data extraction. 
+"""
+
+    def test_phrase_count(self):
+        """Ensure that the counting of phrase is correct"""
+        phrase_techniques = Phrase(self.model, self.text_test_phrase)
+        result = phrase_techniques.counts
+        assert result == {
+            "systematic reviews": 2,
+            "systematic review automation": 1,
+            "hcir systems": 1,
+            "data extraction": 1,
+            "review production process": 1,
+            "great care": 1,
+            "multi stage process": 1,
+            "initial observation": 1,
+        }
+
+    def test_phrase_rank(self):
+        """Ensure that the ranking of phrase is correct"""
+        phrase_techniques = Phrase(self.model, self.text_test_phrase)
+        result = phrase_techniques.ranks
+        assert result == {
+            "systematic review automation": 0.18095195032492892,
+            "systematic reviews": 0.1703205852928239,
+            "hcir systems": 0.15599875362242477,
+            "data extraction": 0.08947992871705784,
+            "review production process": 0.08487560499941071,
+            "great care": 0.08284069475691935,
+            "multi stage process": 0.05375667108933987,
+            "initial observation": 0.021827970517453898,
+        }
