@@ -47,12 +47,11 @@ function handleErrors(response: Response): Response {
  *
  * @param event - only called to prevent default.
  */
-export async function uploadPDF(event: SubmitEvent) {
-  event.preventDefault();
+export async function uploadPDF(file: File) {
   const data = new FormData();
   // Add first file in file input, the PDF, as "file"
-  const target = event.target as HTMLFormElement;
-  data.append("file", target.file.files[0]);
+
+  data.append("file", file);
 
   await fetch(`${API}/upload`, { method: "POST", body: data })
     .then(handleErrors)
