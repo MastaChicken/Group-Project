@@ -49,11 +49,7 @@ class RefText:
         if len(self.refs) == 0:
             return self.text
 
-        ranges = [
-            (ref.start, ref.end) for ref in self.refs if ref.marker is Marker.bibr
-        ]
-        if len(ranges) == 0:
-            return self.text
+        ranges = [(ref.start, ref.end) for ref in self.refs]
         text = ""
         left_bound = 0
         for start, end in ranges:
