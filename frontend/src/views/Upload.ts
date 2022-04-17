@@ -88,7 +88,7 @@ export default class extends AbstractView {
     const dropZone = $("drop-zone");
     dropZone.addEventListener("drop", (ev) => {
       dropHandler(ev);
-      const files: FileList = ($("pdfpicker-file") as HTMLInputElement).files;
+      const files = ($("pdfpicker-file") as HTMLInputElement).files;
       history.pushState(null, null, "/display");
       uploadPDF(files[0]);
     });

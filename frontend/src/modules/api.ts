@@ -45,7 +45,7 @@ function handleErrors(response: Response): Response {
 /**
  * Sends request to API with the pdf uploaded to form
  *
- * @param event - only called to prevent default.
+ * @param file - pdf file to be uploaded and parsed.
  */
 export async function uploadPDF(file: File) {
   const data = new FormData();
