@@ -16,9 +16,7 @@ export default class extends AbstractView {
         <form id="upload-form">
           <div id="drop-zone">
             <label for="pdfpicker-file" id="drop-text">
-              Click or drop your .pdf files here!</label
-            >
-            <br />
+              <a id="click">Click </a> or drop your .pdf files here!</label>
             <input
               required
               type="file"
