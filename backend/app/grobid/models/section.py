@@ -1,6 +1,20 @@
 """Represents the text sections in a scholarly article."""
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass, field
+from enum import Enum, auto
+
+
+class Marker(Enum):
+    """Represents the callouts to structures.
+
+    <https://grobid.readthedocs.io/en/latest/training/fulltext/#markers-callouts-to-structures>
+    """
+
+    bibr = auto()
+    figure = auto()
+    table = auto()
+    box = auto()
+    formula = auto()
 
 
 @dataclass
@@ -12,8 +26,8 @@ class Ref:
 
     start: int
     end: int
+    marker: Marker | None = None
     target: str | None = None
-    type_: str | None = None
 
 
 @dataclass
@@ -35,7 +49,11 @@ class RefText:
         if len(self.refs) == 0:
             return self.text
 
-        ranges = [(ref.start, ref.end) for ref in self.refs]
+        ranges = [
+            (ref.start, ref.end) for ref in self.refs if ref.marker is Marker.bibr
+        ]
+        if len(ranges) == 0:
+            return self.text
         text = ""
         left_bound = 0
         for start, end in ranges:

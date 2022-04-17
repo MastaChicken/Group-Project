@@ -13,6 +13,7 @@ from app.grobid.models import (
     PersonName,
     Ref,
     RefText,
+    Marker,
     Scope,
     Section,
     Table,
@@ -502,7 +503,9 @@ class TestSection:
         for p in section.paragraphs:
             text_xml = p.text
             for ref in p.refs:
-                ref_xml = f"<ref type='{ref.type_}' target='{ref.target}'>{p.text[ref.start:ref.end]}</ref>"  # noqa: E501
+                if (marker := ref.marker) is not None:
+                    marker = marker.name
+                ref_xml = f"<ref type='{marker}' target='{ref.target}'>{p.text[ref.start:ref.end]}</ref>"  # noqa: E501
                 text_xml = text_xml[: ref.start] + ref_xml + text_xml[ref.end :]
             div_tags.append(bytes(f"<p>{text_xml}</p>", encoding="utf-8"))
 
@@ -517,7 +520,7 @@ class TestSection:
             paragraphs=[
                 RefText(
                     text=f"{text} [1]",
-                    refs=[Ref(start=12, end=15, target="#1", type_="bibr")],
+                    refs=[Ref(start=12, end=15, target="#1", marker=Marker.bibr)],
                 )
             ],
         )
