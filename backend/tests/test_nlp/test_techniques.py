@@ -1,10 +1,10 @@
 """Unit tests for the properties and methods in Techniques."""
+import pytextrank  # noqa: F401
 from pytest import raises
 from spacy import load
 from spacy.lang.en import English
 
-from app.nlp.techniques import Word, Phrase
-import pytextrank
+from app.nlp.techniques import Phrase, Word
 
 
 class TestTechniques:
@@ -73,21 +73,21 @@ class TestTechniques:
         for word, freq in test_list_tuple:
             text_test += (word + " ") * freq
         word_techniques = Word(self.model, text_test)
-        result = word_techniques.words_threshold_n(4, word_techniques.noun_freq)
+        result = word_techniques.words_threshold_n(4)
 
         assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])
 
     def test_invalid_pipeline_phrase(self):
         """Ensure phrase pipeline works when model fed in twice."""
-        phrase = Phrase(self.model, self.empty_string)
-        phrase2 = Phrase(self.model, self.empty_string)
+        Phrase(self.model, self.empty_string)
+        Phrase(self.model, self.empty_string)
 
     text_test_phrase = """
     But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
-    """
+    """  # noqa: E501
 
     def test_phrase_count(self):
-        """Ensure that the counting of phrases is correct"""
+        """Ensure that the counting of phrases is correct."""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.counts
         print(result)
@@ -106,7 +106,7 @@ class TestTechniques:
         }
 
     def test_phrase_rank(self):
-        """Ensure that the ranking of phrase is correct"""
+        """Ensure that the ranking of phrase is correct."""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.ranks
         print(result)

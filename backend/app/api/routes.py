@@ -16,7 +16,7 @@ from app.api.models import UploadResponse
 from app.grobid.client import Client
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI
-from app.nlp.techniques import Techniques
+from app.nlp.techniques import Word
 from app.parser import Parser
 
 router = APIRouter()
@@ -52,7 +52,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         common_words = []
         # FIXME: this is a workaround to ensure that tests continue to pass
         if text:
-            nlp = Techniques(model, text)
+            nlp = Word(model, text)
             summary = nlp.extractive_summarisation(5)
             common_words = nlp.words_threshold_n(10)
         return UploadResponse(

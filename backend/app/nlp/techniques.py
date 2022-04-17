@@ -12,20 +12,15 @@ Todo:
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
-from typing_extensions import runtime
 
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
-import spacy
+from spacy.util import registry
 
 
 class Word:
-    """Apply NLP techiniques on text.
-
-    Attributes:
-        __doc : spaCy Doc class
-    """
+    """Apply word extraction on text."""
 
     __doc: Doc
     __accepted_pos_tags = {"NOUN", "PROPN"}
@@ -34,7 +29,7 @@ class Word:
         """Run English spacy model on text chunk.
 
         Args:
-            model : instance of a spaCy text-processing pipeline
+            model : spaCy language model
             text : chunk of text from scholarly article
 
         Raises:
@@ -105,7 +100,7 @@ class Word:
 
         return final_sentences
 
-    def words_threshold_n(self, n: int, dic: dict[str, int]) -> list[tuple[str, int]]:
+    def words_threshold_n(self, n: int) -> list[tuple[str, int]]:
         """Return list of tuples containing words that occur more than n times.
 
         Args:
@@ -114,18 +109,24 @@ class Word:
         Returns:
             List of n words including their frequency
         """
-
-        noun_freq = Counter({k: c for k, c in dic.items() if c >= n})
+        noun_freq = Counter({k: c for k, c in self.noun_freq.items() if c >= n})
 
         return noun_freq.most_common()
 
 
 class Phrase:
+    """Apply phrase extraction on text."""
 
     __doc: Doc
 
     def __init__(self, model: Language, text: str):
-        # consider how to add it to pipeline if already has positionrank
+        """Run English spacy model on text chunk.
+
+        Args:
+            model : spaCy language model
+            text : chunk of text from scholarly article
+
+        """
         if model.has_pipe("positionrank"):
             model.remove_pipe("positionrank")
 
@@ -137,10 +138,11 @@ class Phrase:
 
     @cached_property
     def ranks(self) -> dict[str, int]:
-        """Returns sorted dictionary with phrases ranked by their rank
+        """Return sorted dictionary with phrases ranked by their rank.
 
         In textrank, the rank of a phrase is defined by its amount of links to
         other phrases.
+
         Returns:
             Dictionary of phrases mapping to their rank
         """
@@ -154,7 +156,7 @@ class Phrase:
 
     @cached_property
     def counts(self) -> dict[str, int]:
-        """Returns sorted dictionary with phrases ranked by their count
+        """Return sorted dictionary with phrases ranked by their count.
 
         Returns:
             Dictionary of phrases mapping to their count
@@ -167,9 +169,9 @@ class Phrase:
 
         return dict(sorted(phrases.items(), key=lambda item: item[1], reverse=True))
 
-    @spacy.registry.misc("prefix_scrubber")
+    @registry.misc("prefix_scrubber")
     def prefix_scrubber():
-        """Contains function for scrubbing the document
+        """Scrub spans.
 
         Ensures that it removes leading determinants, punctuation, stopwords and also
         single word results.
