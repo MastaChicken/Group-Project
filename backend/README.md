@@ -2,21 +2,21 @@
 
 The backend is written in Python. If using Visual Studio Code, ensure you have the
 [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-extension installed for code completion. 
-
+extension installed for code completion.
 
 ## Requirements
 
-- `python` >= 3.10
-- `poetry` >= 1.1.12
+-   `python` >= 3.10
+-   `poetry` >= 1.1.12
 
 ## Setup
 
-### Poetry 
+### Poetry
 
 We use [poetry](https://python-poetry.org/) for dependency management.
 
 To get started, run:
+
 ```bash
 $ poetry install
 ```
@@ -29,11 +29,13 @@ To use the virtual environment, change the interpreter environment to
 relevant script (related to the shell you are using).
 
 Example using bash (\*nix):
+
 ```bash
 $ source .venv/bin/activate
 ```
 
 Example using git bash (Windows):
+
 ```bash
 $ source .venv/Script/activate
 ```
@@ -61,6 +63,8 @@ This will run all the tests in the `tests/` folder.
 
 This will run a specific python test module.
 
+If those commands don't work on Git Bash. Try a different terminal.
+
 ### Coverage
 
 We include a tool to measure the code coverage of the unit tests, `coverage.py`
@@ -84,6 +88,7 @@ The API is written using [FastAPI](https://fastapi.tiangolo.com/)
 ### Debug
 
 Run the server in debug mode:
+
 ```
 $ python debug_server.py
 ```
@@ -92,6 +97,7 @@ Debug mode runs on `localhost:8000` and enables hot-reloading (allows you to
 make changes without having to restart the server)
 
 If you want to use the `/parse` endpoint, you will also need to run the GROBID server:
+
 ```
 $ docker run -p 8070:8070 lfoppiano/grobid:0.7.0
 ```
@@ -109,6 +115,7 @@ should warn you when compliance has not been met.
 ### Building
 
 You need to be in the virtual environment and/or have `sphinx` installed.
+
 ```bash
 $ sphinx-apidoc -o docs/ app/
 $ sphinx-apidoc -o docs/ tests/
@@ -125,7 +132,7 @@ We follow the Google Python style guide for writing Python.
 
 > <https://google.github.io/styleguide/pyguide.html>
 
-### Black 
+### Black
 
 We use [Black](https://github.com/psf/black) as our formatter. If using Visual
 Studio Code, you can change the `provider.formatting.provider` setting to
@@ -149,4 +156,3 @@ Visual Studio Code, you need to enable Flake8 by setting
 Flake8 plugins that should be enabled automatically.
 
 > <https://code.visualstudio.com/docs/python/linting>
-
