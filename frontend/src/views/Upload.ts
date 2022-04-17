@@ -12,11 +12,19 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-      <div class="tab-contents">
+
+    <div class="tab-contents">
         <form id="upload-form">
           <div id="drop-zone">
-            <label for="pdfpicker-file" id="drop-text">
-              <a id="click">Click </a> or drop your .pdf files here!</label>
+          <label for="pdfpicker-file" id="drop-text">
+              <a
+                id="pdfpicker-link"
+                href="javascript:;"
+              >
+                Click here 
+              </a>
+              or drop your .pdf files here
+            </label>
             <input
               required
               type="file"
@@ -51,6 +59,9 @@ export default class extends AbstractView {
           </div>
         </form>
       </div>
+
+
+      
     `;
   }
 
@@ -92,5 +103,8 @@ export default class extends AbstractView {
     });
 
     dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
+
+    const anchor = $("pdfpicker-link");
+    anchor.addEventListener("click", () => $("pdfpicker-file").click());
   }
 }
