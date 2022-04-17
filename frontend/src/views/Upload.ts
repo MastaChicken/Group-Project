@@ -21,7 +21,7 @@ export default class extends AbstractView {
                 id="pdfpicker-link"
                 href="javascript:;"
               >
-                Click here 
+                Click here
               </a>
               or drop your .pdf files here
             </label>
@@ -61,16 +61,16 @@ export default class extends AbstractView {
       </div>
 
 
-      
+
     `;
   }
 
   setupListeners() {
-    $("pdfpicker-file").addEventListener(
+    const pdfpickerInput = $("pdfpicker-file") as HTMLInputElement;
+    pdfpickerInput.addEventListener(
       "change",
       () => {
-        const fileElem = $("pdfpicker-file") as HTMLInputElement;
-        const files = fileElem.files;
+        const files = pdfpickerInput.files;
         const dropText = $("drop-text");
         // checks file exists and passes PDF checks.
 
@@ -81,7 +81,7 @@ export default class extends AbstractView {
           uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type
-          fileElem.value = "";
+          pdfpickerInput.value = "";
           dropText.innerHTML = "File Rejected: Please add .pdf file type";
           $("selection-boxes").style.display = "none";
         }
@@ -104,7 +104,7 @@ export default class extends AbstractView {
 
     dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
 
-    const anchor = $("pdfpicker-link");
-    anchor.addEventListener("click", () => $("pdfpicker-file").click());
+    const pdfPickerAnchor = $("pdfpicker-link");
+    pdfPickerAnchor.addEventListener("click", () => pdfpickerInput.click());
   }
 }
