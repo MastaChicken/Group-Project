@@ -83,35 +83,43 @@ class TestTechniques:
         phrase2 = Phrase(self.model, self.empty_string)
 
     text_test_phrase = """
-Our investigation identified a series of opportunities for HCIR systems to support systematic reviews through automation of tasks that were described as laborious and repetitive. One initial observation is that this multi-stage process may be facilitated better by systems that, overall, model search stages explicitly. The breadth of expertise observed in those conducting systematic reviews indicates that great care must be taken when designing any technologies for systematic review automation to enable as many people as possible to participate in the review production process, particularly in data extraction. 
-"""
+    But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
+    """
 
     def test_phrase_count(self):
         """Ensure that the counting of phrases is correct"""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.counts
+        print(result)
         assert result == {
-            "systematic reviews": 2,
-            "systematic review automation": 1,
-            "hcir systems": 1,
-            "data extraction": 1,
-            "review production process": 1,
-            "great care": 1,
-            "multi stage process": 1,
-            "initial observation": 1,
+            "human happiness": 1,
+            "great pleasure": 1,
+            "resultant pleasure": 1,
+            "great explorer": 1,
+            "complete account": 1,
+            "actual teachings": 1,
+            "annoying consequences": 1,
+            "mistaken idea": 1,
+            "master builder": 1,
+            "laborious physical exercise": 1,
+            "trivial example": 1,
         }
 
     def test_phrase_rank(self):
         """Ensure that the ranking of phrase is correct"""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.ranks
+        print(result)
         assert result == {
-            "systematic review automation": 0.18095195032492892,
-            "systematic reviews": 0.1703205852928239,
-            "hcir systems": 0.15599875362242477,
-            "data extraction": 0.08947992871705784,
-            "review production process": 0.08487560499941071,
-            "great care": 0.08284069475691935,
-            "multi stage process": 0.05375667108933987,
-            "initial observation": 0.021827970517453898,
+            "human happiness": 0.11639400129253169,
+            "great pleasure": 0.09599787565487226,
+            "resultant pleasure": 0.08842973354655133,
+            "great explorer": 0.059767815990518225,
+            "complete account": 0.05395425188453882,
+            "actual teachings": 0.05349490986215388,
+            "annoying consequences": 0.05083849173415413,
+            "mistaken idea": 0.04699473263544324,
+            "master builder": 0.03783732877085598,
+            "laborious physical exercise": 0.035401405083632216,
+            "trivial example": 0.01241949360721544,
         }
