@@ -89,7 +89,7 @@ Our investigation identified a series of opportunities for HCIR systems to suppo
 """
 
     def test_phrase_count(self):
-        """Ensure that the counting of phrase is correct"""
+        """Ensure that the counting of phrases is correct"""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.counts
         assert result == {
