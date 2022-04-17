@@ -10,7 +10,7 @@ from .citation import (
     PersonName,
     Scope,
 )
-from .section import Ref, RefText, Marker, Section
+from .section import Marker, Ref, RefText, Section
 
 __all__ = [
     "Article",
