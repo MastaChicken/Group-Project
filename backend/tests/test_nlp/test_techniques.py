@@ -81,8 +81,6 @@ class TestTechniques:
         """Ensure phrase pipeline works when model fed in twice."""
         phrase = Phrase(self.model, self.empty_string)
         phrase2 = Phrase(self.model, self.empty_string)
-        phrase.ranks
-        phrase2.ranks
 
     text_test_phrase = """
 Our investigation identified a series of opportunities for HCIR systems to support systematic reviews through automation of tasks that were described as laborious and repetitive. One initial observation is that this multi-stage process may be facilitated better by systems that, overall, model search stages explicitly. The breadth of expertise observed in those conducting systematic reviews indicates that great care must be taken when designing any technologies for systematic review automation to enable as many people as possible to participate in the review production process, particularly in data extraction. 
