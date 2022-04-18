@@ -12,7 +12,6 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-
     <div class="tab-contents">
         <form id="upload-form">
           <div id="drop-zone">
@@ -59,9 +58,6 @@ export default class extends AbstractView {
           </div>
         </form>
       </div>
-
-
-
     `;
   }
 
