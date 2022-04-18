@@ -130,9 +130,9 @@ ensure a maintainable codebase.
 
 Modules allow us to use the `import` and `export` statements.
 
-In the `index.js` file, ensure that you use [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+In the relevant module (views), ensure that you use [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
 instead of polluting the global namespace (exporting to window) when you want to
-add an interaction between a HTMLElement and Javascript.
+add an interaction for HTMLElement using Javascript.
 
 To create a module, create a Javascript file in the `src/modules/` folder. Make
 sure to `export` any functions/classes/variables you want to use in other
@@ -156,15 +156,15 @@ IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-
 
 ### Web Components
 
-We make use of [PatternFly Elements](https://patternflyelements.org/) for
+We make use of [Shoelace](https://shoelace.style/) for
 components that we require in the web app.
 
-> Example usage (accordion)
-> <https://patternflyelements.org/components/accordion/>
+> Example usage (button)
+> <https://shoelace.style/components/button>
 
-1. `$ npm install @patternfly/pfe-accordion`
-2. Add `import "@patternfly/pfe-accordion";` to top of `src/index.js` file
-3. You can use the `<pfe-accordion></pfe-accordion>` HTML tags now.
+1. Copy the bundler command from the "Importing" section, <https://shoelace.style/components/button?id=importing>
+2. Add `import "@shoelace-style/shoelace/dist/components/button/button.js";` to top of `src/index.ts` file
+3. You can use the `<sl-button></sl-button>` HTML tags now.
 
 Check the component documentation for all available tags.
 
