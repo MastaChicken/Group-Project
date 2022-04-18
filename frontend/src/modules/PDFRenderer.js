@@ -129,6 +129,9 @@ $("zoom_in").addEventListener("click", zoomIntoPage);
  * Zoom Out of page by 0.1 scale.
  */
 export function zoomOutPage() {
+  if (myState.zoom <= 1) {
+    return;
+  }
   myState.zoom -= 0.1;
   render();
 }
