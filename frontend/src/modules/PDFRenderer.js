@@ -40,6 +40,7 @@ export function renderPDF(pdf) {
  */
 export function render() {
   pageRendering = true;
+
   myState.pdf.getPage(myState.currentPage).then((page) => {
     let containerWidth = $("canvas_container").clientWidth;
     var scale =
@@ -65,17 +66,17 @@ export function render() {
       transform: transform,
       viewport: viewport,
     };
-    page.render(renderContext);
-    pageRendering = false;
+    let renderTask = page.render(renderContext);
 
-    // renderTask.promise.then(function () {
-    //   pageRendering = false;
-    //   if (pageNumPending !== null) {
-    //     // New page rendering is pending
-    //     render();
-    //     pageNumPending = null;
-    //   }
-    // });
+    renderTask.promise.then(function () {
+      pageRendering = false;
+      document.body.style.cursor = "default";
+      if (pageNumPending !== null) {
+        // New page rendering is pending
+        render();
+        pageNumPending = null;
+      }
+    });
   });
   $("current_page").value = myState.currentPage;
 }
@@ -87,6 +88,7 @@ export function render() {
 export function queueRenderPage() {
   if (pageRendering) {
     pageNumPending = myState.currentPage;
+    console.log("hello");
   } else {
     render();
   }
@@ -112,16 +114,34 @@ export function onNextPage() {
     return;
   }
   myState.currentPage++;
+  document.body.style.cursor = "wait";
   queueRenderPage(myState.currentPage);
 }
 $("go_next").addEventListener("click", onNextPage);
+
+/**
+ * Change page if user manually enters a page into the input box.
+ */
+export function onPageEntry() {
+  let pageInput = $("current_page");
+  if (
+    Number(pageInput.value) > myState.totalPages ||
+    Number(pageInput.value) < 1
+  ) {
+    console.log("invalid page");
+    return;
+  }
+  myState.currentPage = Number(pageInput.value);
+  queueRenderPage(myState.currentPage);
+}
+$("current_page").addEventListener("change", onPageEntry);
 
 /**
  * Zoom into page by 0.1 scale.
  */
 export function zoomIntoPage() {
   myState.zoom += 0.1;
-  render();
+  queueRenderPage(myState.currentPage);
 }
 $("zoom_in").addEventListener("click", zoomIntoPage);
 
@@ -133,7 +153,7 @@ export function zoomOutPage() {
     return;
   }
   myState.zoom -= 0.1;
-  render();
+  queueRenderPage(myState.currentPage);
 }
 $("zoom_out").addEventListener("click", zoomOutPage);
 
