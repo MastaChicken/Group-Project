@@ -12,13 +12,18 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-      <div class="tab-contents">
+    <div class="tab-contents">
         <form id="upload-form">
           <div id="drop-zone">
-            <label for="pdfpicker-file" id="drop-text">
-              Drop your .pdf files here!</label
-            >
-            <br />
+          <label for="pdfpicker-file" id="drop-text">
+              <a
+                id="pdfpicker-link"
+                href="javascript:;"
+              >
+                Click here
+              </a>
+              or drop your .pdf files here
+            </label>
             <input
               required
               type="file"
@@ -41,13 +46,6 @@ export default class extends AbstractView {
             id="selection-boxes"
             style="display: none"
           ></div>
-          <div class="buttons">
-            <input
-              class="tab-contents"
-              type="submit"
-              name="submit-upload"
-              value="Upload"
-            />
             <!-- Button below for implementing URL -->
             <input
               class="tab-contents"
@@ -64,32 +62,28 @@ export default class extends AbstractView {
   }
 
   setupListeners() {
-    $("pdfpicker-file").addEventListener(
+    const pdfpickerInput = $("pdfpicker-file") as HTMLInputElement;
+    pdfpickerInput.addEventListener(
       "change",
       () => {
-        const fileElem = $("pdfpicker-file") as HTMLInputElement;
-        const files = fileElem.files;
+        const files = pdfpickerInput.files;
         const dropText = $("drop-text");
         // checks file exists and passes PDF checks.
 
         if (files.length > 0 && isValidPDF(files[0])) {
           dropText.innerHTML = `File accepted: ${files[0].name}`;
           $("selection-boxes").style.display = "block";
+          history.pushState(null, null, "/display");
+          uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type
-          fileElem.value = "";
+          pdfpickerInput.value = "";
           dropText.innerHTML = "File Rejected: Please add .pdf file type";
           $("selection-boxes").style.display = "none";
         }
       },
       false
     );
-    // Upload PDF form
-    const uploadForm = $("upload-form");
-    uploadForm.addEventListener("submit", (ev) => {
-      history.pushState(null, null, "/display");
-      uploadPDF(ev);
-    });
 
     // Upload URL
     const urlInput = $("url-input");
@@ -97,7 +91,16 @@ export default class extends AbstractView {
 
     // Drophandler
     const dropZone = $("drop-zone");
-    dropZone.addEventListener("drop", (ev) => dropHandler(ev));
+    dropZone.addEventListener("drop", (ev) => {
+      dropHandler(ev);
+      const files = ($("pdfpicker-file") as HTMLInputElement).files;
+      history.pushState(null, null, "/display");
+      uploadPDF(files[0]);
+    });
+
     dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));
+
+    const pdfPickerAnchor = $("pdfpicker-link");
+    pdfPickerAnchor.addEventListener("click", () => pdfpickerInput.click());
   }
 }

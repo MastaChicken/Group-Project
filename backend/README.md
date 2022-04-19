@@ -2,7 +2,10 @@
 
 The backend is written in Python. If using Visual Studio Code, ensure you have the
 [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-extension installed for code completion.
+extension installed for code completion. 
+
+[[_TOC_]]
+
 
 ## Requirements
 
