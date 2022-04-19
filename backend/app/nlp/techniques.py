@@ -12,11 +12,13 @@ Todo:
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
+import numpy
 
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
 from spacy.util import registry
+import numpy as np
 
 
 class Word:
@@ -138,19 +140,27 @@ class Phrase:
 
     @cached_property
     def ranks(self) -> dict[str, int]:
-        """Return sorted dictionary with phrases ranked by their rank.
+        """Return sorted dictionary with phrases and their normalised rank.
 
-        In textrank, the rank of a phrase is defined by its amount of links to
-        other phrases.
+        In position, the rank of a phrase is defined by its amount of links to
+        other phrases. To normalise the ranks as they are decimals, I divide
+        all the ranks by the lowest rank, square the result, then round the
+        result to closest integer.
 
         Returns:
-            Dictionary of phrases mapping to their rank
+            Sorted dictionary of phrases mapping to their normalised rank
         """
         phrases = {}
         # examine the top-ranked phrases in the document
+
         for phrase in self.__doc._.phrases:
             if phrase.text:
                 phrases[phrase.text] = phrase.rank
+
+        lcd = phrases[min(phrases, key=phrases.get)]
+
+        for phrase in phrases:
+            phrases[phrase] = round((np.square(phrases[phrase] / lcd)))
 
         return phrases
 

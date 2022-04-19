@@ -106,20 +106,20 @@ class TestTechniques:
         }
 
     def test_phrase_rank(self):
-        """Ensure that the ranking of phrase is correct."""
+        """Ensure that the normalised ranking of phrase is correct."""
         phrase_techniques = Phrase(self.model, self.text_test_phrase)
         result = phrase_techniques.ranks
         print(result)
         assert result == {
-            "human happiness": 0.11639400129253169,
-            "great pleasure": 0.09599787565487226,
-            "resultant pleasure": 0.08842973354655133,
-            "great explorer": 0.059767815990518225,
-            "complete account": 0.05395425188453882,
-            "actual teachings": 0.05349490986215388,
-            "annoying consequences": 0.05083849173415413,
-            "mistaken idea": 0.04699473263544324,
-            "master builder": 0.03783732877085598,
-            "laborious physical exercise": 0.035401405083632216,
-            "trivial example": 0.01241949360721544,
+            "human happiness": 88,
+            "great pleasure": 60,
+            "resultant pleasure": 51,
+            "great explorer": 23,
+            "complete account": 19,
+            "actual teachings": 19,
+            "annoying consequences": 17,
+            "mistaken idea": 14,
+            "master builder": 9,
+            "laborious physical exercise": 8,
+            "trivial example": 1,
         }
