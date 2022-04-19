@@ -12,13 +12,11 @@ Todo:
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
-import numpy
 
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
 from spacy.util import registry
-import numpy as np
 
 
 class Word:
@@ -160,7 +158,7 @@ class Phrase:
         lcd = phrases[min(phrases, key=phrases.get)]
 
         for phrase in phrases:
-            phrases[phrase] = round((np.square(phrases[phrase] / lcd)))
+            phrases[phrase] = round((phrases[phrase] / lcd) ** 2)
 
         return phrases
 
