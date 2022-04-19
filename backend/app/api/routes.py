@@ -17,14 +17,18 @@ from app.grobid.tei import TEI
 from fastapi import APIRouter, HTTPException, UploadFile, status
 from spacy import load
 
+from app.config import get_settings
+
 router = APIRouter()
 
 
 @router.on_event("startup")
-def load_model():
-    """Load model once to be passed around as an instance."""
+def load_globals():
+    """Load instances once."""
     global model
     model = load("en_core_web_sm")
+    global settings
+    settings = get_settings()
 
 
 @router.post("/upload")
@@ -38,8 +42,6 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
     Raises:
         HTTPException: the file cannot be parsed
     """
-    contents = await file.read()
-
     if file.content_type != "application/pdf":
         raise HTTPException(415, detail="Invalid document type")
 
@@ -52,8 +54,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         )
     )
 
-    # FIXME: API_URL should be a constant and not pointing to docker
-    c = Client(api_url="http://host.docker.internal:8070/api", form=form)
+    c = Client(api_url=settings.grobid_api_url, form=form)
     r = await c.asyncio_request()
     t = TEI(r.content, model)
     a = t.parse()

@@ -46,6 +46,40 @@ $ source .venv/Script/activate
 Ensure you keep the `poetry.lock` file updated when adding/updating/removing
 dependencies.
 
+## API
+
+The API is written using [FastAPI](https://fastapi.tiangolo.com/)
+
+### Prerequisities
+
+The GROBID REST API needs to be running for the PDF parsing.
+
+1. `docker-compose up` runs the GROBID REST API by default on port 8070:8070
+2. `docker run lfoppiano/grobid:0.7.0 -p 8070:8070`
+
+Our API does not set up a GROBID REST API URL by default.
+
+You need to copy the `.env.example` file as a `.env` file and update the value
+of the `GROBID_API_URL` key.
+
+If you followed the commands above, the `.env` file should look like below
+```env
+# .env
+GROBID_API_URL=http://host.docker.interal:8070/api
+```
+
+### Debug
+
+Run the server in debug mode:
+
+```
+$ python debug_server.py
+```
+
+Debug mode runs on `localhost:8000` and enables hot-reloading (allows you to
+make changes without having to restart the server)
+
+
 ## Testing
 
 We use `pytest` to create and run unit tests.
@@ -83,27 +117,6 @@ generate a report printed to the console.
 `$ poetry run coverage html`
 
 This will generate a complete report located at `htmlcov/index.html`
-
-## API
-
-The API is written using [FastAPI](https://fastapi.tiangolo.com/)
-
-### Debug
-
-Run the server in debug mode:
-
-```
-$ python debug_server.py
-```
-
-Debug mode runs on `localhost:8000` and enables hot-reloading (allows you to
-make changes without having to restart the server)
-
-If you want to use the `/parse` endpoint, you will also need to run the GROBID server:
-
-```
-$ docker run -p 8070:8070 lfoppiano/grobid:0.7.0
-```
 
 ## Documentation
 
