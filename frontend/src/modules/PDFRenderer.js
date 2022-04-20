@@ -88,7 +88,6 @@ export function render() {
 export function queueRenderPage() {
   if (pageRendering) {
     pageNumPending = myState.currentPage;
-    console.log("hello");
   } else {
     render();
   }
@@ -128,7 +127,6 @@ export function onPageEntry() {
     Number(pageInput.value) > myState.totalPages ||
     Number(pageInput.value) < 1
   ) {
-    console.log("invalid page");
     return;
   }
   myState.currentPage = Number(pageInput.value);
@@ -141,6 +139,7 @@ $("current_page").addEventListener("change", onPageEntry);
  */
 export function zoomIntoPage() {
   myState.zoom += 0.1;
+  $("zoom_out").removeAttribute("disabled");
   queueRenderPage(myState.currentPage);
 }
 $("zoom_in").addEventListener("click", zoomIntoPage);
@@ -150,6 +149,7 @@ $("zoom_in").addEventListener("click", zoomIntoPage);
  */
 export function zoomOutPage() {
   if (myState.zoom <= 1) {
+    $("zoom_out").setAttribute("disabled", true);
     return;
   }
   myState.zoom -= 0.1;
