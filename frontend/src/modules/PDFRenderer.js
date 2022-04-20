@@ -7,15 +7,14 @@ PDFJS.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 // keeping cdn link in case any issues arise from loading in worker
 // from node module.
 
-export let myState = {
+let myState = {
   pdf: null,
   currentPage: 1,
   totalPages: 1,
   zoom: 1,
 };
 
-export let pageRendering = false,
-  pageNum = 1,
+let pageRendering = false,
   pageNumPending = null;
 
 /**
@@ -36,9 +35,20 @@ export function renderPDF(pdf) {
 }
 
 /**
- *
+ * Set up listeners required for PDF viewer interaction.
  */
-export function render() {
+export function setupListeners() {
+  $("go_previous").addEventListener("click", onPrevPage);
+  $("go_next").addEventListener("click", onNextPage);
+  $("current_page").addEventListener("change", onPageEntry);
+  $("zoom_in").addEventListener("click", zoomIntoPage);
+  $("zoom_out").addEventListener("click", zoomOutPage);
+}
+
+/**
+ * Render pdf.
+ */
+function render() {
   pageRendering = true;
 
   myState.pdf.getPage(myState.currentPage).then((page) => {
@@ -85,7 +95,7 @@ export function render() {
  * If another page rendering in progress, waits until the rendering is
  * finised. Otherwise, executes rendering immediately.
  */
-export function queueRenderPage() {
+function queueRenderPage() {
   if (pageRendering) {
     pageNumPending = myState.currentPage;
   } else {
@@ -96,19 +106,18 @@ export function queueRenderPage() {
 /**
  * Displays previous page.
  */
-export function onPrevPage() {
+function onPrevPage() {
   if (myState.currentPage <= 1) {
     return;
   }
   myState.currentPage--;
   queueRenderPage(myState.currentPage);
 }
-$("go_previous").addEventListener("click", onPrevPage);
 
 /**
  * Displays next page.
  */
-export function onNextPage() {
+function onNextPage() {
   if (myState.currentPage >= myState.totalPages) {
     return;
   }
@@ -116,12 +125,11 @@ export function onNextPage() {
   document.body.style.cursor = "wait";
   queueRenderPage(myState.currentPage);
 }
-$("go_next").addEventListener("click", onNextPage);
 
 /**
  * Change page if user manually enters a page into the input box.
  */
-export function onPageEntry() {
+function onPageEntry() {
   let pageInput = $("current_page");
   if (
     Number(pageInput.value) > myState.totalPages ||
@@ -132,30 +140,27 @@ export function onPageEntry() {
   myState.currentPage = Number(pageInput.value);
   queueRenderPage(myState.currentPage);
 }
-$("current_page").addEventListener("change", onPageEntry);
 
 /**
  * Zoom into page by 0.1 scale.
  */
-export function zoomIntoPage() {
+function zoomIntoPage() {
   myState.zoom += 0.1;
   $("zoom_out").removeAttribute("disabled");
   queueRenderPage(myState.currentPage);
 }
-$("zoom_in").addEventListener("click", zoomIntoPage);
 
 /**
  * Zoom Out of page by 0.1 scale.
  */
-export function zoomOutPage() {
+function zoomOutPage() {
+  myState.zoom -= 0.1;
+  queueRenderPage(myState.currentPage);
   if (myState.zoom <= 1) {
     $("zoom_out").setAttribute("disabled", true);
     return;
   }
-  myState.zoom -= 0.1;
-  queueRenderPage(myState.currentPage);
 }
-$("zoom_out").addEventListener("click", zoomOutPage);
 
 /**
  * Asynchronously downloads PDF.

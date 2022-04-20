@@ -1,5 +1,6 @@
 import AbstractView from "./AbstractView";
 import { $, html } from "../constants";
+import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 
 export default class extends AbstractView {
   constructor() {
@@ -26,7 +27,7 @@ export default class extends AbstractView {
 
               <div id="zoom_controls">
                 <button id="zoom_in">+</button>
-                <button id="zoom_out">-</button>
+                <button disabled id="zoom_out">-</button>
               </div>
             </div>
           </div>
@@ -110,6 +111,8 @@ export default class extends AbstractView {
       },
       true
     );
+
+    setupPDFListeners();
 
     // Toggle PDF
     const pdfToggleInput = $("output-show-document");
