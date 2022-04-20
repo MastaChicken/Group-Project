@@ -11,9 +11,9 @@ import fastapi
 import httpx
 
 # f# rom app.api.models import UploadReponseNew, UploadResponse
-from app.grobid.client import Client
+from app.grobid.client import Client, GrobidClientError
 from app.grobid.models.form import File, Form
-from app.grobid.tei import TEI
+from app.grobid.tei import TEI, GrobidParserError
 from fastapi import APIRouter, HTTPException, UploadFile, status
 from spacy import load
 
@@ -43,29 +43,43 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         HTTPException: the file cannot be parsed
     """
     if file.content_type != "application/pdf":
-        raise HTTPException(415, detail="Invalid document type")
+        raise HTTPException(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Invalid document type"
+        )
 
     contents = await file.read()
+    # TODO: use PyMUPDF to check if document is corrupted
     if not isinstance(contents, bytes):
-        raise HTTPException(400, detail="Couldn't read document")
+        raise HTTPException(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Couldn't read document"
+        )
+
     form = Form(
         file=File(
             payload=contents, file_name=file.filename, mime_type=file.content_type
         )
     )
 
-    c = Client(api_url=settings.grobid_api_url, form=form)
-    r = await c.asyncio_request()
-    t = TEI(r.content, model)
-    a = t.parse()
+    try:
+        client = Client(api_url=settings.grobid_api_url, form=form)
+        response = await client.asyncio_request()
+    except GrobidClientError as exc:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
-    if a is None:
-        return HTTPException(400, detail="Couldn't parse document")
+    tei = TEI(response.content, model)
 
     try:
-        return dataclasses.asdict(a)
+        article = tei.parse()
+    except GrobidParserError as exc:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+    try:
+        return dataclasses.asdict(article)
     except TypeError:
-        return HTTPException(500, detail="Couldn't serialise response object")
+        return HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Couldn't serialise response object",
+        )
 
 
 @router.get("/validate_url/")

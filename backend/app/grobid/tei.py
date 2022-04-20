@@ -59,6 +59,9 @@ class TEI:
 
         Returns:
             Article object
+
+        Raises:
+            GrobidParserError: Article could not be parsed
         """
         body = self.soup.body
 
