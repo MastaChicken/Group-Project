@@ -52,15 +52,21 @@ The API is written using [FastAPI](https://fastapi.tiangolo.com/)
 
 ### Prerequisities
 
-The GROBID REST API needs to be running for the PDF parsing.
+The GROBID REST API needs to be running for the PDF parser.
 
-1. `docker-compose up` runs the GROBID REST API by default on port 8070:8070
-2. `docker run lfoppiano/grobid:0.7.0 -p 8070:8070`
+Either of the following options runs the GROBID REST API locally on port 8070:8070
+
+1. Run `docker-compose up`
+2. Run `docker run lfoppiano/grobid:0.7.0 -p 8070:8070`
 
 Our API does not set up a GROBID REST API URL by default.
 
 You need to copy the `.env.example` file as a `.env` file and update the value
 of the `GROBID_API_URL` key.
+
+```sh
+$ cp .env.example .env
+```
 
 If you followed the commands above, the `.env` file should look like below
 ```env
