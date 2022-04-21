@@ -11,7 +11,7 @@ import fastapi
 import httpx
 from app.document import PDF
 
-# f# rom app.api.models import UploadReponseNew, UploadResponse
+# from app.api.models import UploadResponse
 from app.grobid.client import Client, GrobidClientError
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI, GrobidParserError
@@ -19,6 +19,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, status
 from spacy import load
 
 from app.config import get_settings
+from app.nlp.techniques import Phrase, Word
 
 router = APIRouter()
 
@@ -77,12 +78,40 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
     try:
-        return dataclasses.asdict(article)
+        article_dict = dataclasses.asdict(article)
     except TypeError:
         return HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Couldn't serialise response object",
+            detail="Couldn't serialise Article object",
         )
+
+    article_text = []
+    for section in article.sections:
+        article_text.append(section.to_str())
+
+    # Phrase counts
+    phrase_counts = {}
+    if article.abstract:
+        phrase = Phrase(article.abstract.to_str(), model)
+        phrase_counts = phrase.counts
+
+    # Common words
+    # NOTE: uses full text
+    common_words = []
+    try:
+        word = Word(" ".join(article_text), model)
+        common_words = word.words_threshold_n(5)
+    except RuntimeError:
+        pass
+
+    # TODO: use UploadResponse when pydantic is updated to v1.9
+    # TODO: add summary
+    return dict(
+        article=article_dict,
+        common_words=common_words,
+        phrase_ranks=phrase_counts,
+        summary="",
+    )
 
 
 @router.get("/validate_url/")

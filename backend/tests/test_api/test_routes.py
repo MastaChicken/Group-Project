@@ -4,7 +4,8 @@ Todo:
     * added more test cases for all
 """
 import pytest
-from app.api.models import UploadResponse
+
+# from app.api.models import UploadResponse
 from app.main import app
 from fastapi.testclient import TestClient
 
@@ -31,8 +32,8 @@ class TestRecieveFile:
         response = client.post(
             "/upload", files={"file": ("filename", self.test_obj, "application/pdf")}
         )
-        res_body = response.json()
         assert response.status_code == 200
+        # res_body = response.json()
         # assert UploadResponse.validate(res_body)
 
 

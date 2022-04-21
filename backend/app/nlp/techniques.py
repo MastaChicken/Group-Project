@@ -55,6 +55,7 @@ class Word:
                 not word.is_punct
                 and not word.is_stop
                 and word.pos_ in self.__accepted_pos_tags
+                and len(word.lemma_) > 1
             ):
                 if word.lemma_ not in word_frequencies.keys():
                     word_frequencies[word.lemma_] = 1
@@ -156,6 +157,7 @@ class Phrase:
             if phrase.text:
                 phrases[phrase.text] = phrase.rank
 
+        # FIXME: can return zero, which will lead to ZeroDivisionError
         lcd = phrases[min(phrases, key=phrases.get)]
 
         for phrase in phrases:
@@ -186,7 +188,7 @@ class Phrase:
         single word results.
 
         Returns:
-            scrubed string
+            Scrubbed string
         """
 
         def scrubber_func(span: Span) -> str:
@@ -197,7 +199,12 @@ class Phrase:
                 span = span[1:]
 
             for token in span:
-                if not token.is_punct and not token.is_stop:
+                if (
+                    len(token.text) > 1
+                    and not token.is_punct
+                    and not token.is_stop
+                    and (token.is_alpha or token.is_digit)
+                ):
                     result.append(token.text.lower())
 
             if len(result) == 1:
