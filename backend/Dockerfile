@@ -38,5 +38,5 @@ RUN poetry build \
 FROM base as final
 
 COPY --from=builder /venv /venv
-COPY docker-entrypoint.sh ./
+COPY docker-entrypoint.sh .env ./
 CMD ["./docker-entrypoint.sh"]

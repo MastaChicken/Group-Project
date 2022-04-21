@@ -4,15 +4,14 @@ Example::
 
     text: str
     nlp = Techniques(text)
-    nlp.extractive_summarisation(5)
 
-Todo:
-    * Add more techiniques
 """
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
+from math import ceil
 
+import pytextrank  # noqa: F401
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
@@ -25,7 +24,7 @@ class Word:
     __doc: Doc
     __accepted_pos_tags = {"NOUN", "PROPN"}
 
-    def __init__(self, model: Language, text: str):
+    def __init__(self, text: str, model: Language):
         """Run English spacy model on text chunk.
 
         Args:
@@ -54,6 +53,7 @@ class Word:
                 not word.is_punct
                 and not word.is_stop
                 and word.pos_ in self.__accepted_pos_tags
+                and len(word.lemma_) > 1
             ):
                 if word.lemma_ not in word_frequencies.keys():
                     word_frequencies[word.lemma_] = 1
@@ -119,7 +119,7 @@ class Phrase:
 
     __doc: Doc
 
-    def __init__(self, model: Language, text: str):
+    def __init__(self, text: str, model: Language):
         """Run English spacy model on text chunk.
 
         Args:
@@ -140,25 +140,17 @@ class Phrase:
     def ranks(self) -> dict[str, int]:
         """Return sorted dictionary with phrases and their normalised rank.
 
-        In position, the rank of a phrase is defined by its amount of links to
-        other phrases. To normalise the ranks as they are decimals, I divide
-        all the ranks by the lowest rank, square the result, then round the
-        result to closest integer.
+        If normalised rank is zero, the phrase is ignored.
 
         Returns:
             Sorted dictionary of phrases mapping to their normalised rank
         """
         phrases = {}
-        # examine the top-ranked phrases in the document
 
         for phrase in self.__doc._.phrases:
-            if phrase.text:
-                phrases[phrase.text] = phrase.rank
-
-        lcd = phrases[min(phrases, key=phrases.get)]
-
-        for phrase in phrases:
-            phrases[phrase] = round((phrases[phrase] / lcd) ** 2)
+            n_rank = ceil(phrase.rank * 100)
+            if phrase.text and n_rank:
+                phrases[phrase.text] = n_rank
 
         return phrases
 
@@ -170,7 +162,7 @@ class Phrase:
             Dictionary of phrases mapping to their count
         """
         phrases = {}
-        # examine the top-ranked phrases in the document
+
         for phrase in self.__doc._.phrases:
             if phrase.text:
                 phrases[phrase.text] = phrase.count
@@ -185,7 +177,7 @@ class Phrase:
         single word results.
 
         Returns:
-            scrubed string
+            Scrubbed string
         """
 
         def scrubber_func(span: Span) -> str:
@@ -196,7 +188,12 @@ class Phrase:
                 span = span[1:]
 
             for token in span:
-                if not token.is_punct and not token.is_stop:
+                if (
+                    len(token.text) > 1
+                    and not token.is_punct
+                    and not token.is_stop
+                    and (token.is_alpha or token.is_digit)
+                ):
                     result.append(token.text.lower())
 
             if len(result) == 1:

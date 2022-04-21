@@ -26,10 +26,10 @@ class Client:
 
     def __build_request(self) -> dict[str, Any]:
         """Build request dictionary."""
+        # FIXME: api url is hardcoded
         url = f"{self.api_url}/processFulltextDocument"
-        # TODO: not sure what the timeout should be
-        timeout = httpx.Timeout(None)
-        return dict(url=url, files=self.form.to_dict(), timeout=timeout)
+        # FIXME: remove hard-coded timeout
+        return dict(url=url, files=self.form.to_dict(), timeout=10)
 
     def __build_response(self, response: httpx.Response) -> Response:
         """Build Response object.
@@ -83,7 +83,9 @@ class Client:
 
 
 if __name__ == "__main__":
-    # pdf_file = Path("study/Simon_Langley-evans.pdf")
+    # import path
+
+    # pdf_file = path.Path("study/Simon_Langley-evans.pdf")
     # with open(pdf_file, "rb") as file:
     #     form = Form(
     #         file=File(
@@ -100,4 +102,4 @@ if __name__ == "__main__":
         t = TEI(f.read(), load("en_core_web_sm"))
         a = t.parse()
 
-        # print(a.sections)
+    print(a.sections)

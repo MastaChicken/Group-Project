@@ -49,45 +49,29 @@ function handleErrors(response: Response): Response {
  */
 export async function uploadPDF(file: File) {
   const data = new FormData();
-  // Add first file in file input, the PDF, as "file"
-
   data.append("file", file);
 
   await fetch(`${API}/upload`, { method: "POST", body: data })
     .then(handleErrors)
     .then((r) => r.json())
     .then((data) => {
-      $("title-return-display").textContent = data.title;
-      $("metadata-return-display").innerHTML = "";
-      Object.entries(data.metadata).forEach(([k, v]) => {
-        $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
+      const article = data.article;
+      // Summary
+      // NOTE: currently empty
       $("summary-return-display").textContent = data.summary;
-      $("toc-return-display").textContent = data.toc;
-      $("toc-return-display").innerHTML = "";
-      Object.entries(data.toc).forEach(([_, v]) => {
-        $("toc-return-display").innerHTML += `${v[1]}<br><br>`;
-      });
 
-      $("common-words-return-display").textContent = data.common_words;
-      $("common-words-return-display").innerHTML = "";
-      Object.entries(data.common_words).forEach(([k, v]) => {
-        $(
-          "common-words-return-display"
-        ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
-      $("outlet").appendChild(makeWordCloudCanvas(data.common_words));
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+      // Word cloud
+      $("word-cloud-return-display").appendChild(
+        makeWordCloudCanvas(data.common_words)
+      );
 
-  await fetch(`${API}/parse`, { method: "POST", body: data })
-    .then(handleErrors)
-    .then((r) => r.json())
-    .then((data) => {
+      // Metadata
+      $("metadata-return-display").textContent = article.bibliography.title;
+      // TODO: display the rest of the bibliography
+
+      // References
       const oLinkEl = document.createElement("ol");
-      Object.entries(data.citations).forEach(([ref, citation]) => {
+      Object.entries(article.citations).forEach(([ref, citation]) => {
         const citationObj = new MLA8Citation(citation);
 
         const listEl = document.createElement("li");

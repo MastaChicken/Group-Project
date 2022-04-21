@@ -53,14 +53,14 @@ class TestTechniques:
         text_test = ""
         for k, v in test_dic.items():
             text_test += (k + " ") * v
-        word_techniques = Word(self.model, text_test)
+        word_techniques = Word(text_test, self.model)
         words = word_techniques.noun_freq
         assert words == test_dic
 
     def test_invalid_pipeline_word(self):
         """Language model needs to contain Lemmatizer pipeline."""
         with raises(RuntimeError):
-            Word(English(), self.empty_string)
+            Word(self.empty_string, English())
 
     def test_threshold_words(self):
         """Test for words over threshold of n."""
@@ -72,15 +72,15 @@ class TestTechniques:
         text_test = ""
         for word, freq in test_list_tuple:
             text_test += (word + " ") * freq
-        word_techniques = Word(self.model, text_test)
+        word_techniques = Word(text_test, self.model)
         result = word_techniques.words_threshold_n(4)
 
         assert sorted(result) == sorted([("pineapple", 5), ("biscuit", 7)])
 
     def test_invalid_pipeline_phrase(self):
         """Ensure phrase pipeline works when model fed in twice."""
-        Phrase(self.model, self.empty_string)
-        Phrase(self.model, self.empty_string)
+        Phrase(self.empty_string, self.model)
+        Phrase(self.empty_string, self.model)
 
     text_test_phrase = """
     But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
@@ -88,9 +88,8 @@ class TestTechniques:
 
     def test_phrase_count(self):
         """Ensure that the counting of phrases is correct."""
-        phrase_techniques = Phrase(self.model, self.text_test_phrase)
+        phrase_techniques = Phrase(self.text_test_phrase, self.model)
         result = phrase_techniques.counts
-        print(result)
         assert result == {
             "human happiness": 1,
             "great pleasure": 1,
@@ -107,19 +106,18 @@ class TestTechniques:
 
     def test_phrase_rank(self):
         """Ensure that the normalised ranking of phrase is correct."""
-        phrase_techniques = Phrase(self.model, self.text_test_phrase)
+        phrase_techniques = Phrase(self.text_test_phrase, self.model)
         result = phrase_techniques.ranks
-        print(result)
         assert result == {
-            "human happiness": 88,
-            "great pleasure": 60,
-            "resultant pleasure": 51,
-            "great explorer": 23,
-            "complete account": 19,
-            "actual teachings": 19,
-            "annoying consequences": 17,
-            "mistaken idea": 14,
-            "master builder": 9,
-            "laborious physical exercise": 8,
-            "trivial example": 1,
+            "human happiness": 12,
+            "great pleasure": 10,
+            "resultant pleasure": 9,
+            "great explorer": 6,
+            "complete account": 6,
+            "actual teachings": 6,
+            "annoying consequences": 6,
+            "mistaken idea": 5,
+            "master builder": 4,
+            "laborious physical exercise": 4,
+            "trivial example": 2,
         }

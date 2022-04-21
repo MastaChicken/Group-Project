@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   grobid:
-    image: lfoppiano/grobid:0.7.0
+    image: lfoppiano/grobid:0.7.1
     ports:
       - "8070:8070"
   api:

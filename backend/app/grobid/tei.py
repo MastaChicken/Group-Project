@@ -2,6 +2,7 @@
 import string
 from typing import Generator
 
+import pytextrank  # noqa:F401
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, Tag
 from spacy.language import Language
@@ -35,7 +36,6 @@ class TEI:
 
     soup: BeautifulSoup
     __model: Language
-    __accepted_entities = {"GPE", "ORG", "PERSON"}
 
     def __init__(self, stream: bytes, model: Language) -> None:
         """TEI class constructor.
@@ -50,6 +50,8 @@ class TEI:
         self.soup = BeautifulSoup(stream, "lxml-xml")
         if not model.has_pipe("parser"):
             raise GrobidParserError("Language models require parser pipeline")
+        if not model.has_pipe("textrank"):
+            model.add_pipe("textrank")
         self.__model = model
 
     def parse(self) -> Article:
@@ -59,6 +61,9 @@ class TEI:
 
         Returns:
             Article object
+
+        Raises:
+            GrobidParserError: Article could not be parsed
         """
         body = self.soup.body
 
@@ -109,8 +114,11 @@ class TEI:
         Returns:
             Citation object
         """
-        # NOTE: may return empty string
-        citation = Citation(title=self.title(source_tag, attrs={"type": "main"}))
+        title = self.title(source_tag, attrs={"type": "main"})
+        if not title:
+            # Use meeting as the main title
+            title = self.title(source_tag, attrs={"level": "m"})
+        citation = Citation(title=title)
         citation.authors = self.authors(source_tag)
         ids = CitationIDs(
             DOI=self.idno(source_tag, attrs={"type": "DOI"}),
@@ -195,8 +203,10 @@ class TEI:
             for term_tag in source_tag.find_all("term"):
                 if term_tag.text:
                     doc = self.__model(term_tag.text)
-                    for keyword in doc.noun_chunks:
-                        if clean_keyword := self.clean_title_string(keyword.text):
+                    phrases = doc._.phrases
+                    if phrases:
+                        phrase = phrases[0].text
+                        if clean_keyword := self.clean_title_string(phrase):
                             keywords.add(clean_keyword)
 
         return keywords
@@ -230,19 +240,22 @@ class TEI:
 
                     return self.__parse_date(when)
 
-    def __parse_date(self, date: str, sep="-") -> Date | None:
-        # Assumes date uses hyphen as separator by default
-        tokens = date.split(sep=sep)
+    def __parse_date(self, date: str) -> Date | None:
+        # Naive ISO 8601 date parser
+        tokens = date.split(sep="-")
+        tokens = list(filter(None, tokens))
 
         match len(tokens):
+            case 0:
+                return
             case 1:
                 year = tokens[0]
                 return Date(year)
             case 2:
                 year, month = tokens
                 return Date(year, month)
-            case 3:
-                year, month, day = tokens
+            case _:
+                year, month, day = tokens[0:3]
                 return Date(year, month, day)
 
     def scope(self, source_tag: Tag | None) -> Scope | None:
@@ -287,8 +300,6 @@ class TEI:
     def authors(self, source_tag: Tag | None) -> list[Author]:
         """Parse all author tags.
 
-        Uses NER to check if the author name is valid.
-
         Args:
             source_tag : XML tag
 
@@ -305,30 +316,25 @@ class TEI:
                         if forename_tag := persname.find("forename", {"type": "first"}):
                             person_name.first_name = forename_tag.text
 
-                        # Use NER to check if it is a name
-                        # FIXME: doesn't work very well for surname only
-                        ents = self.__model(person_name.to_string()).ents
-                        if ents and ents[0].label_ in self.__accepted_entities:
-                            author_obj = Author(person_name=person_name)
-                            authors.append(author_obj)
+                        author_obj = Author(person_name=person_name)
+                        authors.append(author_obj)
 
-                if author_obj is not None:
-                    if email_tag := author.find("email"):
-                        author_obj.email = email_tag.text
+                        if email_tag := author.find("email"):
+                            author_obj.email = email_tag.text
 
-                    for affiliation_tag in author.find_all("affiliation"):
-                        affiliation_obj = Affiliation()
-                        for orgname_tag in affiliation_tag.find_all("orgName"):
-                            match orgname_tag["type"]:
-                                case "institution":
-                                    affiliation_obj.institution = orgname_tag.text
-                                case "department":
-                                    affiliation_obj.department = orgname_tag.text
-                                case "laboratory":
-                                    affiliation_obj.laboratory = orgname_tag.text
+                        for affiliation_tag in author.find_all("affiliation"):
+                            affiliation_obj = Affiliation()
+                            for orgname_tag in affiliation_tag.find_all("orgName"):
+                                match orgname_tag["type"]:
+                                    case "institution":
+                                        affiliation_obj.institution = orgname_tag.text
+                                    case "department":
+                                        affiliation_obj.department = orgname_tag.text
+                                    case "laboratory":
+                                        affiliation_obj.laboratory = orgname_tag.text
 
-                        if not affiliation_obj.is_empty():
-                            author_obj.affiliations.append(affiliation_obj)
+                            if not affiliation_obj.is_empty():
+                                author_obj.affiliations.append(affiliation_obj)
 
         return authors
 
