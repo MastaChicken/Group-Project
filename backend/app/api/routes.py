@@ -8,6 +8,7 @@ Todo:
 import dataclasses
 
 import fastapi
+from fastapi.param_functions import Depends
 import httpx
 from app.document import PDF
 
@@ -18,7 +19,7 @@ from app.grobid.tei import TEI, GrobidParserError
 from fastapi import APIRouter, HTTPException, UploadFile, status
 import en_core_web_sm
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.nlp.techniques import Phrase, Word
 
 router = APIRouter()
@@ -29,12 +30,12 @@ def load_globals():
     """Load instances once."""
     global model
     model = en_core_web_sm.load()
-    global settings
-    settings = get_settings()
 
 
 @router.post("/upload")
-async def recieve_file(file: UploadFile = fastapi.File(...)):
+async def recieve_file(
+    file: UploadFile = fastapi.File(...), settings: Settings = Depends(get_settings)
+):
     """Parse uploaded file.
 
     Args:
@@ -56,7 +57,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
             contents = pdf.bytes_
             uid = pdf.uid  # noqa
     except RuntimeError as exc:
-        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=exc)
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=str(exc))
 
     form = Form(
         file=File(
@@ -68,14 +69,14 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         client = Client(api_url=settings.grobid_api_url, form=form)
         response = await client.asyncio_request()
     except GrobidClientError as exc:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
 
     tei = TEI(response.content, model)
 
     try:
         article = tei.parse()
     except GrobidParserError as exc:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
     try:
         article_dict = dataclasses.asdict(article)
@@ -90,10 +91,10 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         article_text.append(section.to_str())
 
     # Phrase counts
-    phrase_counts = {}
+    phrase_ranks = {}
     if article.abstract:
         phrase = Phrase(article.abstract.to_str(), model)
-        phrase_counts = phrase.counts
+        phrase_ranks = phrase.ranks
 
     # Common words
     # NOTE: uses full text
@@ -109,7 +110,7 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
     return dict(
         article=article_dict,
         common_words=common_words,
-        phrase_ranks=phrase_counts,
+        phrase_ranks=phrase_ranks,
         summary="",
     )
 
