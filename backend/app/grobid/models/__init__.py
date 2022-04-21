@@ -1,5 +1,5 @@
 """Export TEI models."""
-from .article import Article
+from .article import Article, Table
 from .citation import (
     Affiliation,
     Author,
@@ -25,4 +25,5 @@ __all__ = [
     "Ref",
     "RefText",
     "Section",
+    "Table",
 ]
