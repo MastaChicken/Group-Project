@@ -4,16 +4,14 @@ Example::
 
     text: str
     nlp = Techniques(text)
-    nlp.extractive_summarisation(5)
 
-Todo:
-    * Add more techiniques
 """
 from collections import Counter
 from functools import cached_property
 from heapq import nlargest
+from math import ceil
 
-import pytextrank  # noqa: F40ranks1
+import pytextrank  # noqa: F401
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
@@ -142,26 +140,17 @@ class Phrase:
     def ranks(self) -> dict[str, int]:
         """Return sorted dictionary with phrases and their normalised rank.
 
-        In position, the rank of a phrase is defined by its amount of links to
-        other phrases. To normalise the ranks as they are decimals, I divide
-        all the ranks by the lowest rank, square the result, then round the
-        result to closest integer.
+        If normalised rank is zero, the phrase is ignored.
 
         Returns:
             Sorted dictionary of phrases mapping to their normalised rank
         """
         phrases = {}
-        # examine the top-ranked phrases in the document
 
         for phrase in self.__doc._.phrases:
-            if phrase.text:
-                phrases[phrase.text] = phrase.rank
-
-        # FIXME: can return zero, which will lead to ZeroDivisionError
-        lcd = phrases[min(phrases, key=phrases.get)]
-
-        for phrase in phrases:
-            phrases[phrase] = round((phrases[phrase] / lcd) ** 2)
+            n_rank = ceil(phrase.rank * 100)
+            if phrase.text and n_rank:
+                phrases[phrase.text] = n_rank
 
         return phrases
 
@@ -173,7 +162,7 @@ class Phrase:
             Dictionary of phrases mapping to their count
         """
         phrases = {}
-        # examine the top-ranked phrases in the document
+
         for phrase in self.__doc._.phrases:
             if phrase.text:
                 phrases[phrase.text] = phrase.count

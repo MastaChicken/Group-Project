@@ -90,7 +90,6 @@ class TestTechniques:
         """Ensure that the counting of phrases is correct."""
         phrase_techniques = Phrase(self.text_test_phrase, self.model)
         result = phrase_techniques.counts
-        print(result)
         assert result == {
             "human happiness": 1,
             "great pleasure": 1,
@@ -109,17 +108,16 @@ class TestTechniques:
         """Ensure that the normalised ranking of phrase is correct."""
         phrase_techniques = Phrase(self.text_test_phrase, self.model)
         result = phrase_techniques.ranks
-        print(result)
         assert result == {
-            "human happiness": 88,
-            "great pleasure": 60,
-            "resultant pleasure": 51,
-            "great explorer": 23,
-            "complete account": 19,
-            "actual teachings": 19,
-            "annoying consequences": 17,
-            "mistaken idea": 14,
-            "master builder": 9,
-            "laborious physical exercise": 8,
-            "trivial example": 1,
+            "human happiness": 12,
+            "great pleasure": 10,
+            "resultant pleasure": 9,
+            "great explorer": 6,
+            "complete account": 6,
+            "actual teachings": 6,
+            "annoying consequences": 6,
+            "mistaken idea": 5,
+            "master builder": 4,
+            "laborious physical exercise": 4,
+            "trivial example": 2,
         }
