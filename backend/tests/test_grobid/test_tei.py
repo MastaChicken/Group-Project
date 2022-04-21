@@ -267,7 +267,7 @@ class TestDate:
         assert tei.date(tei.soup) == date
 
     def test_empty_tag(self):  # noqa: D102
-        xml = b"<date/>"
+        xml = b"<date when=''/>"
         tei = TEI(xml, nlp)
 
         assert tei.date(tei.soup) is None

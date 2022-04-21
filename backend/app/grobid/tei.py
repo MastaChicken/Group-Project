@@ -236,6 +236,7 @@ class TEI:
     def __parse_date(self, date: str) -> Date | None:
         # Naive ISO 8601 date parser
         tokens = date.split(sep="-")
+        tokens = list(filter(None, tokens))
 
         match len(tokens):
             case 0:
