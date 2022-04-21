@@ -13,6 +13,7 @@ from collections import Counter
 from functools import cached_property
 from heapq import nlargest
 
+import pytextrank  # noqa: F40ranks1
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
@@ -25,7 +26,7 @@ class Word:
     __doc: Doc
     __accepted_pos_tags = {"NOUN", "PROPN"}
 
-    def __init__(self, model: Language, text: str):
+    def __init__(self, text: str, model: Language):
         """Run English spacy model on text chunk.
 
         Args:
@@ -119,7 +120,7 @@ class Phrase:
 
     __doc: Doc
 
-    def __init__(self, model: Language, text: str):
+    def __init__(self, text: str, model: Language):
         """Run English spacy model on text chunk.
 
         Args:
