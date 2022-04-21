@@ -16,7 +16,7 @@ from app.grobid.client import Client, GrobidClientError
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI, GrobidParserError
 from fastapi import APIRouter, HTTPException, UploadFile, status
-from spacy import load
+import en_core_web_sm
 
 from app.config import get_settings
 from app.nlp.techniques import Phrase, Word
@@ -28,7 +28,7 @@ router = APIRouter()
 def load_globals():
     """Load instances once."""
     global model
-    model = load("en_core_web_sm")
+    model = en_core_web_sm.load()
     global settings
     settings = get_settings()
 
