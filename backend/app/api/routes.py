@@ -9,6 +9,7 @@ import dataclasses
 
 import fastapi
 import httpx
+from app.document import PDF
 
 # f# rom app.api.models import UploadReponseNew, UploadResponse
 from app.grobid.client import Client, GrobidClientError
@@ -48,11 +49,13 @@ async def recieve_file(file: UploadFile = fastapi.File(...)):
         )
 
     contents = await file.read()
-    # TODO: use PyMUPDF to check if document is corrupted
-    if not isinstance(contents, bytes):
-        raise HTTPException(
-            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Couldn't read document"
-        )
+    # Use PyMuPDF to open and fix the PDF
+    try:
+        with PDF(contents) as pdf:
+            contents = pdf.bytes_
+            uid = pdf.uid  # noqa
+    except RuntimeError as exc:
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail=exc)
 
     form = Form(
         file=File(
