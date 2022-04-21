@@ -57,7 +57,7 @@ The GROBID REST API needs to be running for the PDF parser.
 Either of the following options runs the GROBID REST API locally on port 8070:8070
 
 1. Run `docker-compose up`
-2. Run `docker run lfoppiano/grobid:0.7.0 -p 8070:8070`
+2. Run `docker run lfoppiano/grobid:0.7.1 -p 8070:8070`
 
 Our API does not set up a GROBID REST API URL by default.
 
