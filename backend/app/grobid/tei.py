@@ -5,6 +5,7 @@ from typing import Generator
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, Tag
 from spacy.language import Language
+import pytextrank  # noqa:F401
 
 from app.grobid.models import (
     Affiliation,
@@ -50,6 +51,8 @@ class TEI:
         self.soup = BeautifulSoup(stream, "lxml-xml")
         if not model.has_pipe("parser"):
             raise GrobidParserError("Language models require parser pipeline")
+        if not model.has_pipe("textrank"):
+            model.add_pipe("textrank")
         self.__model = model
 
     def parse(self) -> Article:
@@ -198,8 +201,10 @@ class TEI:
             for term_tag in source_tag.find_all("term"):
                 if term_tag.text:
                     doc = self.__model(term_tag.text)
-                    for keyword in doc.noun_chunks:
-                        if clean_keyword := self.clean_title_string(keyword.text):
+                    phrases = doc._.phrases
+                    if phrases:
+                        phrase = phrases[0].text
+                        if clean_keyword := self.clean_title_string(phrase):
                             keywords.add(clean_keyword)
 
         return keywords
