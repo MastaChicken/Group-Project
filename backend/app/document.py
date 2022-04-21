@@ -62,12 +62,15 @@ class PDF:
 
     @cached_property
     def uid(self) -> str | None:
-        """Document UID.
+        """Extract Document UID.
 
         Currently supports DOI.
 
         Checks for crossmark/dx.doi.org links on the first page. Then attempts to find
         manually using regex pattern.
+
+        Returns:
+            Document UID or None
         """
         page = self.__doc[0]
         for link in page.links(kinds=[fitz.LINK_URI]):
@@ -98,8 +101,11 @@ class PDF:
 
     @property
     def bytes_(self) -> bytes:
-        """Write the content of the content to bytes object.
+        """MUPDF object to bytes.
 
         Advantage of this method is that fitz.open() can repair corrupt PDFs
+
+        Returns:
+            Original PDF
         """
         return self.__doc.tobytes()
