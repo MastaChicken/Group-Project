@@ -42,18 +42,10 @@ export default class extends AbstractView {
                 <p></p>
               </div>
             </div>
-            <div class="output-boxes" id="toc-output">
-              <h2>TABLE OF CONTENTS</h2>
+            <div class="output-boxes" id="word-cloud-output">
+              <h2>WORDCLOUD</h2>
               <div
-                id="toc-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
-            </div>
-            <div class="output-boxes" id="common-words-output">
-              <h2>TOP 10 WORDS</h2>
-              <div
-                id="common-words-return-display"
+                id="word-cloud-return-display"
                 class="output-box-info"
                 style="display: none"
               ></div>
@@ -98,7 +90,6 @@ export default class extends AbstractView {
           id="size-of-summary"
         />
       </div>
-      <canvas id="wordcloud"></canvas>
     `;
   }
 
