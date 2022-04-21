@@ -3,8 +3,9 @@
 Todo:
     * Add model for /validate_url
 """
-from app.grobid.models.article import Article
 from pydantic import BaseModel
+
+from app.grobid.models.article import Article
 
 
 class UploadResponse(BaseModel):

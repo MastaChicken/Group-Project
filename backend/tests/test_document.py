@@ -1,9 +1,9 @@
 """Unit tests for the document module."""
 import fitz
+import pytest
 from fitz.fitz import Rect
 
 from app.document import PDF
-import pytest
 
 
 class TestPDF:

@@ -7,19 +7,19 @@ Todo:
 
 import dataclasses
 
+import en_core_web_sm
 import fastapi
-from fastapi.param_functions import Depends
 import httpx
+from fastapi import APIRouter, HTTPException, UploadFile, status
+from fastapi.param_functions import Depends
+
+from app.config import Settings, get_settings
 from app.document import PDF
 
 # from app.api.models import UploadResponse
 from app.grobid.client import Client, GrobidClientError
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI, GrobidParserError
-from fastapi import APIRouter, HTTPException, UploadFile, status
-import en_core_web_sm
-
-from app.config import Settings, get_settings
 from app.nlp.techniques import Phrase, Word
 
 router = APIRouter()
@@ -40,6 +40,7 @@ async def recieve_file(
 
     Args:
         file: file which is uploaded
+        settings: app settings
     Returns:
         Article object
     Raises:

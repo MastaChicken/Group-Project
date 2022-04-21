@@ -1,6 +1,7 @@
-from pydantic import BaseSettings
+"""Represents the app settings."""
 from functools import lru_cache
 
+from pydantic import BaseSettings
 from pydantic.networks import AnyHttpUrl
 
 

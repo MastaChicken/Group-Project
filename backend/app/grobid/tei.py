@@ -2,10 +2,10 @@
 import string
 from typing import Generator
 
+import pytextrank  # noqa:F401
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, Tag
 from spacy.language import Language
-import pytextrank  # noqa:F401
 
 from app.grobid.models import (
     Affiliation,

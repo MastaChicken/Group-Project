@@ -60,7 +60,6 @@ export async function uploadPDF(file: File) {
       // NOTE: currently empty
       $("summary-return-display").textContent = data.summary;
 
-
       // Word cloud
       $("word-cloud-return-display").appendChild(
         makeWordCloudCanvas(data.common_words)

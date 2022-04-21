@@ -1,14 +1,13 @@
 """Unit tests for API routes."""
 # from app.api.models import UploadResponse
-from app.config import Settings, get_settings
-from app.main import app
+import httpx
+import respx
 from fastapi import status
 from fastapi.testclient import TestClient
-import respx
-import httpx
 
+from app.config import Settings, get_settings
+from app.main import app
 from tests.test_grobid.test_tei import TestParse
-
 
 API_URL = "http://validurl:8070"
 
@@ -80,11 +79,11 @@ class TestRecieveFile:
         """Mock XML response from GROBID API."""
         from app.grobid.models import (
             Article,
-            Citation,
             Author,
+            Citation,
             PersonName,
-            Section,
             RefText,
+            Section,
         )
 
         article = Article(

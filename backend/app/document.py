@@ -10,8 +10,8 @@ Example::
 from __future__ import annotations
 
 import re
-from urllib import parse
 from functools import cached_property
+from urllib import parse
 
 import fitz
 from fitz.fitz import EmptyFileError, FileDataError
