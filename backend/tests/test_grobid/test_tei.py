@@ -9,6 +9,7 @@ from app.grobid.models import (
     Citation,
     CitationIDs,
     Date,
+    Marker,
     PageRange,
     PersonName,
     Ref,
@@ -502,7 +503,10 @@ class TestSection:
         for p in section.paragraphs:
             text_xml = p.text
             for ref in p.refs:
-                ref_xml = f"<ref type='{ref.type_}' target='{ref.target}'>{p.text[ref.start:ref.end]}</ref>"  # noqa: E501
+                marker = None
+                if ref.marker:
+                    marker = ref.marker.name
+                ref_xml = f"<ref type='{marker}' target='{ref.target}'>{p.text[ref.start:ref.end]}</ref>"  # noqa: E501
                 text_xml = text_xml[: ref.start] + ref_xml + text_xml[ref.end :]
             div_tags.append(bytes(f"<p>{text_xml}</p>", encoding="utf-8"))
 
@@ -517,7 +521,7 @@ class TestSection:
             paragraphs=[
                 RefText(
                     text=f"{text} [1]",
-                    refs=[Ref(start=12, end=15, target="#1", type_="bibr")],
+                    refs=[Ref(start=12, end=15, target="#1", marker=Marker.bibr)],
                 )
             ],
         )
@@ -543,6 +547,31 @@ class TestSection:
                 RefText(
                     text=text,
                     refs=[],
+                )
+            ],
+        )
+
+        for paragraph in section.paragraphs:
+            assert paragraph.plain_text == text
+
+        assert section.to_str() == text
+
+        xml = TestSection.build_xml(section)
+        tei = TEI(xml, nlp)
+        # NOTE: woraround for forced capitalisation
+        section.title = section.title.capitalize()
+
+        assert tei.section(tei.soup) == section
+
+    def test_valid_tag_invalid_ref(self):
+        """Test for text that contains a ref with an invalid marker (None)."""
+        text = "Lorem ipsum"
+        section = Section(
+            title="test",
+            paragraphs=[
+                RefText(
+                    text=f"{text} [1]",
+                    refs=[Ref(start=12, end=15, target="#1", marker=None)],
                 )
             ],
         )

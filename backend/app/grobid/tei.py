@@ -22,6 +22,7 @@ from app.grobid.models import (
     Section,
     Table,
 )
+from app.grobid.models.section import Marker
 
 
 class GrobidParserError(BaseException):
@@ -414,7 +415,10 @@ class TEI:
                     end = start + len(el.text)
                     ref = Ref(start=start, end=end)
                     if (el_type := el.attrs.get("type")) is not None:
-                        ref.type_ = el_type
+                        try:
+                            ref.marker = Marker[el_type]
+                        except KeyError:
+                            pass
 
                     # NOTE: if target[0] is '#', check for citation
                     if (el_target := el.attrs.get("target")) is not None:
