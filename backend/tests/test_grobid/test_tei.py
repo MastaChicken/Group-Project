@@ -15,6 +15,7 @@ from app.grobid.models import (
     RefText,
     Scope,
     Section,
+    Table,
 )
 from app.grobid.tei import TEI, GrobidParserError
 
@@ -51,6 +52,8 @@ class TestParse:
         tei_tags.append(b"<body>")
         for section in article.sections:
             tei_tags.append(TestSection.build_xml(section))
+        for xml_id, table in article.tables.items():
+            tei_tags.append(TestTable.build_xml(table, xml_id))
         tei_tags.append(b"</body>")
 
         tei_tags.append(b"<listBibl>")
@@ -99,6 +102,11 @@ class TestParse:
                 ],
             ),
             keywords=set(),
+            tables=dict(
+                test=Table(
+                    heading="Test", description="Lorem Ipsum", rows=[["Foo", "Bar"]]
+                )
+            ),
             sections=[Section("Introduction", [RefText("Lorem Ipsum")])],
             citations=dict(
                 test=Citation(
@@ -567,6 +575,53 @@ class TestSection:
         tei = TEI(xml, nlp)
 
         assert tei.section(tei.soup) is None
+
+
+class TestTable:
+    """Unit tests for table function."""
+
+    @staticmethod
+    def build_xml(table: Table, xml_id: str | None = None) -> bytes:
+        """Create XML from Table object."""
+        figure_tags: list[bytes] = []
+        if xml_id:
+            figure_tags.append(
+                bytes(f"<figure xml:id='{xml_id}' type='table'>", encoding="utf-8")
+            )
+        else:
+            figure_tags.append(b"<figure type='table'>")
+
+        figure_tags.append(bytes(f"<head>{table.heading}</head>", encoding="utf-8"))
+
+        if table.description is not None:
+            figure_tags.append(
+                bytes(f"<figDesc>{table.description}</figDesc>", encoding="utf-8")
+            )
+
+        for row in table.rows:
+            figure_tags.append(b"<row>")
+            for cell in row:
+                figure_tags.append(bytes(f"<cell>{cell}</cell>", encoding="utf-8"))
+            figure_tags.append(b"</row>")
+
+        figure_tags.append(b"</figure>")
+
+        return b"".join(figure_tags)
+
+    def test_valid_tag(self):  # noqa: D102
+        table = Table(heading="Test", description="Lorem Ipsum", rows=[["Foo", "Bar"]])
+        xml = TestTable.build_xml(table)
+
+        tei = TEI(xml, nlp)
+
+        assert tei.table(tei.soup) == table
+
+    def test_empty_tag(self):
+        """Empty head tag."""
+        xml = b"<figure><head></head></figure>"
+        tei = TEI(xml, nlp)
+
+        assert tei.table(tei.soup) is None
 
 
 class TestCleanTitleString:

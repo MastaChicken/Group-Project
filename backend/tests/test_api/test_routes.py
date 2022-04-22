@@ -96,6 +96,7 @@ class TestRecieveFile:
                 ],
             ),
             keywords=set(),
+            tables={},
             sections=[Section("Introduction", [RefText("Lorem Ipsum")])],
             abstract=Section("Abstract", [RefText("Foo Bar")]),
             citations=dict(

@@ -22,8 +22,6 @@ python-multipart = "^0.0.5"
 spacy = "^3.2.1"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz"}
 gunicorn = "^20.1.0"
-isort = {extras = ["colors"], version = "^5.10.1"}
-black = "^21.12b0"
 httpx = "^0.22.0"
 bs4 = "^0.0.1"
 lxml = "^4.8.0"
@@ -33,7 +31,7 @@ python-dotenv = "^0.20.0"
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"
 pytest = "^6.2.5"
-isort = "^5.10.1"
+isort = {extras = ["colors"], version = "^5.10.1"}
 pydocstyle = "^6.1.1"
 coverage = {extras = ["toml"], version = "^6.3.2"}
 flake8 = "^4.0.1"

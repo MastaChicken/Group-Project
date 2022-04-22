@@ -20,6 +20,7 @@ from app.grobid.models import (
     RefText,
     Scope,
     Section,
+    Table,
 )
 
 
@@ -77,6 +78,14 @@ class TEI:
             if (section := self.section(div)) is not None:
                 sections.append(section)
 
+        tables: dict[str, Table] = {}
+        for table_tag in body.find_all("figure", {"type": "table"}):
+            if isinstance(table_tag, Tag):
+                if "xml:id" in table_tag.attrs:
+                    name = table_tag.attrs["xml:id"]
+                    if (table_obj := self.table(table_tag)) is not None:
+                        tables[name] = table_obj
+
         if (source := self.soup.find("sourceDesc")) is None:
             raise GrobidParserError("Missing source description")
 
@@ -100,6 +109,7 @@ class TEI:
         return Article(
             abstract=abstract,
             sections=sections,
+            tables=tables,
             bibliography=bibliography,
             keywords=keywords,
             citations=citations,
@@ -356,7 +366,7 @@ class TEI:
             head = source_tag.find("head")
             if isinstance(head, Tag):
                 head_text: str = head.get_text()
-                if head.has_attr("n") or head_text[0] in string.ascii_letters:
+                if "n" in head.attrs or head_text[0] in string.ascii_letters:
                     if head_text.isupper() or head_text.islower():
                         head_text = head_text.capitalize()
 
@@ -415,6 +425,30 @@ class TEI:
                     ref_text.text += str(el)
 
             return ref_text
+
+    def table(self, source_tag: Tag | None) -> Table | None:
+        """Parse <figure> with table type.
+
+        Args:
+            source_tag : XML tag
+
+        Returns:
+            Table object
+        """
+        if source_tag is not None:
+            if (head_tag := source_tag.find("head")) is not None:
+                if head_text := head_tag.get_text():
+                    table = Table(heading=head_text)
+                    if (desc_tag := source_tag.find("figDesc")) is not None:
+                        table.description = desc_tag.get_text()
+                    rows = source_tag.find_all("row")
+                    for row in rows:
+                        row_list = []
+                        for cell in row.find_all("cell"):
+                            row_list.append(cell.get_text())
+                        table.rows.append(row_list)
+
+                    return table
 
     @staticmethod
     def clean_title_string(s: str) -> str:
