@@ -81,11 +81,10 @@ class TEI:
         tables: dict[str, Table] = {}
         for table_tag in body.find_all("figure", {"type": "table"}):
             if isinstance(table_tag, Tag):
-                name = table_tag.get("xml:id")
-                if type(name) is not str:
-                    continue
-                if (table_obj := self.table(table_tag)) is not None:
-                    tables[name] = table_obj
+                if "xml:id" in table_tag.attrs:
+                    name = table_tag.attrs["xml:id"]
+                    if (table_obj := self.table(table_tag)) is not None:
+                        tables[name] = table_obj
 
         if (source := self.soup.find("sourceDesc")) is None:
             raise GrobidParserError("Missing source description")
@@ -367,7 +366,7 @@ class TEI:
             head = source_tag.find("head")
             if isinstance(head, Tag):
                 head_text: str = head.get_text()
-                if head.has_attr("n") or head_text[0] in string.ascii_letters:
+                if "n" in head.attrs or head_text[0] in string.ascii_letters:
                     if head_text.isupper() or head_text.islower():
                         head_text = head_text.capitalize()
 
@@ -438,7 +437,7 @@ class TEI:
         """
         if source_tag is not None:
             if (head_tag := source_tag.find("head")) is not None:
-                if (head_text := head_tag.get_text()):
+                if head_text := head_tag.get_text():
                     table = Table(heading=head_text)
                     if (desc_tag := source_tag.find("figDesc")) is not None:
                         table.description = desc_tag.get_text()
