@@ -1,12 +1,11 @@
 import { test, expect } from "@playwright/test";
-import path from "path";
 
 /**
  * Test the default screen.
  */
 test("Checks if initial page is upload", async ({ page }) => {
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Upload");
+  await page.goto("/");
+  expect(await page.title()).toBe("Upload");
 });
 
 /**
@@ -23,54 +22,54 @@ test("Checks if initial page is upload", async ({ page }) => {
  * Test for when academic uploads journal article as a PDF
  */
 test("If uploads a PDF, switch to display screen", async ({ page }) => {
+  await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from("this is test"),
   });
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Display");
+  expect(await page.title()).toBe("Display");
 });
 
 /**
  * Test for when academic uploads a none PDF file
  */
 test("If uploads a NON-PDF, stay on upload screen", async ({ page }) => {
+  await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.txt",
     mimeType: "text/plain",
     buffer: Buffer.from("this is test"),
   });
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Upload");
+  expect(await page.title()).toBe("Upload");
 });
 
 /**
  * Test for when academic uploads an empty file
  */
 test("If uploads a empty PDF, stay on upload screen", async ({ page }) => {
+  await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from(""),
   });
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Upload");
+  expect(await page.title()).toBe("Upload");
 });
 
 /**
- * Test for text file which somehow has a pdf mime type.
+ * Test for file with non-pdf extension and pdf mimetype.
  */
-test("If uploads a text file with a pdf mime type, stay on upload screen", async ({
+test("If uploads a text file with a pdf mime type, switch to upload screen", async ({
   page,
 }) => {
+  await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.txt",
     mimeType: "application/pdf",
     buffer: Buffer.from("this is a test"),
   });
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Upload");
+  expect(await page.title()).toBe("Display");
 });
 
 /**
@@ -79,11 +78,11 @@ test("If uploads a text file with a pdf mime type, stay on upload screen", async
 test("If uploads a pdf file with a text mime type, stay on upload screen", async ({
   page,
 }) => {
+  await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.pdf",
     mimeType: "text/plain",
     buffer: Buffer.from("this is a test"),
   });
-  const name = await page.innerText(".heading");
-  expect(name).toBe("Upload");
+  expect(await page.title()).toBe("Upload");
 });
