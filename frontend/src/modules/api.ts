@@ -67,7 +67,8 @@ export async function uploadPDF(file: File) {
       );
 
       // Metadata
-      $("metadata-return-display").textContent = article.bibliography.title;
+      $("title-return-display").textContent = article.bibliography.title;
+      $("metadata-return-display").textContent = article.bibliography.journal;
       // TODO: display the rest of the bibliography
 
       // References

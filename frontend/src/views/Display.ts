@@ -11,7 +11,7 @@ export default class extends AbstractView {
   getHtml() {
     return html`
       <div class="tab-contents output-display">
-        <h1 id="title-return-display"></h1>
+        <h1 id="title-return-display">Content Visualisation</h1>
         <div id="output-main">
           <div id="pdf-renderer">
             <div id="my_pdf_viewer">
@@ -20,47 +20,38 @@ export default class extends AbstractView {
               </div>
 
               <div id="navigation_controls">
-                <button id="go_previous">Previous</button>
-                <input id="current_page" value="1" type="number" />
-                <button id="go_next">Next</button>
-              </div>
+                <sl-button id="go_previous">Previous</sl-button>
+                <sl-input id="current_page" value="1" type="number"></sl-input>
+                <sl-button id="go_next">Next</sl-button>
 
-              <div id="zoom_controls">
-                <button id="zoom_in">+</button>
-                <button disabled id="zoom_out">-</button>
+                <sl-button name="zoom-in" id="zoom_in">+</sl-button>
+                <label id="zoom_label">100%</label>
+                <sl-button name="zoom-out" disabled id="zoom_out">-</sl-button>
               </div>
             </div>
           </div>
-          <div id="summary-info" class="summary-boxes">
-            <div class="output-boxes" id="metadata-output">
-              <h2>METADATA</h2>
-              <div
-                id="metadata-return-display"
-                class="output-box-info"
-                style="display: none"
-              >
-                <p></p>
-              </div>
-            </div>
-            <div class="output-boxes" id="word-cloud-output">
-              <h2>WORDCLOUD</h2>
-              <div
-                id="word-cloud-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
-            </div>
-            <div class="output-boxes" id="references-output">
-              <h2>REFERENCES</h2>
-              <div
-                id="references-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
+          <div id="summary-container">
+            <div id="summary-info" class="summary-boxes">
+              <sl-details summary="METADATA">
+                <div id="metadata-return-display" class="output-box-info"></div>
+              </sl-details>
+
+              <sl-details summary="WORDCLOUD">
+                <div id="word-cloud-return-display" class="output-box-info">
+                </div>
+              </sl-details>
+
+              <sl-details summary="REFERENCES">
+                <div
+                  id="references-return-display"
+                  class="output-box-info"
+                ></div
+              ></sl-details>
             </div>
           </div>
           <div id="summary-output">
-            <h2>SUMMARY PAGE</h2>
+            <h2>Summary</h2>
+            <sl-divider></sl-divider>
             <div id="summary-return-display"></div>
           </div>
         </div>
@@ -80,15 +71,14 @@ export default class extends AbstractView {
           name="tables-and-figures"
         />
         <label for="size-of-summary" id="sos-lbl"> Size of Summary: 100%</label>
-        <input
-          type="range"
+        <sl-range
           min="0"
           max="100"
           value="100"
           step="10"
           class="slider"
           id="size-of-summary"
-        />
+        ></sl-range>
       </div>
     `;
   }
@@ -96,7 +86,7 @@ export default class extends AbstractView {
   setupListeners() {
     const sos = $("size-of-summary") as HTMLInputElement;
     sos.addEventListener(
-      "change",
+      "sl-change",
       () => {
         $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
       },
@@ -130,7 +120,18 @@ export default class extends AbstractView {
       $("pdf-renderer").style.display =
         $("pdf-renderer").style.display == "none" ? "block" : "none";
       $("output-main").style.gridTemplateColumns =
-        $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
+        $("output-main").style.gridTemplateColumns == "1fr 1fr"
+          ? "1fr 1fr 1fr"
+          : "1fr 1fr";
     }
+
+    const container = document.querySelector(".summary-boxes");
+
+    // Close all other details when one is shown
+    container.addEventListener("sl-show", (event) => {
+      [...container.querySelectorAll("sl-details")].map(
+        (details) => (details.open = event.target === details)
+      );
+    });
   }
 }

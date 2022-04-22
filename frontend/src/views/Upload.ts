@@ -14,6 +14,8 @@ export default class extends AbstractView {
   getHtml() {
     return html`
     <div class="tab-contents">
+    <h1>Content Visualisation</h1>
+    <sl-divider></sl-divider>
         <form id="upload-form">
           <div id="drop-zone">
           <label for="pdfpicker-file" id="drop-text">

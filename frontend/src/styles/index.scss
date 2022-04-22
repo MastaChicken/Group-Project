@@ -1,9 +1,14 @@
 @use "tailwind.scss";
 @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap");
 
+body {
+  background: var(--sl-color-neutral-50);
+  color: var(--sl-color-neutral-900);
+}
+
 .main {
+  font-family: var(--sl-font-sans);
   position: relative;
-  margin-top: 10%;
   margin-left: auto;
   margin-right: auto;
   width: 100%;
@@ -11,18 +16,24 @@
 }
 
 h1 {
+  margin: 0;
+  color: var(--sl-color-neutral-800);
+  // border-top: 1px solid var(--sl-color-neutral-900);
+  // background: var(--sl-color-gray-900);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 #drop-zone {
-  margin: auto;
+  margin-top: 20vh;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   justify-content: center;
-  align-content: center;
-  border: 3px dashed lightgrey;
+  align-items: center;
+  border: 2px dashed lightgrey;
   width: 50%;
-  height: 100px;
-  border-radius: 25px;
+  height: 12em;
+  border-radius: 1em;
   font-size: 1.5em;
   font-family: "Raleway", sans-serif;
   overflow: hidden;
@@ -32,15 +43,41 @@ h1 {
   border: 3px dashed grey;
 }
 
+a {
+  color: var(--sl-color-blue-700);
+}
+
+#navigation_controls {
+  display: flex;
+  justify-content: center;
+}
+
 .buttons {
   display: flex;
   justify-content: center;
   align-content: center;
 }
 
+#go_previous,
+#go_next {
+  width: 4.5vw;
+}
+
+#go_next {
+  margin-right: 2vw;
+}
+
+#current_page {
+  width: 15.8vw;
+}
+
+#zoom_label {
+  margin-top: 0.5em;
+}
+
 #output-main {
-  color: white;
   min-height: min-content;
+  height: 90vh;
   // border: 1px solid black;
   border-radius: 0.5em;
   width: 100%;
@@ -48,25 +85,32 @@ h1 {
   grid-template-rows: 1fr;
   grid-template-columns: 1fr 1fr 1fr;
   overflow: hidden;
+  padding-top: 1em;
 }
 
 #pdf-renderer {
   height: 100%;
-  border-right: 1px solid black;
+  background: var(--sl-color-neutral-300);
 }
 
 #canvas_container {
   position: relative;
   width: 33vw;
-  height: 90vh;
+  height: 85vh;
   overflow: auto;
-  border-left: 1px solid black;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  border-left: 1px solid var(--sl-color-neutral-800);
+  border-top: 1px solid var(--sl-color-neutral-800);
+  // border-bottom: 1px solid black;
+}
+
+#summary-container {
+  position: relative;
+  overflow: hidden;
+  background: var(--sl-color-neutral-200);
 }
 
 #summary-info {
-  border-radius: 3em;
+  border-radius: 0.5em;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -76,37 +120,73 @@ h1 {
   margin-bottom: 0.5em;
 }
 
-.output-boxes {
-  background: darkblue;
-  border-radius: 1em;
-  min-height: 4em;
-  width: 90%;
+.summary-boxes sl-details:not(:last-of-type) {
+  margin-bottom: var(--sl-spacing-2x-small);
+}
+
+sl-details {
   margin: auto;
-  overflow: scroll;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  font-size: 1.1em;
-  border: 1px solid white;
+  width: 95%;
+  color: var(--sl-color-neutral-900);
+  max-height: 76vh;
+  overflow: auto;
+  overflow-x: hidden;
 }
 
-.output-boxes.open > div {
-  border-top: 1px solid black;
-  display: block !important;
-  max-height: 33em;
+sl-details::part(header) {
+  background: var(--sl-color-sky-400);
+  font-size: var(--sl-font-size-x-large);
+  font-weight: var(--sl-font-weight-light);
+  letter-spacing: var(--sl-letter-spacing-loose);
+  height: 2rem;
+  transition: 0.5s;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.output-boxes::-webkit-scrollbar {
-  display: none;
+sl-details[open]::part(header) {
+  background: var(--sl-color-sky-600);
+  height: 4rem;
+  transition: 0.5s;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.output-boxes {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+.fullPage {
+  overflow-x: hidden !important;
 }
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+}
+::-webkit-scrollbar-track {
+  background: var(--sl-color-neutral-400);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sl-color-neutral-500);
+  border-radius: 0.3em;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+#size-of-summary {
+  display: inline-block;
+  width: 8em;
+}
+
+// /* Hide scrollbar for Chrome, Safari and Opera */
+// .output-boxes::-webkit-scrollbar {
+//   display: none;
+// }
+
+// /* Hide scrollbar for IE, Edge and Firefox */
+// .output-boxes {
+//   -ms-overflow-style: none; /* IE and Edge */
+//   scrollbar-width: none; /* Firefox */
+// }
 
 #summary-output {
-  border-left: 1px solid black;
-  color: black;
+  // border-left: 1px solid black;
+  padding-right: 2em;
+  padding-left: 2em;
+  color: var(--sl-color-neutral-900);
+  background: var(--sl-color-neutral-300);
 }
