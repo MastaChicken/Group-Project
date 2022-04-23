@@ -10,11 +10,10 @@
     "lint": "eslint src",
     "format_lint": "prettier --check src",
     "dev": "vite --host 0.0.0.0",
-    "build:prod": "tsc && vite build",
-    "build:dev": "tsc && vite build -m development",
-    "serve:prod": "tsc && vite preview --host 0.0.0.0",
-    "serve:dev": "tsc && vite preview --host 0.0.0.0 -m development",
-    "generate-client": "openapi --input http://localhost:8001/openapi.json --output ./src/client --client fetch"
+    "build:prod": "vite build",
+    "build:dev": "vite build -m development",
+    "serve:prod": "vite preview --host 0.0.0.0",
+    "serve:dev": "vite preview --host 0.0.0.0 -m development"
   },
   "author": "",
   "license": "UNLICENSED",
