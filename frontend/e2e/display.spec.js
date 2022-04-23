@@ -10,17 +10,7 @@ test("Checks if the page is display", async ({ page }) => {
 });
 
 /**
- * Test base path:
- * Academic uploads journal article as a PDF
- * Academic configures range of pages to be summarised (DEPRECATED, THIS IS NO LONGER AN OPTION)
- * PDF gets parsed and the output gets computed
- * Present summary to the academic
- * Academic configures settings
- * Academic downloads the summary as a PDF
- */
-
-/**
- * Test the checkbox for tables and figures to display PDF.
+ * Test the checkbox for display PDF when.
  */
 test("Check if show document checkbox can be enabled", async ({ page }) => {
   await page.goto("/display");
@@ -29,7 +19,7 @@ test("Check if show document checkbox can be enabled", async ({ page }) => {
 });
 
 /**
- * Test the checkbox for tables and figures to display PDF.
+ * Test the checkbox for display PDF when disabled.
  */
 test("Check if show document checkbox can be disabled", async ({ page }) => {
   await page.goto("/display");

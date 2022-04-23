@@ -9,16 +9,6 @@ test("Checks if initial page is upload", async ({ page }) => {
 });
 
 /**
- * Test base path:
- * Academic uploads journal article as a PDF
- * Academic configures range of pages to be summarised (DEPRECATED, THIS IS NO LONGER AN OPTION)
- * PDF gets parsed and the output gets computed
- * Present summary to the academic
- * Academic configures settings
- * Academic downloads the summary as a PDF
- */
-
-/**
  * Test for when academic uploads journal article as a PDF
  */
 test("If uploads a PDF, switch to display screen", async ({ page }) => {
