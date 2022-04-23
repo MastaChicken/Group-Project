@@ -3,12 +3,14 @@ import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import checker from "vite-plugin-checker";
 import EnvironmentPlugin from "vite-plugin-environment";
+import template from "rollup-plugin-html-literals";
 
 /**
  * @type {import('vite').UserConfig}
  */
 export default defineConfig({
   plugins: [
+    template(),
     checker({
       typescript: true,
       eslint: { lintCommand: 'eslint "./src/**/*.{js,ts}"' },
@@ -20,8 +22,11 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
-          dest: resolve(__dirname, 'dist/shoelace'),
+          src: resolve(
+            __dirname,
+            "node_modules/@shoelace-style/shoelace/dist/assets"
+          ),
+          dest: resolve(__dirname, "dist/shoelace"),
         },
       ],
     }),
@@ -32,6 +37,14 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
+      },
+      output: {
+        manualChunks: {
+          wordcloud: ["wordcloud"],
+          pdfjs: ["pdfjs-dist"],
+          navaid: ["navaid"],
+          shoelace: ["@shoelace-style/shoelace"],
+        },
       },
     },
   },
