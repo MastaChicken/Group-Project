@@ -50,7 +50,7 @@ test("If uploads a empty PDF, stay on upload screen", async ({ page }) => {
 /**
  * Test for file with non-pdf extension and pdf mimetype.
  */
-test("If uploads a text file with a pdf mime type, switch to upload screen", async ({
+test("If uploads a text file with a pdf mime type, switch to display screen", async ({
   page,
 }) => {
   await page.goto("/");
