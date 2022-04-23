@@ -59,7 +59,7 @@ Either of the following options runs the GROBID REST API locally on port 8070:80
 1. Run (development)
 ```sh
 $ docker pull lfoppiano/grobid:0.7.1 # required only on first launch
-$ docker run lfoppiano/grobid:0.7.1 -p 8070:8070
+$ docker run -t --rm --init -p 8070:8070 lfoppiano/grobid:0.7.1
 ```
 
 2. Run (production) 
