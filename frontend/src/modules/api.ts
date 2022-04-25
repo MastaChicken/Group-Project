@@ -56,7 +56,9 @@ export async function uploadPDF(file: File) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
+      history.pushState(null, null, "/display");
       const article = data.article;
+
       // Summary
       // NOTE: currently empty
       $("summary-return-display").textContent = data.summary;
@@ -108,10 +110,11 @@ export async function uploadPDF(file: File) {
         oListEl.append(listEl);
       });
       $("references-return-display").append(oListEl);
+      $("output-main").scrollIntoView();
     })
     .catch((error) => {
       console.log(error);
+      alert("There's a network issue. Please try again."); 
+      history.pushState(null, null, "/");
     });
-
-  $("output-main").scrollIntoView();
 }

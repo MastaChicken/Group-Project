@@ -74,7 +74,7 @@ export default class extends AbstractView {
         if (files.length > 0 && isValidPDF(files[0])) {
           dropText.innerHTML = `File accepted: ${files[0].name}`;
           $("selection-boxes").style.display = "block";
-          history.pushState(null, null, "/display");
+          
           const fileReader = new FileReader();
           fileReader.onload = function () {
             renderPDF(this.result);
@@ -100,7 +100,7 @@ export default class extends AbstractView {
     dropZone.addEventListener("drop", (ev) => {
       dropHandler(ev);
       const files = ($("pdfpicker-file") as HTMLInputElement).files;
-      history.pushState(null, null, "/display");
+      
       uploadPDF(files[0]);
     });
 
