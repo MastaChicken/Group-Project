@@ -2,6 +2,7 @@ import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
+import { renderPDF } from "../modules/PDFRenderer";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -57,6 +58,11 @@ export async function uploadPDF(file: File) {
     .then((r) => r.json())
     .then((data: UploadResponse) => {
       history.pushState(null, null, "/display");
+      const fileReader = new FileReader();
+      fileReader.onload = function () {
+        renderPDF(this.result);
+      };
+      fileReader.readAsArrayBuffer(file);
       const article = data.article;
 
       // Summary

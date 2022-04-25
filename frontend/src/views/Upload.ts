@@ -3,7 +3,6 @@ import { $, html } from "../constants";
 import { validateURL, uploadPDF } from "../modules/api";
 import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
-import { renderPDF } from "../modules/PDFRenderer";
 
 export default class extends AbstractView {
   constructor() {
@@ -74,13 +73,9 @@ export default class extends AbstractView {
         if (files.length > 0 && isValidPDF(files[0])) {
           dropText.innerHTML = `File accepted: ${files[0].name}`;
           $("selection-boxes").style.display = "block";
-          
-          const fileReader = new FileReader();
-          fileReader.onload = function () {
-            renderPDF(this.result);
-          };
-          fileReader.readAsArrayBuffer(files[0]);
+
           uploadPDF(files[0]);
+         
         } else {
           // throws alert for wrong file type
           pdfpickerInput.value = "";
