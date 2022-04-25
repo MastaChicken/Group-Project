@@ -1,6 +1,5 @@
 """Represents the summarisation methods."""
 import httpx
-import json
 
 from spacy.language import Language
 from spacy.tokens.doc import Doc
@@ -32,6 +31,7 @@ class TextRank:
         sentences: list[str] = []
         sentence: Span
         for sentence in self.doc._.textrank.summary(
+            limit_sentences=2,
             preserve_order=True,
             level="paragraph",
         ):
@@ -43,9 +43,11 @@ class TextRank:
 class Bart:
     """Create summary from text using BART model."""
 
+    MODEL_ID = "facebook/bart-large-cnn"
+    API_URL = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
     MAX_TOKENS = 1024  # BART token limit
-    MAX_LENGTH = 307  # floor(MAX_TOKENS, 0.3)
-    MIN_LENGTH = 204  # floor(MAX_TOKENS, 0.2)
+    MAX_LENGTH = 358  # int(MAX_TOKENS, 0.35)
+    MIN_LENGTH = 256  # int(MAX_TOKENS, 0.25)
 
     api_token: str
     text: str
@@ -59,7 +61,6 @@ class Bart:
         text: str,
         timeout: int,
         use_gpu: bool = True,
-        model_id: str = "facebook/bart-large-cnn",
     ) -> None:
         """Define variables and tokenize text.
 
@@ -79,8 +80,8 @@ class Bart:
         self.api_token = api_token
         self.timeout = timeout
         self.use_gpu = use_gpu
-        self.model_id = model_id
-        tokenizer = BartTokenizer.from_pretrained(model_id)
+        tokenizer = BartTokenizer.from_pretrained(self.MODEL_ID)
+        # The additional token will be newline
         encoded_input = tokenizer(text, truncation=True, max_length=self.MAX_TOKENS - 1)
         decoded_input = tokenizer.decode(
             encoded_input["input_ids"], skip_special_tokens=True
@@ -95,16 +96,16 @@ class Bart:
 
         Raises:
             HTTPStatusError: if request fails
+            RuntimeError: if BART response is empty
 
         Returns:
-            summarised text or original text
+            summarised text
         """
         headers = {"Authorization": f"Bearer {self.api_token}"}
-        url = f"https://api-inference.huggingface.co/models/{self.model_id}"
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.post(
-                url=url,
+                url=self.API_URL,
                 headers=headers,
                 json={
                     "inputs": self.text,
@@ -119,9 +120,8 @@ class Bart:
         response.raise_for_status()
 
         r_json = response.json()
-        text = self.text
 
-        if r_json:
-            text = r_json[0]["summary_text"]
+        if not r_json:
+            raise RuntimeError("BART response is empty")
 
-        return text
+        return r_json[0]["summary_text"]
