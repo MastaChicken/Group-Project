@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     # Required
     grobid_api_url: AnyHttpUrl
 
+    # Optional
+    huggingface_api_token: str = ""
+
     class Config:
         """Use .env for environment variables."""
 

@@ -29,7 +29,7 @@ class Client:
         # FIXME: api url is hardcoded
         url = f"{self.api_url}/processFulltextDocument"
         # FIXME: remove hard-coded timeout
-        return dict(url=url, files=self.form.to_dict(), timeout=10)
+        return dict(url=url, files=self.form.to_dict(), timeout=15)
 
     def __build_response(self, response: httpx.Response) -> Response:
         """Build Response object.
