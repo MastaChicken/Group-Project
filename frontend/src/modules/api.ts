@@ -43,6 +43,45 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
+function createAuthorModal(author) {
+  const modal = $("author-modal") as HTMLElement;
+  const emailAnchor = document.createElement("a");
+  const mailToString = "mailto: " + author.email;
+
+  emailAnchor.setAttribute("href", mailToString);
+  emailAnchor.textContent = author.email;
+
+  // Get the <span> element that closes the modal
+  const span = document.getElementsByClassName("close")[0];
+
+  modal.style.display = "block";
+
+  $("modal-content").innerHTML =
+    author.person_name.first_name +
+    " " +
+    author.person_name.surname +
+    "<br>" +
+    author.affiliations[0].department +
+    "<br>" +
+    author.affiliations[0].institution +
+    "<br>" +
+    author.affiliations[0].laboratory +
+    "<br>";
+  $("modal-content").append(emailAnchor);
+
+  // When the user clicks on <span> (x), close the modal
+  span.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  };
+}
+
 /**
  * Sends request to API with the pdf uploaded to form
  *
@@ -57,6 +96,39 @@ export async function uploadPDF(file: File) {
     .then((r) => r.json())
     .then((data: UploadResponse) => {
       const article = data.article;
+
+      // Key Words
+      const variantArray = [
+        "primary",
+        "success",
+        "neutral",
+        "warning",
+        "danger",
+      ];
+      let keywordIndex = 0;
+      article.keywords.forEach((keyword) => {
+        const badge = document.createElement("sl-tag");
+        badge.innerHTML = keyword;
+        badge.setAttribute("variant", variantArray[keywordIndex]);
+        keywordIndex++;
+        $("key-words").appendChild(badge);
+      });
+
+      // Abstract
+      $("abstract-return-display").textContent =
+        article.abstract.paragraphs[0].text;
+
+      // Introduction
+      article.sections.forEach((entry) => {
+        if (entry.title === "Introduction") {
+          entry.paragraphs.forEach((para) => {
+            $("intro-return-display").innerHTML += para.text;
+            $("intro-return-display").innerHTML += "<br><br>";
+          });
+          return;
+        }
+      });
+
       // Summary
       // NOTE: currently empty
       $("summary-return-display").textContent = data.summary;
@@ -68,9 +140,35 @@ export async function uploadPDF(file: File) {
 
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
-      $("metadata-return-display").textContent = article.bibliography.journal;
-      // TODO: display the rest of the bibliography
+      article.bibliography.authors.forEach((author, id, array) => {
+        const a = document.createElement("a");
+        const divider = document.createElement("sl-divider");
+        divider.setAttribute("vertical", "true");
+        const authorString =
+          author.person_name.surname + ", " + author.person_name.first_name;
+        a.innerText = authorString;
+        $("authors-return-display").append(a);
+        if (id < array.length - 1) {
+          $("authors-return-display").append(divider);
+        }
 
+        a.addEventListener("click", function () {
+          createAuthorModal(author);
+        });
+      });
+
+      //Conclusion
+      article.sections.forEach((entry) => {
+        if (entry.title === "Conclusions") {
+          entry.paragraphs.forEach((para) => {
+            $("conclusion-return-display").innerHTML += para.text;
+            $("conclusion-return-display").innerHTML += "<br><br>";
+          });
+          return;
+        }
+      });
+
+      console.log(article);
       // References
       const oListEl = document.createElement("ol");
       Object.entries(article.citations).forEach(([ref, citation]) => {

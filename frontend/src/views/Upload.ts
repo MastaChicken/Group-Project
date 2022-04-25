@@ -36,6 +36,12 @@ export default class extends AbstractView {
               style="display: none"
             />
           </div>
+          <label for="tables-and-figures"> Tables and Figures</label>
+        <input
+          type="checkbox"
+          id="tables-and-figures"
+          name="tables-and-figures"
+        />
 
           <div class="tab-contents url-form" required style="display: none">
             <label for="pdfpicker-url"

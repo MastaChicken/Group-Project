@@ -12,33 +12,63 @@ export default class extends AbstractView {
     return html`
       <div class="tab-contents output-display">
         <h1 id="title-return-display">Content Visualisation</h1>
+        <h4 id="authors-return-display"></h4>
+        <div id="author-modal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-content"></p>
+          </div>
+        </div>
         <div id="output-main">
           <div id="pdf-renderer">
             <div id="my_pdf_viewer">
-              <div id="canvas_container">
-                <canvas id="pdf_renderer"></canvas>
-              </div>
-
               <div id="navigation_controls">
-                <sl-button id="go_previous">Previous</sl-button>
+                <sl-button class="show-hide-pdf" outline="false">«</sl-button>
+
+                <sl-button id="go_previous">Prev</sl-button>
                 <sl-input id="current_page" value="1" type="number"></sl-input>
                 <sl-button id="go_next">Next</sl-button>
 
-                <sl-button name="zoom-in" id="zoom_in">+</sl-button>
+                <sl-button name="zoom-out" circle="true" disabled id="zoom_out"
+                  >-</sl-button
+                >
                 <label id="zoom_label">100%</label>
-                <sl-button name="zoom-out" disabled id="zoom_out">-</sl-button>
+                <sl-button name="zoom-in" circle="true" id="zoom_in"
+                  >+</sl-button
+                >
               </div>
+              <div id="canvas_container">
+                <canvas id="pdf_renderer"></canvas>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div id="show-pdf-div">
+              <sl-button class="show-hide-pdf">»</sl-button>
+              <sl-divider id="show-button-divider" vertical></sl-divider>
             </div>
           </div>
           <div id="summary-container">
             <div id="summary-info" class="summary-boxes">
-              <sl-details summary="METADATA">
-                <div id="metadata-return-display" class="output-box-info"></div>
+              <div id="key-words"></div>
+
+              <sl-details summary="ABSTRACT">
+                <p id="abstract-return-display"></p>
+              </sl-details>
+
+              <sl-details summary="INTRODUCTION">
+                <p id="intro-return-display"></p>
               </sl-details>
 
               <sl-details summary="WORDCLOUD">
-                <div id="word-cloud-return-display" class="output-box-info">
-                </div>
+                <div
+                  id="word-cloud-return-display"
+                  class="output-box-info"
+                ></div>
+              </sl-details>
+
+              <sl-details summary="CONCLUSION">
+                <p id="conclusion-return-display"></p>
               </sl-details>
 
               <sl-details summary="REFERENCES">
@@ -53,32 +83,20 @@ export default class extends AbstractView {
             <h2>Summary</h2>
             <sl-divider></sl-divider>
             <div id="summary-return-display"></div>
+            <label for="size-of-summary" id="sos-lbl">
+              Size of Summary: 100%</label
+            >
+            <sl-range
+              min="0"
+              max="100"
+              value="100"
+              step="10"
+              class="slider"
+              id="size-of-summary"
+            ></sl-range>
+            <sl-switch id="light-dark-switch" checked>Light</sl-switch>
           </div>
         </div>
-        <label id="output-show-document-label" for="output-show-document"
-          >Show PDF Document?
-          <input
-            type="checkbox"
-            name="output-show-document"
-            id="output-show-document"
-            checked
-          />
-        </label>
-        <label for="tables-and-figures"> Tables and Figures</label>
-        <input
-          type="checkbox"
-          id="tables-and-figures"
-          name="tables-and-figures"
-        />
-        <label for="size-of-summary" id="sos-lbl"> Size of Summary: 100%</label>
-        <sl-range
-          min="0"
-          max="100"
-          value="100"
-          step="10"
-          class="slider"
-          id="size-of-summary"
-        ></sl-range>
       </div>
     `;
   }
@@ -93,12 +111,25 @@ export default class extends AbstractView {
       true
     );
 
+    const lDSwitch = $("light-dark-switch") as HTMLInputElement;
+    lDSwitch.addEventListener("sl-change", () => {
+      if (lDSwitch.checked === true) {
+        document.body.classList.remove("sl-theme-dark");
+        document.body.classList.add("sl-theme-light");
+        lDSwitch.innerHTML = "Light";
+      } else {
+        document.body.classList.remove("sl-theme-light");
+        document.body.classList.add("sl-theme-dark");
+        lDSwitch.innerHTML = "Dark";
+      }
+    });
+
     setupPDFListeners();
 
     // Toggle PDF
-    const pdfToggleInput = $("output-show-document");
-    // TODO: use event to check if its toggled or not
-    pdfToggleInput.addEventListener("change", togglePDFDisplay);
+    const divs = document.querySelectorAll(".show-hide-pdf");
+
+    divs.forEach((el) => el.addEventListener("click", togglePDFDisplay));
 
     // Output display
     const outputBoxes = document.querySelectorAll(".output-boxes");
@@ -120,9 +151,10 @@ export default class extends AbstractView {
       $("pdf-renderer").style.display =
         $("pdf-renderer").style.display == "none" ? "block" : "none";
       $("output-main").style.gridTemplateColumns =
-        $("output-main").style.gridTemplateColumns == "1fr 1fr"
-          ? "1fr 1fr 1fr"
-          : "1fr 1fr";
+        $("output-main").style.gridTemplateColumns ==
+        "minmax(3.6em, 3vw) 48vw 48vw"
+          ? "33vw 0vw minmax(15em, 33vw) 33vw"
+          : "minmax(3.6em, 3vw) 48vw 48vw";
     }
 
     const container = document.querySelector(".summary-boxes");

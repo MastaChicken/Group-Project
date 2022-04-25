@@ -4,6 +4,8 @@
 body {
   background: var(--sl-color-neutral-50);
   color: var(--sl-color-neutral-900);
+  margin: 0;
+  padding: 0;
 }
 
 .main {
@@ -11,16 +13,34 @@ body {
   position: relative;
   margin-left: auto;
   margin-right: auto;
+  height: 100vh;
   width: 100%;
   text-align: center;
 }
 
+#outlet {
+  height: 100%;
+}
+
+.output-display {
+  height: 100%;
+}
+
 h1 {
+  font-family: var(--sl-font-sans);
   margin: 0;
   color: var(--sl-color-neutral-800);
   // border-top: 1px solid var(--sl-color-neutral-900);
   // background: var(--sl-color-gray-900);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+h4 {
+  font-family: var(--sl-font-sans);
+  margin: auto;
+  padding: 0;
+  color: var(--sl-color-neutral-400);
+  width: 60%;
+  height: 1em;
 }
 
 #drop-zone {
@@ -50,6 +70,8 @@ a {
 #navigation_controls {
   display: flex;
   justify-content: center;
+  height: 2.5em;
+  width: 100%;
 }
 
 .buttons {
@@ -58,17 +80,75 @@ a {
   align-content: center;
 }
 
+#navigation_controls {
+  background-color: var(--sl-color-neutral-400);
+}
+
+sl-icon-button::part(base) {
+  color: var(--sl-color-neutral-50);
+}
+
 #go_previous,
 #go_next {
-  width: 4.5vw;
+  width: 10%;
+  min-width: 3em;
 }
 
 #go_next {
-  margin-right: 2vw;
+  margin-right: 5%;
+}
+
+#zoom_in::part(base),
+#zoom_out::part(base),
+#show-hide-pdf::part(base) {
+  background-color: var(--sl-color-neutral-400);
+  display: flex;
+  align-items: center;
+  border: none;
+}
+
+#pdf-divider {
+  --color: var(--sl-color-neutral-200);
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+}
+
+#zoom_in::part(base):hover,
+#zoom_out::part(base):hover {
+  background-color: var(--sl-color-neutral-300);
+}
+
+#show-pdf-div {
+  display: flex;
+  align-items: flex-start;
+  background: var(--sl-color-neutral-300);
+  min-width: 10em !important;
+}
+
+.show-hide-pdf::part(label) {
+  font-size: 2em;
+  background: var(--sl-color-neutral-400);
+  padding-right: 0.8em;
+  --outline: false;
+}
+
+#show-button-divider {
+  height: 90vh;
+  margin-left: 0;
+  --color: var(--sl-color-neutral-400);
+}
+
+#zoom_in::part(label),
+#zoom_out::part(label) {
+  position: absolute;
+  top: -8%;
+  box-sizing: content-box;
+  font-size: 2em;
 }
 
 #current_page {
-  width: 15.8vw;
+  width: 50%;
+  min-width: 4em;
 }
 
 #zoom_label {
@@ -77,13 +157,15 @@ a {
 
 #output-main {
   min-height: min-content;
-  height: 90vh;
+  // max-height: 90vh;
+  max-height: 92%;
+  height: 92%;
   // border: 1px solid black;
   border-radius: 0.5em;
   width: 100%;
   display: grid;
   grid-template-rows: 1fr;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(23em, 33vw) 0vw minmax(15em, 33vw) 33vw;
   overflow: hidden;
   padding-top: 1em;
 }
@@ -96,6 +178,7 @@ a {
 #canvas_container {
   position: relative;
   width: 33vw;
+  min-width: 370px;
   height: 85vh;
   overflow: auto;
   border-left: 1px solid var(--sl-color-neutral-800);
@@ -107,17 +190,18 @@ a {
   position: relative;
   overflow: hidden;
   background: var(--sl-color-neutral-200);
+  min-width: 328px;
+  flex-shrink: 0;
 }
 
 #summary-info {
   border-radius: 0.5em;
   display: flex;
+  height: 100%;
   flex-direction: column;
   justify-content: flex-start;
   align-content: flex-start;
   overflow: hidden;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
 }
 
 .summary-boxes sl-details:not(:last-of-type) {
@@ -125,21 +209,28 @@ a {
 }
 
 sl-details {
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
   width: 95%;
   color: var(--sl-color-neutral-900);
-  max-height: 76vh;
+  max-height: 70%;
   overflow: auto;
   overflow-x: hidden;
+  font-family: var(--sl-font-serif);
+  font-size: var(--sl-font-size-x-medium);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
 }
 
 sl-details::part(header) {
   background: var(--sl-color-sky-400);
   font-size: var(--sl-font-size-x-large);
   font-weight: var(--sl-font-weight-light);
+  font-family: var(--sl-font-sans);
   letter-spacing: var(--sl-letter-spacing-loose);
   height: 2rem;
   transition: 0.5s;
+  color: var(--sl-color-sky-800);
 }
 
 sl-details[open]::part(header) {
@@ -189,4 +280,58 @@ sl-details[open]::part(header) {
   padding-left: 2em;
   color: var(--sl-color-neutral-900);
   background: var(--sl-color-neutral-300);
+}
+
+#light-dark-switch {
+  float: right;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.658); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: var(--sl-color-neutral-200);
+  color: var(--sl-color-neutral-800);
+  margin: auto;
+  padding: 3em;
+  border: 1px solid var(--sl-color-neutral-800);
+  width: 20%;
+  font-family: var(--sl-font-sans);
+  border-radius: 1.5em;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#key-words {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  width: 95%;
+  border-radius: 0.3em;
+  font-size: var(--sl-font-size-x-large);
 }
