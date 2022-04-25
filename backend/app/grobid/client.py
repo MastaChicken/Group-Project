@@ -23,13 +23,13 @@ class Client:
 
     api_url: str
     form: Form
+    timeout: int
 
     def __build_request(self) -> dict[str, Any]:
         """Build request dictionary."""
         # FIXME: api url is hardcoded
         url = f"{self.api_url}/processFulltextDocument"
-        # FIXME: remove hard-coded timeout
-        return dict(url=url, files=self.form.to_dict(), timeout=15)
+        return dict(url=url, files=self.form.to_dict(), timeout=self.timeout)
 
     def __build_response(self, response: httpx.Response) -> Response:
         """Build Response object.

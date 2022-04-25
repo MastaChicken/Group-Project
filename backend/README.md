@@ -59,14 +59,24 @@ $ cp .env.example .env
 #### Variables 
 
 - `GROBID_API_URL` (required)
-- `HUGGINGFACE_API_TOKEN` (optional, but won't compute a final summary unless provided)
-
+    - Used for parsing the PDF
+    - See [API Prerequisities](#api-prerequisites)
+- `HUGGINGFACE_API_TOKEN` (optional)
+    - Defaults to "" (empty string)
+    - Default won't compute a final summary (returns large summary)
+    - User access token [documentation](https://huggingface.co/docs/hub/security#user-access-tokens)
+- `GROBID_API_TIMEOUT` (optional)
+    - Defaults to 15s
+    - Increase the default if you are recieving `503` status code due to timeout
+- `HUGGINGFACE_API_TIMEOUT` (optional)
+    - Defaults to 60s
+    - Increase the default if final summary isn't being computed
 
 ## API
 
 The API is written using [FastAPI](https://fastapi.tiangolo.com/)
 
-### Prerequisities
+<h3 id="api-prerequisites">Prerequisites</h3>
 
 The GROBID REST API needs to be running for the PDF parser.
 

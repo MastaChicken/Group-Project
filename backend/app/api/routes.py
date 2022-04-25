@@ -68,7 +68,11 @@ async def recieve_file(
     )
 
     try:
-        client = Client(api_url=settings.grobid_api_url, form=form)
+        client = Client(
+            api_url=settings.grobid_api_url,
+            form=form,
+            timeout=settings.grobid_api_timeout,
+        )
         response = await client.asyncio_request()
     except GrobidClientError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
@@ -116,6 +120,7 @@ async def recieve_file(
         bart = Bart(
             api_token=settings.huggingface_api_token,
             text=" ".join(ranked_article_sentences),
+            timeout=settings.huggingface_api_timeout,
         )
         summary_text = await bart.summary
         summary = [sentence.text for sentence in model(summary_text).sents]

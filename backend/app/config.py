@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     # Optional
     huggingface_api_token: str = ""
+    grobid_api_timeout: int = 15
+    huggingface_api_timeout: int = 60
 
     class Config:
         """Use .env for environment variables."""

@@ -49,6 +49,7 @@ class Bart:
 
     api_token: str
     text: str
+    timeout: int
     use_gpu: bool
     model_id: str
 
@@ -56,6 +57,7 @@ class Bart:
         self,
         api_token: str,
         text: str,
+        timeout: int,
         use_gpu: bool = True,
         model_id: str = "facebook/bart-large-cnn",
     ) -> None:
@@ -75,6 +77,7 @@ class Bart:
         if not text:
             raise RuntimeError("Text cannot be empty")
         self.api_token = api_token
+        self.timeout = timeout
         self.use_gpu = use_gpu
         self.model_id = model_id
         tokenizer = BartTokenizer.from_pretrained(model_id)
@@ -99,22 +102,23 @@ class Bart:
         headers = {"Authorization": f"Bearer {self.api_token}"}
         url = f"https://api-inference.huggingface.co/models/{self.model_id}"
 
-        data = json.dumps(
-            {
-                "inputs": self.text,
-                "parameters": {
-                    "max_length": self.MAX_LENGTH,
-                    "min_length": self.MIN_LENGTH,
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                url=url,
+                headers=headers,
+                json={
+                    "inputs": self.text,
+                    "parameters": {
+                        "max_length": self.MAX_LENGTH,
+                        "min_length": self.MIN_LENGTH,
+                    },
+                    "options": {"use_gpu": self.use_gpu, "use_cache": False},
                 },
-                "options": {"use_gpu": self.use_gpu, "use_cache": False},
-            }
-        )
-        async with httpx.AsyncClient(timeout=60) as client:
-            response = await client.post(url=url, headers=headers, data=data)
+            )
 
         response.raise_for_status()
 
-        r_json = json.loads(response.content.decode("utf-8"))
+        r_json = response.json()
         text = self.text
 
         if r_json:
