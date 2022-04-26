@@ -2,6 +2,7 @@ import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
+import { getEnvironmentData } from "worker_threads";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -43,6 +44,16 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
+let m_data: UploadResponse;
+
+function setData(data: UploadResponse) {
+  m_data = data;
+}
+
+export function getData() {
+  return m_data;
+}
+
 /**
  * Sends request to API with the pdf uploaded to form
  *
@@ -56,6 +67,7 @@ export async function uploadPDF(file: File) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
+      setData(data);
       const article = data.article;
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
