@@ -40,8 +40,26 @@ export async function validateURL(): Promise<boolean> {
  * @throws {Error}
  */
 function handleErrors(response: Response): Response {
+  console.log(response.status);
   if (!response.ok) throw new Error(response.status.toString());
   return response;
+}
+
+function handleNetwork(response: Response): Response {
+  if (response.status == 503) {
+    throw new Error(response.status.toString());
+  }
+  return response;
+}
+
+function checkErrorMessage(message: any) {
+  if (message == 503) {
+    alert(" 503\n Service Unavailable. Please try again later.");
+    history.pushState(null, null, "/");
+  } else {
+    alert("Something went wrong. Please try again later.");
+    history.pushState(null, null, "/");
+  }
 }
 
 /**
@@ -53,7 +71,11 @@ export async function uploadPDF(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  await fetch(`${API}/upload`, { method: "POST", body: formData })
+  await fetch(`${API}/upload`, {
+    method: "POST",
+    body: formData,
+  })
+    .then(handleNetwork)
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
@@ -118,9 +140,8 @@ export async function uploadPDF(file: File) {
       $("references-return-display").append(oListEl);
       $("output-main").scrollIntoView();
     })
-    .catch((error) => {
-      console.log(error);
-      alert("There's a network issue. Please try again."); 
-      history.pushState(null, null, "/");
+    .catch((e) => {
+      console.log(e.message);
+      checkErrorMessage(e.message);
     });
 }
