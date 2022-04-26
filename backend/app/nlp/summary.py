@@ -1,6 +1,5 @@
 """Represents the summarisation methods."""
 import httpx
-
 from spacy.language import Language
 from spacy.tokens.doc import Doc
 from spacy.tokens.span import Span
@@ -19,7 +18,12 @@ class TextRank:
         Args:
             model: spaCy Language model
             text: text to be ranked
+
+        Raises:
+            RuntimeError: if text is empty string
         """
+        if not text:
+            raise RuntimeError("Text cannot be empty")
         if not model.has_pipe("textrank"):
             model.add_pipe("textrank")
         self.model = model

@@ -1,6 +1,6 @@
 """Unit tests for the TEI class."""
+import en_core_web_sm
 import pytest
-from spacy import load
 
 from app.grobid.models import (
     Affiliation,
@@ -20,7 +20,7 @@ from app.grobid.models import (
 )
 from app.grobid.tei import TEI, GrobidParserError
 
-nlp = load("en_core_web_sm")
+model = en_core_web_sm.load()
 
 
 class TestConstructor:
@@ -70,19 +70,19 @@ class TestParse:
         xml = b"<TEI></TEI>"
 
         with pytest.raises(GrobidParserError, match="Missing body"):
-            TEI(xml, nlp).parse()
+            TEI(xml, model).parse()
 
     def test_no_sourcedesc(self):  # noqa: D102
         xml = b"<TEI><body></body></TEI>"
 
         with pytest.raises(GrobidParserError, match="Missing source description"):
-            TEI(xml, nlp).parse()
+            TEI(xml, model).parse()
 
     def test_no_biblstruct(self):  # noqa: D102
         xml = b"<TEI><sourceDesc></sourceDesc><body></body></TEI>"
 
         with pytest.raises(GrobidParserError, match="Missing bibliography"):
-            TEI(xml, nlp).parse()
+            TEI(xml, model).parse()
 
     def test_no_listbibl(self):  # noqa: D102
         xml = b"""
@@ -90,7 +90,7 @@ class TestParse:
         """
 
         with pytest.raises(GrobidParserError, match="Missing citations"):
-            TEI(xml, nlp).parse()
+            TEI(xml, model).parse()
 
     def test_valid_article(self):  # noqa: D102
         article = Article(
@@ -117,7 +117,7 @@ class TestParse:
             ),
         )
 
-        tei = TEI(TestParse.build_xml(article), nlp)
+        tei = TEI(TestParse.build_xml(article), model)
 
         assert tei.parse() == article
 
@@ -128,7 +128,7 @@ class TestTitle:
     def test_valid_tag(self):  # noqa: D102
         title = "Test"
         xml = bytes(f"<title>{title}</title>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.title(tei.soup) == title
 
@@ -138,13 +138,13 @@ class TestTitle:
             f"<div><title><Invalid</title><title type='main'>{title}</></div>",
             encoding="utf-8",
         )
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.title(tei.soup, attrs={"type": "main"}) == title
 
     def test_invalid_tag(self):  # noqa: D102
         xml = b"<nottitle>Invalid</nottitle>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         # NOTE: should it return empty string over None?
         assert tei.title(tei.soup) == ""
@@ -156,19 +156,19 @@ class TestTarget:
     def test_valid_tag(self):  # noqa: D102
         target = "http://avalidtarget.org"
         xml = bytes(f"<ptr target='{target}'/>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.target(tei.soup) == target
 
     def test_no_target(self):  # noqa: D102
         xml = b"<ptr/>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.target(tei.soup) is None
 
     def test_empty_tag(self):  # noqa: D102
         xml = b"<ptr/>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.target(tei.soup) is None
 
@@ -179,7 +179,7 @@ class TestIdno:
     def test_valid_tag(self):  # noqa: D102
         idno = "test"
         xml = bytes(f"<idno>{idno}</idno>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.idno(tei.soup) == idno
 
@@ -191,13 +191,13 @@ class TestIdno:
             f"<div><idno>Invalid</idno><idno type='{type_}'>{idno}</idno></div>",
             encoding="utf-8",
         )
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.idno(tei.soup, attrs={"type": type_}) == idno
 
     def test_empty_tag(self):  # noqa: D102
         xml = bytes("<idno></idno>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.idno(tei.soup) is None
 
@@ -208,13 +208,13 @@ class TestPublisher:
     def test_valid_tag(self):  # noqa: D102
         publisher = "Foo Bar"
         xml = bytes(f"<publisher>{publisher}</publisher>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.publisher(tei.soup) == publisher
 
     def test_empty_tag(self):  # noqa: D102
         xml = bytes("<publisher></publisher>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.publisher(tei.soup) is None
 
@@ -231,13 +231,13 @@ class TestKeywords:
         term_tags.append(b"</keywords>")
 
         xml = b"".join(term_tags)
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.keywords(tei.soup) == keywords
 
     def test_empty_tag(self):  # noqa: D102
         xml = b"<term></term>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.keywords(tei.soup) == set()
 
@@ -250,7 +250,7 @@ class TestDate:
         year = "2022"
         date = Date(year=year)
         xml = bytes(f"<date when='{year}'/>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.date(tei.soup) == date
 
@@ -260,7 +260,7 @@ class TestDate:
         month = "05"
         date = Date(year=year, month=month)
         xml = bytes(f"<date when='{year}-{month}'/>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.date(tei.soup) == date
 
@@ -271,13 +271,13 @@ class TestDate:
         day = "03"
         date = Date(year=year, month=month, day=day)
         xml = bytes(f"<date when='{year}-{month}-{day}'/>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.date(tei.soup) == date
 
     def test_empty_tag(self):  # noqa: D102
         xml = b"<date when=''/>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.date(tei.soup) is None
 
@@ -352,7 +352,7 @@ class TestCitation:
             scope=Scope(volume=1),
         )
 
-        tei = TEI(TestCitation.build_xml(citation), nlp)
+        tei = TEI(TestCitation.build_xml(citation), model)
 
         assert tei.citation(tei.soup) == citation
 
@@ -365,7 +365,7 @@ class TestCitation:
             scope=Scope(volume=1),
         )
 
-        tei = TEI(TestCitation.build_xml(citation), nlp)
+        tei = TEI(TestCitation.build_xml(citation), model)
 
         assert tei.citation(tei.soup) == citation
 
@@ -377,7 +377,7 @@ class TestScope:
         volume = 7
         scope = Scope(volume=volume)
         xml = bytes(f"<biblScope unit='volume'>{volume}</biblScope>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) == scope
 
@@ -385,7 +385,7 @@ class TestScope:
         page = 1
         scope = Scope(pages=PageRange(page, page))
         xml = bytes(f"<biblScope unit='page'>{page}</biblScope>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) == scope
 
@@ -396,7 +396,7 @@ class TestScope:
             f"<biblScope unit='page' from='{from_page}' to='{to_page}'>",
             encoding="utf-8",
         )
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) == scope
 
@@ -404,13 +404,13 @@ class TestScope:
         """Page should be of int."""
         page = "one"
         xml = bytes(f"<biblScope unit='page'>{page}</biblScope>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) is None
 
     def test_empty_page(self):  # noqa: D102
         xml = b"<biblScope unit='page'></biblScope>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) is None
 
@@ -418,7 +418,7 @@ class TestScope:
         """Volume should be of int."""
         volume = "seven"
         xml = bytes(f"<biblScope unit='volume'>{volume}</biblScope>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.scope(tei.soup) is None
 
@@ -485,7 +485,7 @@ class TestAuthors:
             ),
         ]
 
-        tei = TEI(TestAuthors.build_xml(authors), nlp)
+        tei = TEI(TestAuthors.build_xml(authors), model)
 
         assert tei.authors(tei.soup) == authors
 
@@ -532,7 +532,7 @@ class TestSection:
         assert section.to_str() == text
 
         xml = TestSection.build_xml(section)
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
         # NOTE: woraround for forced capitalisation
         section.title = section.title.capitalize()
 
@@ -557,7 +557,7 @@ class TestSection:
         assert section.to_str() == text
 
         xml = TestSection.build_xml(section)
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
         # NOTE: woraround for forced capitalisation
         section.title = section.title.capitalize()
 
@@ -582,7 +582,7 @@ class TestSection:
         assert section.to_str() == text
 
         xml = TestSection.build_xml(section)
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
         # NOTE: woraround for forced capitalisation
         section.title = section.title.capitalize()
 
@@ -592,7 +592,7 @@ class TestSection:
         """Test for divs that don't have <head> tag (i.e. <abstract>)."""
         title = "abstract"
         xml = bytes(f"<{title}></{title}>", encoding="utf-8")
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         section = tei.section(tei.soup, title=title)
 
@@ -601,7 +601,7 @@ class TestSection:
 
     def test_empty_tag(self):  # noqa: D102
         xml = b"<div></div>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.section(tei.soup) is None
 
@@ -641,14 +641,14 @@ class TestTable:
         table = Table(heading="Test", description="Lorem Ipsum", rows=[["Foo", "Bar"]])
         xml = TestTable.build_xml(table)
 
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.table(tei.soup) == table
 
     def test_empty_tag(self):
         """Empty head tag."""
         xml = b"<figure><head></head></figure>"
-        tei = TEI(xml, nlp)
+        tei = TEI(xml, model)
 
         assert tei.table(tei.soup) is None
 
