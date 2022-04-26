@@ -15,7 +15,6 @@ export async function validateURL(): Promise<boolean> {
 
   if (!url.endsWith(".pdf")) {
     // TODO: handle this error
-    console.log(url);
     return false;
   }
 
@@ -30,16 +29,14 @@ export async function validateURL(): Promise<boolean> {
       checkUrlErrorMessage(e.message);
     });
 
-  console.log(code);
-
   return code == 200;
 }
 
-function checkUrlErrorMessage(message: any) {
+function checkUrlErrorMessage(code: number) {
   let displayMessage = "Something went wrong. Please try again later.";
-  if (message == 415) {
+  if (code == 415) {
     displayMessage = "Link isn't a PDF";
-  } else if (message == 500) {
+  } else if (code == 500) {
     displayMessage = "Internal server error, i.e. URL is invalid";
   }
   alert(displayMessage);
@@ -54,7 +51,6 @@ function checkUrlErrorMessage(message: any) {
  * @throws {Error}
  */
 function handleErrors(response: Response): Response {
-  console.log(response.status);
   if (!response.ok) throw new Error(response.status.toString());
   return response;
 }
@@ -66,16 +62,17 @@ function handleNetwork(response: Response): Response {
   return response;
 }
 
-function checkUploadErrorMessage(message: any) {
+function checkUploadErrorMessage(code: number) {
+  console.log(code);
   let displayMessage = "Something went wrong. Please try again later.";
-  if (message == 400) {
+  if (code == 400) {
     displayMessage = "PDF could not be parsed into Article object";
-  } else if (message == 415) {
+  } else if (code == 415) {
     displayMessage = "PDF could not be read";
-  } else if (message == 500) {
+  } else if (code == 500) {
     displayMessage =
       "Internal server error, i.e. Article object couldn't be serialised";
-  } else if (message == 503) {
+  } else if (code == 503) {
     displayMessage = "GROBID API returned an error or is down";
   }
   alert(displayMessage);
