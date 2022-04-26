@@ -22,14 +22,28 @@ export async function validateURL(): Promise<boolean> {
   const code = await fetch(
     `${API}/validate_url/?url=${encodeURIComponent(url)}`
   )
+    .then(handleNetwork)
     .then(handleErrors)
     .then((response) => response.json())
     .then((response) => response.status)
-    .catch((e) => e.message);
+    .catch((e) => {
+      checkUrlErrorMessage(e.message);
+    });
 
   console.log(code);
 
   return code == 200;
+}
+
+function checkUrlErrorMessage(message: any) {
+  let displayMessage = "Something went wrong. Please try again later.";
+  if (message == 415) {
+    displayMessage = "Link isn't a PDF";
+  } else if (message == 500) {
+    displayMessage = "Internal server error, i.e. URL is invalid";
+  }
+  alert(displayMessage);
+  history.pushState(null, null, "/");
 }
 
 /**
@@ -46,20 +60,26 @@ function handleErrors(response: Response): Response {
 }
 
 function handleNetwork(response: Response): Response {
-  if (response.status == 503) {
+  if (response.status >= 400 && response.status <= 600) {
     throw new Error(response.status.toString());
   }
   return response;
 }
 
-function checkErrorMessage(message: any) {
-  if (message == 503) {
-    alert(" 503\n Service Unavailable. Please try again later.");
-    history.pushState(null, null, "/");
-  } else {
-    alert("Something went wrong. Please try again later.");
-    history.pushState(null, null, "/");
+function checkUploadErrorMessage(message: any) {
+  let displayMessage = "Something went wrong. Please try again later.";
+  if (message == 400) {
+    displayMessage = "PDF could not be parsed into Article object";
+  } else if (message == 415) {
+    displayMessage = "PDF could not be read";
+  } else if (message == 500) {
+    displayMessage =
+      "Internal server error, i.e. Article object couldn't be serialised";
+  } else if (message == 503) {
+    displayMessage = "GROBID API returned an error or is down";
   }
+  alert(displayMessage);
+  history.pushState(null, null, "/");
 }
 
 /**
@@ -140,7 +160,6 @@ export async function uploadPDF(file: File) {
       $("output-main").scrollIntoView();
     })
     .catch((e) => {
-      console.log(e.message);
-      checkErrorMessage(e.message);
+      checkUploadErrorMessage(e.message);
     });
 }
