@@ -109,4 +109,11 @@ h1 {
 #summary-output {
   border-left: 1px solid black;
   color: black;
+  overflow: scroll;
+  width: 33vw;
+  height: 90vh;
+}
+
+#summary-output::-webkit-scrollbar {
+  display: none;
 }
