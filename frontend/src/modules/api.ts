@@ -130,8 +130,7 @@ export async function uploadPDF(file: File) {
       });
 
       // Summary
-      // NOTE: currently empty
-      $("summary-return-display").textContent = data.summary;
+      $("summary-return-display").textContent = data.summary.join(" ");
 
       // Word cloud
       $("word-cloud-return-display").appendChild(

@@ -1,4 +1,4 @@
-import * as WordCloud from "wordcloud";
+import wordcloud from "wordcloud";
 
 /**
  * Create wordcloud canvas
@@ -12,7 +12,7 @@ export default function makeWordCloudCanvas(
   canvas.style.width = "100%";
   canvas.style.height = "100%";
   // TODO: customise
-  WordCloud(canvas, { list: list });
+  wordcloud(canvas, { list: list });
 
   return canvas;
 }

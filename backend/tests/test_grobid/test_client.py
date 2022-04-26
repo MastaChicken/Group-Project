@@ -25,11 +25,13 @@ class TestClient:
         )
     )
 
+    timeout = 15
+
     @respx.mock
     def test_sync_request_status_codes(self):
         """Test GROBID's documented HTTP errors synchronously."""
         api_url = "http://validurl:8070"
-        c = Client(api_url=api_url, form=self.form)
+        c = Client(api_url=api_url, form=self.form, timeout=self.timeout)
 
         # 203
         respx.mock.post(api_url).mock(return_value=httpx.Response(203))
@@ -67,7 +69,7 @@ class TestClient:
     def test_sync_invalid_request(self):
         """Test invalid URL synchronously."""
         api_url = "http://invalidurl:8070"
-        c = Client(api_url=api_url, form=self.form)
+        c = Client(api_url=api_url, form=self.form, timeout=self.timeout)
         with pytest.raises(
             GrobidClientError, match=r"An error occurred while requesting .*"
         ):
@@ -78,7 +80,7 @@ class TestClient:
     async def test_asyncio_request_status_codes(self):
         """Test GROBID's documented HTTP errors asynchronously."""
         api_url = "http://validurl:8070"
-        c = Client(api_url=api_url, form=self.form)
+        c = Client(api_url=api_url, form=self.form, timeout=self.timeout)
 
         # 203
         respx.mock.post(api_url).mock(return_value=httpx.Response(203))
@@ -118,7 +120,7 @@ class TestClient:
     async def test_asyncio_invalid_request(self):
         """Test invalid URL asynchronously."""
         api_url = "http://invalidurl:8070"
-        c = Client(api_url=api_url, form=self.form)
+        c = Client(api_url=api_url, form=self.form, timeout=self.timeout)
         with pytest.raises(
             GrobidClientError, match=r"An error occurred while requesting .*"
         ):
