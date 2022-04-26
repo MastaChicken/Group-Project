@@ -191,6 +191,10 @@ function zoomOutPage() {
   }
 }
 
+window.addEventListener("resize", function () {
+  render();
+});
+
 /**
  * Asynchronously downloads PDF.
  */
