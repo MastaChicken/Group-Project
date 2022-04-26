@@ -20,6 +20,7 @@ from app.document import PDF
 from app.grobid.client import Client, GrobidClientError
 from app.grobid.models.form import File, Form
 from app.grobid.tei import TEI, GrobidParserError
+from app.nlp.summary import Bart, TextRank
 from app.nlp.techniques import Phrase, Word
 
 router = APIRouter()
@@ -67,7 +68,11 @@ async def recieve_file(
     )
 
     try:
-        client = Client(api_url=settings.grobid_api_url, form=form)
+        client = Client(
+            api_url=settings.grobid_api_url,
+            form=form,
+            timeout=settings.grobid_api_timeout,
+        )
         response = await client.asyncio_request()
     except GrobidClientError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
@@ -88,8 +93,12 @@ async def recieve_file(
         )
 
     article_text = []
+    ranked_article_sentences: list[str] = []
     for section in article.sections:
-        article_text.append(section.to_str())
+        section_text = section.to_str()
+        article_text.append(section_text)
+        sentences = TextRank(section_text, model).sentences
+        ranked_article_sentences += sentences
 
     # Phrase counts
     phrase_ranks = {}
@@ -106,13 +115,26 @@ async def recieve_file(
     except RuntimeError:
         pass
 
+    summary = ranked_article_sentences
+    try:
+        bart = Bart(
+            api_token=settings.huggingface_api_token,
+            text=" ".join(ranked_article_sentences),
+            timeout=settings.huggingface_api_timeout,
+        )
+        summary_text = await bart.summary
+        summary = [sentence.text for sentence in model(summary_text).sents]
+    except httpx.HTTPStatusError:
+        pass
+    except RuntimeError:
+        pass
+
     # TODO: use UploadResponse when pydantic is updated to v1.9
-    # TODO: add summary
     return dict(
         article=article_dict,
         common_words=common_words,
         phrase_ranks=phrase_ranks,
-        summary="",
+        summary=summary,
     )
 
 

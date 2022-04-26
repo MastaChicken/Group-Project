@@ -62,44 +62,6 @@ class Word:
 
         return word_frequencies
 
-    def extractive_summarisation(self, n: int) -> list[str]:
-        """Return summary down to 'n' amount of sentences.
-
-        Args:
-            n : amount of sentences to be reduced down to
-
-        Returns:
-            List of strings containing the extractive summarisation
-        """
-        word_frequencies = self.noun_freq
-
-        max_frequency = max(word_frequencies.values())
-        normalized_frequencies: dict[str, float] = {}
-        for word in word_frequencies.keys():
-            normalized_frequencies[word] = word_frequencies[word] / max_frequency
-
-        # need to optimise this, only counts sentence if fullstop,
-        # space then capital letter/punctuation/number
-        sentence_tokens = [sent for sent in self.__doc.sents]
-
-        sentence_scores: dict[Span, float] = {}
-        for sent in sentence_tokens:
-            for word in sent:
-                l_word = word.text.lower()
-                if l_word in normalized_frequencies.keys():
-                    if sent not in sentence_scores.keys():
-                        sentence_scores[sent] = normalized_frequencies[l_word]
-                        continue
-                    sentence_scores[sent] += normalized_frequencies[l_word]
-
-        summarised_sentences = nlargest(
-            n, sentence_scores, key=lambda k: sentence_scores[k]
-        )
-
-        final_sentences = [w.text for w in summarised_sentences]
-
-        return final_sentences
-
     def words_threshold_n(self, n: int) -> list[tuple[str, int]]:
         """Return list of tuples containing words that occur more than n times.
 

@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings, get_settings
 from app.main import app
+from app.nlp.summary import Bart
 from tests.test_grobid.test_tei import TestParse
 
 API_URL = "http://validurl:8070"
@@ -14,7 +15,9 @@ API_URL = "http://validurl:8070"
 
 def get_settings_overrides():
     """Mock .env file."""
-    return Settings(grobid_api_url=API_URL)
+    return Settings(
+        grobid_api_url=API_URL, grobid_api_timeout=15, huggingface_api_timeout=60
+    )
 
 
 class TestRecieveFile:
@@ -110,6 +113,9 @@ class TestRecieveFile:
         with TestClient(app) as client:
             respx.mock.post(API_URL).mock(
                 return_value=httpx.Response(status_code=200, content=xml)
+            )
+            respx.mock.post(Bart.API_URL).mock(
+                return_value=httpx.Response(status_code=200, content="[]")
             )
             response = client.post(
                 "/upload",

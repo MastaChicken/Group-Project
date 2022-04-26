@@ -1,18 +1,14 @@
 """Unit tests for the properties and methods in Techniques."""
+import en_core_web_sm
 import pytextrank  # noqa: F401
 from pytest import raises
-from spacy import load
 from spacy.lang.en import English
 
 from app.nlp.techniques import Phrase, Word
 
 
 class TestTechniques:
-    """Unit tests for Technique methods.
-
-    Todo:
-        * Fix empty string test
-    """
+    """Unit tests for Technique methods."""
 
     empty_string = ""
     # Lorem ipsum in English
@@ -44,7 +40,7 @@ class TestTechniques:
     avoid worse pains
     """
 
-    model = load("en_core_web_sm")
+    model = en_core_web_sm.load()
     model.add_pipe("textrank")
 
     def test_noun_frequency(self):
