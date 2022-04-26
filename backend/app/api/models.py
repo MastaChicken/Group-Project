@@ -14,4 +14,4 @@ class UploadResponse(BaseModel):
     article: Article
     common_words: list[tuple[str, int]]
     phrase_ranks: list[tuple[str, int]]
-    summary: str
+    summary: list[str]

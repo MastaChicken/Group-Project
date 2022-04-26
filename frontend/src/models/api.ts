@@ -120,5 +120,5 @@ export interface UploadResponse {
   phrase_ranks: {
     [k: string]: number;
   };
-  summary: string;
+  summary: string[];
 }

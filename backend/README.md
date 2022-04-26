@@ -46,11 +46,37 @@ $ source .venv/Script/activate
 Ensure you keep the `poetry.lock` file updated when adding/updating/removing
 dependencies.
 
+### Environment
+
+Since the backend makes use of various APIs like GROBID and Hugging Face's
+inference API, you will need to setup the `.env` file.
+
+Start by copying the `.env.example` file as a `.env` file.
+```sh
+$ cp .env.example .env
+```
+
+#### Variables 
+
+- `GROBID_API_URL` (required)
+    - Used for parsing the PDF
+    - See [API Prerequisities](#api-prerequisites)
+- `HUGGINGFACE_API_TOKEN` (optional)
+    - Defaults to "" (empty string)
+    - Default won't compute a final summary (returns large summary)
+    - User access token [documentation](https://huggingface.co/docs/hub/security#user-access-tokens)
+- `GROBID_API_TIMEOUT` (optional)
+    - Defaults to 15s
+    - Increase the default if you are recieving `503` status code due to timeout
+- `HUGGINGFACE_API_TIMEOUT` (optional)
+    - Defaults to 60s
+    - Increase the default if final summary isn't being computed
+
 ## API
 
 The API is written using [FastAPI](https://fastapi.tiangolo.com/)
 
-### Prerequisities
+<h3 id="api-prerequisites">Prerequisites</h3>
 
 The GROBID REST API needs to be running for the PDF parser.
 
@@ -67,19 +93,24 @@ $ docker run -t --rm --init -p 8070:8070 lfoppiano/grobid:0.7.1
 $ docker-compose up
 ```
 
+You can also try using an external GROBID REST API (no guarantees are made for uptime)
+
+`https://cloud.science-miner.com/grobid/api`
+
 Our API does not set up a GROBID REST API URL by default.
 
-You need to copy the `.env.example` file as a `.env` file and update the value
-of the `GROBID_API_URL` key.
-
-```sh
-$ cp .env.example .env
-```
+If you haven't already, please refer to [Environment](#environment) setup.
 
 If you followed the commands above, the `.env` file should look like below
 ```env
 # .env
 GROBID_API_URL=http://host.docker.internal:8070/api
+```
+
+If you want to use the external API, the `.env` file should like below
+```env
+# .env
+GROBID_API_URL=https://cloud.science-miner.com/grobid/api
 ```
 
 ### Debug
