@@ -100,22 +100,18 @@ export default class extends AbstractView {
       "change",
       () => {
         $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
-        try {
-          if (sos.textContent != null) {
-            const data = getData();
-            let summary = "";
-            const length = data.summary.length;
-            const multiplier = sos.valueAsNumber / 100;
-            const adjusted_length = Math.floor(length * multiplier);
 
-            for (let i = 0; i < adjusted_length; i++) {
-              summary += data.summary[i];
-            }
-            console.log(summary);
-            $("summary-return-display").textContent = summary;
+        if (sos.textContent != null) {
+          const data = getData();
+          let summary = "";
+          const length = data.summary.length;
+          const multiplier = sos.valueAsNumber / 100;
+          const adjusted_length = Math.floor(length * multiplier);
+
+          for (let i = 0; i < adjusted_length; i++) {
+            summary += data.summary[i];
           }
-        } catch (error) {
-          return;
+          $("summary-return-display").textContent = summary;
         }
       },
       true

@@ -2,7 +2,6 @@ import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
-import { getEnvironmentData } from "worker_threads";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
