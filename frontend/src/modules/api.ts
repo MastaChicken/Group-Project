@@ -5,6 +5,19 @@ import { UploadResponse } from "../models/api";
 import { renderPDF } from "../modules/PDFRenderer";
 
 /**
+ * Resets form and sets the text to default state.
+ */
+export function resetForm(): void {
+  ($("upload-form") as HTMLFormElement).reset();
+  ($("drop-text") as HTMLLabelElement).innerHTML = `
+  <a id="pdfpicker-link"
+  href="javascript:;">
+  Click here
+  </a>
+  or drop your .pdf files here`;
+}
+
+/**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
  * If response is 200 then it is a valid url
  *
@@ -40,7 +53,8 @@ function checkUrlErrorMessage(code: number) {
     displayMessage = `${code}\nThe server encountered an internal error.`;
   }
   alert(displayMessage);
-  history.pushState(null, null, "/");
+  resetForm();
+  // history.pushState(null, null, "/");
 }
 
 /**
@@ -77,7 +91,7 @@ function checkUploadErrorMessage(code: number) {
     displayMessage = `${code}\nThe service you requested is not available at this time.`;
   }
   alert(displayMessage);
-  history.pushState(null, null, "/");
+  resetForm();
 }
 
 /**
