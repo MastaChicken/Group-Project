@@ -211,5 +211,10 @@ export async function uploadPDF(file: File) {
       console.log(error);
     });
 
-  $("output-main").scrollIntoView();
+  $("loading-screen").classList.add("unblur");
+  setTimeout(() => {
+    $("loading-screen").style.display = "none";
+  }, 2000);
+
+  // $("output-main").scrollIntoView();
 }
