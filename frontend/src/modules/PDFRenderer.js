@@ -160,12 +160,16 @@ function onPageEntry() {
  * Zoom into page by 0.1 scale.
  */
 function zoomIntoPage() {
+  if (Reflect.get($("zoom_in"), "disabled") === true) {
+    return;
+  }
+
   myState.zoom = zoomArray[++counter];
   $("zoom_out").removeAttribute("disabled");
   $("zoom_label").innerText = Math.floor(myState.zoom * 100) + "%";
   queueRenderPage(myState.currentPage);
   if (myState.zoom >= 5) {
-    $("zoom_in").setAttribute("disabled", true);
+    Reflect.set($("zoom_in"), "disabled", true);
     return;
   }
 }
@@ -174,12 +178,15 @@ function zoomIntoPage() {
  * Zoom Out of page by 0.1 scale.
  */
 function zoomOutPage() {
+  if (Reflect.get($("zoom_out"), "disabled") === true) {
+    return;
+  }
   myState.zoom = zoomArray[--counter];
   $("zoom_in").removeAttribute("disabled");
   queueRenderPage(myState.currentPage);
   $("zoom_label").innerText = Math.floor(myState.zoom * 100) + "%";
   if (myState.zoom <= 1) {
-    $("zoom_out").setAttribute("disabled", true);
+    Reflect.set($("zoom_out"), "disabled", true);
     return;
   }
 }
