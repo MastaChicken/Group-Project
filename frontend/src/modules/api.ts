@@ -43,14 +43,14 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
-let m_data: UploadResponse;
+let uploadResponse: UploadResponse;
 
 function setData(data: UploadResponse) {
-  m_data = data;
+  uploadResponse = data;
 }
 
 export function getData() {
-  return m_data;
+  return uploadResponse;
 }
 
 /**
@@ -70,6 +70,8 @@ export async function uploadPDF(file: File) {
       const article = data.article;
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
+      const sos = $("size-of-summary") as HTMLInputElement;
+      sos.disabled = false;
 
       // Word cloud
       $("word-cloud-return-display").appendChild(

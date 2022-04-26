@@ -96,6 +96,8 @@ export default class extends AbstractView {
 
   setupListeners() {
     const sos = $("size-of-summary") as HTMLInputElement;
+    sos.disabled = true;
+
     sos.addEventListener(
       "change",
       () => {
