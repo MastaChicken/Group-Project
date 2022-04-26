@@ -35,9 +35,9 @@ export async function validateURL(): Promise<boolean> {
 function checkUrlErrorMessage(code: number) {
   let displayMessage = "Something went wrong. Please try again later.";
   if (code == 415) {
-    displayMessage = "Link isn't a PDF";
+    displayMessage = `${code}\nThe file type of the web request is not supported.`;
   } else if (code == 500) {
-    displayMessage = "Internal server error, i.e. URL is invalid";
+    displayMessage = `${code}\nThe server encountered an internal error.`;
   }
   alert(displayMessage);
   history.pushState(null, null, "/");
@@ -56,24 +56,25 @@ function handleErrors(response: Response): Response {
 }
 
 function handleNetwork(response: Response): Response {
-  if (response.status >= 400 && response.status <= 600) {
+  const codes = [400, 415, 500, 503];
+
+  if (response.status in codes) {
     throw new Error(response.status.toString());
   }
+
   return response;
 }
 
 function checkUploadErrorMessage(code: number) {
-  console.log(code);
   let displayMessage = "Something went wrong. Please try again later.";
   if (code == 400) {
-    displayMessage = "PDF could not be parsed into Article object";
+    displayMessage = `${code}\nYour client has issued a malformed or illegal request.`;
   } else if (code == 415) {
-    displayMessage = "PDF could not be read";
+    displayMessage = `${code}\nThe file type of the web request is not supported.`;
   } else if (code == 500) {
-    displayMessage =
-      "Internal server error, i.e. Article object couldn't be serialised";
+    displayMessage = `${code}\nThe server encountered an internal error.`;
   } else if (code == 503) {
-    displayMessage = "GROBID API returned an error or is down";
+    displayMessage = `${code}\nThe service you requested is not available at this time.`;
   }
   alert(displayMessage);
   history.pushState(null, null, "/");
