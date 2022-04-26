@@ -11,6 +11,18 @@ export default class extends AbstractView {
   getHtml() {
     return html`
       <div class="tab-contents output-display">
+        <div id="loading-screen">
+          <div class="lds-roller">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
         <h1 id="title-return-display">Content Visualisation</h1>
         <h4 id="authors-return-display"></h4>
         <div id="author-modal" class="modal">
@@ -94,7 +106,7 @@ export default class extends AbstractView {
               class="slider"
               id="size-of-summary"
             ></sl-range>
-            <sl-switch id="light-dark-switch" checked>Light</sl-switch>
+            <sl-switch id="light-dark-switch">Dark</sl-switch>
           </div>
         </div>
       </div>
@@ -152,9 +164,9 @@ export default class extends AbstractView {
         $("pdf-renderer").style.display == "none" ? "block" : "none";
       $("output-main").style.gridTemplateColumns =
         $("output-main").style.gridTemplateColumns ==
-        "minmax(3.6em, 3vw) 48vw 48vw"
-          ? "33vw 0vw minmax(15em, 33vw) 33vw"
-          : "minmax(3.6em, 3vw) 48vw 48vw";
+        "minmax(3.6em, 3vw) 48.5vw 48.5vw"
+          ? "33.3vw 0vw minmax(15em, 33.3vw) 33.3vw"
+          : "minmax(3.6em, 3vw) 48.5vw 48.5vw";
     }
 
     const container = document.querySelector(".summary-boxes");
