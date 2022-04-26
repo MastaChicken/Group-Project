@@ -35,19 +35,17 @@ export default class extends AbstractView {
           <div id="pdf-renderer">
             <div id="my_pdf_viewer">
               <div id="navigation_controls">
-                <sl-button class="show-hide-pdf" outline="false">«</sl-button>
+                <sl-icon-button name="chevron-double-left" class="show-hide-pdf"></sl-icon-button>
 
                 <sl-button id="go_previous">Prev</sl-button>
                 <sl-input id="current_page" value="1" type="number"></sl-input>
                 <sl-button id="go_next">Next</sl-button>
 
-                <sl-button name="zoom-out" circle="true" disabled id="zoom_out"
-                  >-</sl-button
-                >
+                <div>
+                <sl-icon-button name="dash-lg" disabled id="zoom_out"></sl-icon-button>
                 <label id="zoom_label">100%</label>
-                <sl-button name="zoom-in" circle="true" id="zoom_in"
-                  >+</sl-button
-                >
+                <sl-icon-button name="plus-lg" id="zoom_in"></sl-icon-button>
+                </div>
               </div>
               <div id="canvas_container">
                 <canvas id="pdf_renderer"></canvas>
@@ -56,7 +54,7 @@ export default class extends AbstractView {
           </div>
           <div>
             <div id="show-pdf-div">
-              <sl-button class="show-hide-pdf">»</sl-button>
+              <sl-icon-button name="chevron-double-right" class="show-hide-pdf"></sl-icon-button>
               <sl-divider id="show-button-divider" vertical></sl-divider>
             </div>
           </div>

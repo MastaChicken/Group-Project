@@ -1,7 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse } from "../models/api";
+import { Author, UploadResponse } from "../models/api";
 
 /**
  * Checks url is has .pdf suffix, passes it to backend to get a status response.
@@ -43,7 +43,7 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
-function createAuthorModal(author) {
+function createAuthorModal(author: Author) {
   const modal = $("author-modal") as HTMLElement;
   const emailAnchor = document.createElement("a");
   const mailToString = "mailto: " + author.email;
@@ -75,7 +75,7 @@ function createAuthorModal(author) {
   });
 
   // When the user clicks anywhere outside of the modal, close it
-  window.onclick = function (event) {
+  window.onclick = function (event: Event) {
     if (event.target == modal) {
       modal.style.display = "none";
     }
