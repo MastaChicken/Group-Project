@@ -15,7 +15,8 @@ export default class extends AbstractView {
     <div class="tab-contents">
         <form id="upload-form">
           <div id="drop-zone">
-          <label for="pdfpicker-file" id="drop-text">
+          <label for="pdfpicker-file">
+            <span id="pfdpicker-text-default">
               <a
                 id="pdfpicker-link"
                 href="javascript:;"
@@ -23,6 +24,8 @@ export default class extends AbstractView {
                 Click here
               </a>
               or drop your .pdf files here
+              </span>
+              <span id="pdfpicker-text"></span>
             </label>
             <input
               required
@@ -67,21 +70,21 @@ export default class extends AbstractView {
       "change",
       () => {
         const files = pdfpickerInput.files;
-        const dropText = $("drop-text");
+        const pdfPickerSpan = $("pdfpicker-text");
+        const defPdfPickerSpan = $("pfdpicker-text-default");
         // checks file exists and passes PDF checks.
 
         if (files.length > 0 && isValidPDF(files[0])) {
-          dropText.innerHTML = `File accepted: ${files[0].name}`;
-          $("selection-boxes").style.display = "block";
+          pdfPickerSpan.innerHTML = `File accepted: ${files[0].name}`;
 
           uploadPDF(files[0]);
-         
+
         } else {
           // throws alert for wrong file type
           pdfpickerInput.value = "";
-          dropText.innerHTML = "File Rejected: Please add .pdf file type";
-          $("selection-boxes").style.display = "none";
+          pdfPickerSpan.innerText = "File Rejected: Please add .pdf file type";
         }
+        defPdfPickerSpan.style.display = "none";
       },
       false
     );
@@ -95,7 +98,7 @@ export default class extends AbstractView {
     dropZone.addEventListener("drop", (ev) => {
       dropHandler(ev);
       const files = ($("pdfpicker-file") as HTMLInputElement).files;
-      
+
       uploadPDF(files[0]);
     });
 

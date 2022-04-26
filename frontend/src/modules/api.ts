@@ -9,12 +9,8 @@ import { renderPDF } from "../modules/PDFRenderer";
  */
 export function resetForm(): void {
   ($("upload-form") as HTMLFormElement).reset();
-  ($("drop-text") as HTMLLabelElement).innerHTML = `
-  <a id="pdfpicker-link"
-  href="javascript:;">
-  Click here
-  </a>
-  or drop your .pdf files here`;
+  $("pdfpicker-text").style.display = "none";
+  $("pfdpicker-text-default").style.display = "block";
 }
 
 /**
@@ -34,7 +30,6 @@ export async function validateURL(): Promise<boolean> {
   const code = await fetch(
     `${API}/validate_url/?url=${encodeURIComponent(url)}`
   )
-    .then(handleNetwork)
     .then(handleErrors)
     .then((response) => response.json())
     .then((response) => response.status)
@@ -45,6 +40,7 @@ export async function validateURL(): Promise<boolean> {
   return code == 200;
 }
 
+// TODO: depreciate
 function checkUrlErrorMessage(code: number) {
   let displayMessage = "Something went wrong. Please try again later.";
   if (code == 415) {
@@ -54,43 +50,43 @@ function checkUrlErrorMessage(code: number) {
   }
   alert(displayMessage);
   resetForm();
-  // history.pushState(null, null, "/");
 }
 
 /**
- * Handle non-network errors
+ * Handle fetch errors
  *
- * @param response - response state from fetch call.
+ * @param response - response object from fetch call.
  * @returns response
- * @throws {Error}
+ * @throws response object
  */
 function handleErrors(response: Response): Response {
-  if (!response.ok) throw new Error(response.status.toString());
-  return response;
-}
-
-function handleNetwork(response: Response): Response {
-  const codes = [400, 415, 500, 503];
-
-  if (response.status in codes) {
-    throw new Error(response.status.toString());
+  if (response.ok) {
+    return response;
   }
 
-  return response;
+  throw response;
 }
 
-function checkUploadErrorMessage(code: number) {
-  let displayMessage = "Something went wrong. Please try again later.";
-  if (code == 400) {
-    displayMessage = `${code}\nYour client has issued a malformed or illegal request.`;
-  } else if (code == 415) {
-    displayMessage = `${code}\nThe file type of the web request is not supported.`;
-  } else if (code == 500) {
-    displayMessage = `${code}\nThe server encountered an internal error.`;
-  } else if (code == 503) {
-    displayMessage = `${code}\nThe service you requested is not available at this time.`;
+/**
+ * Displays /upload endpoint error
+ *
+ * @param response can be a generic Error
+*/
+function displayUploadError(response: Response | Error): void {
+  const uploadCodesMap = {
+    400: "PDF isn't a scholarly article",
+    415: "PDF file is broken",
+    500: "Unexpected error",
+    503: "The service you requested is not available at this time",
+  };
+
+  let errorMessage = "Server is down. Try again later.";
+  if (response instanceof Response) {
+    if (response.status in uploadCodesMap) {
+      errorMessage = uploadCodesMap[response.status];
+    }
   }
-  alert(displayMessage);
+  alert(errorMessage);
   resetForm();
 }
 
@@ -107,7 +103,6 @@ export async function uploadPDF(file: File) {
     method: "POST",
     body: formData,
   })
-    .then(handleNetwork)
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
@@ -172,6 +167,6 @@ export async function uploadPDF(file: File) {
       $("output-main").scrollIntoView();
     })
     .catch((e) => {
-      checkUploadErrorMessage(e.message);
+      displayUploadError(e);
     });
 }
