@@ -19,21 +19,19 @@ export default defineConfig({
       // Required: will fail if the API_URL environment variable is not provided.
       API_URL: undefined,
     }),
-    viteStaticCopy({
-      targets: [
-        {
-          src: resolve(
-            __dirname,
-            "node_modules/@shoelace-style/shoelace/dist/assets"
-          ),
-          dest: resolve(__dirname, "dist/shoelace"),
-        },
-      ],
-    }),
+      viteStaticCopy({
+        targets: [
+          {
+            src: resolve(__dirname, "assets"),
+            dest: resolve(__dirname, "dist"),
+          },
+        ],
+      }),
   ],
   build: {
     minify: true,
     manifest: true,
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
