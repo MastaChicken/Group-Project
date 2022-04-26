@@ -103,15 +103,12 @@ export default class extends AbstractView {
 
         if (sos.textContent != null) {
           const data = getData();
-          let summary = "";
           const length = data.summary.length;
           const multiplier = sos.valueAsNumber / 100;
-          const adjusted_length = Math.floor(length * multiplier);
 
-          for (let i = 0; i < adjusted_length; i++) {
-            summary += data.summary[i];
-          }
-          $("summary-return-display").textContent = summary;
+          const adjusted_length = Math.floor(length * multiplier);
+          const summary2 = data.summary.slice(0, adjusted_length).join(" ");
+          $("summary-return-display").textContent = summary2;
         }
       },
       true
