@@ -13,6 +13,8 @@ export default class extends AbstractView {
   getHtml() {
     return html`
     <div class="tab-contents">
+    <h1>Content Visualisation</h1>
+    <sl-divider></sl-divider>
         <form id="upload-form">
           <div id="drop-zone">
           <label for="pdfpicker-file">
@@ -36,7 +38,6 @@ export default class extends AbstractView {
               style="display: none"
             />
           </div>
-
           <div class="tab-contents url-form" required style="display: none">
             <label for="pdfpicker-url"
               >URL :
@@ -97,9 +98,6 @@ export default class extends AbstractView {
     const dropZone = $("drop-zone");
     dropZone.addEventListener("drop", (ev) => {
       dropHandler(ev);
-      const files = ($("pdfpicker-file") as HTMLInputElement).files;
-
-      uploadPDF(files[0]);
     });
 
     dropZone.addEventListener("dragover", (ev) => dragOverHandler(ev));

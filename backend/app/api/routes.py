@@ -96,9 +96,10 @@ async def recieve_file(
     ranked_article_sentences: list[str] = []
     for section in article.sections:
         section_text = section.to_str()
-        article_text.append(section_text)
-        sentences = TextRank(section_text, model).sentences
-        ranked_article_sentences += sentences
+        if section_text:
+            article_text.append(section_text)
+            sentences = TextRank(section_text, model).sentences
+            ranked_article_sentences += sentences
 
     # Phrase counts
     phrase_ranks = {}

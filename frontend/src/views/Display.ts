@@ -12,84 +12,96 @@ export default class extends AbstractView {
   getHtml() {
     return html`
       <div class="tab-contents output-display">
-        <h1 id="title-return-display"></h1>
+        <div style="display: none" id="loading-screen">
+          <div class="lds-roller">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+        <h1 id="title-return-display">Content Visualisation</h1>
+        <h4 id="authors-return-display"></h4>
+        <sl-dialog class="dialog-overview" id="author-modal">
+          <div class="modal-content">
+            <p id="modal-content"></p>
+          </div>
+          <sl-button slot="footer" variant="primary">Close</sl-button>
+        </sl-dialog>
         <div id="output-main">
           <div id="pdf-renderer">
             <div id="my_pdf_viewer">
+              <div id="navigation_controls">
+                <sl-icon-button
+                  name="chevron-double-left"
+                  class="show-hide-pdf"
+                ></sl-icon-button>
+
+                <sl-button id="go_previous">Prev</sl-button>
+                <sl-input id="current_page" value="1" type="number"></sl-input>
+                <sl-button id="go_next">Next</sl-button>
+
+                <sl-icon-button
+                  name="dash-lg"
+                  disabled
+                  id="zoom_out"
+                ></sl-icon-button>
+                <label id="zoom_label">100%</label>
+                <sl-icon-button name="plus-lg" id="zoom_in"></sl-icon-button>
+              </div>
               <div id="canvas_container">
                 <canvas id="pdf_renderer"></canvas>
               </div>
-
-              <div id="navigation_controls">
-                <button id="go_previous">Previous</button>
-                <input id="current_page" value="1" type="number" />
-                <button id="go_next">Next</button>
-              </div>
-
-              <div id="zoom_controls">
-                <button id="zoom_in">+</button>
-                <button disabled id="zoom_out">-</button>
-              </div>
             </div>
           </div>
-          <div id="summary-info" class="summary-boxes">
-            <div class="output-boxes" id="metadata-output">
-              <h2>METADATA</h2>
-              <div
-                id="metadata-return-display"
-                class="output-box-info"
-                style="display: none"
-              >
-                <p></p>
-              </div>
+          <div>
+            <div id="show-pdf-div">
+              <sl-icon-button
+                name="chevron-double-right"
+                class="show-hide-pdf"
+              ></sl-icon-button>
+              <sl-divider id="show-button-divider" vertical></sl-divider>
             </div>
-            <div class="output-boxes" id="word-cloud-output">
-              <h2>WORDCLOUD</h2>
-              <div
-                id="word-cloud-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
-            </div>
-            <div class="output-boxes" id="references-output">
-              <h2>REFERENCES</h2>
-              <div
-                id="references-return-display"
-                class="output-box-info"
-                style="display: none"
-              ></div>
+          </div>
+          <div id="summary-container">
+            <div id="summary-info" class="summary-boxes">
+              <div id="key-words"></div>
+              <sl-details summary="WORDCLOUD">
+                <div
+                  id="word-cloud-return-display"
+                  class="output-box-info"
+                ></div>
+              </sl-details>
+              <div id="imrad"></div>
+              <sl-details summary="REFERENCES">
+                <div
+                  id="references-return-display"
+                  class="output-box-info"
+                ></div
+              ></sl-details>
             </div>
           </div>
           <div id="summary-output">
-            <h2>SUMMARY PAGE</h2>
+            <h2>Summary</h2>
+            <sl-divider></sl-divider>
+            <label for="size-of-summary" id="sos-lbl">
+              Size of Summary: 100%</label
+            >
+            <sl-range
+              min="10"
+              max="100"
+              value="100"
+              step="10"
+              class="slider"
+              id="size-of-summary"
+            ></sl-range>
             <div id="summary-return-display"></div>
           </div>
         </div>
-        <label id="output-show-document-label" for="output-show-document"
-          >Show PDF Document?
-          <input
-            type="checkbox"
-            name="output-show-document"
-            id="output-show-document"
-            checked
-          />
-        </label>
-        <label for="tables-and-figures"> Tables and Figures</label>
-        <input
-          type="checkbox"
-          id="tables-and-figures"
-          name="tables-and-figures"
-        />
-        <label for="size-of-summary" id="sos-lbl"> Size of Summary: 100%</label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value="100"
-          step="5"
-          class="slider"
-          id="size-of-summary"
-        />
       </div>
     `;
   }
@@ -99,18 +111,18 @@ export default class extends AbstractView {
     sos.disabled = true;
 
     sos.addEventListener(
-      "change",
+      "sl-change",
       () => {
         $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
 
         if (sos.textContent != null) {
           const data = uploadResponse;
           const length = data.summary.length;
-          const multiplier = sos.valueAsNumber / 100;
+          const multiplier = parseInt(sos.value) / 100;
 
           const adjusted_length = Math.floor(length * multiplier);
-          const summary2 = data.summary.slice(0, adjusted_length).join(" ");
-          $("summary-return-display").textContent = summary2;
+          const summary = data.summary.slice(0, adjusted_length).join(" ");
+          $("summary-return-display").textContent = summary;
         }
       },
       true
@@ -119,9 +131,9 @@ export default class extends AbstractView {
     setupPDFListeners();
 
     // Toggle PDF
-    const pdfToggleInput = $("output-show-document");
-    // TODO: use event to check if its toggled or not
-    pdfToggleInput.addEventListener("change", togglePDFDisplay);
+    const divs = document.querySelectorAll(".show-hide-pdf");
+
+    divs.forEach((el) => el.addEventListener("click", togglePDFDisplay));
 
     // Output display
     const outputBoxes = document.querySelectorAll(".output-boxes");
@@ -143,7 +155,19 @@ export default class extends AbstractView {
       $("pdf-renderer").style.display =
         $("pdf-renderer").style.display == "none" ? "block" : "none";
       $("output-main").style.gridTemplateColumns =
-        $("output-main").style.gridTemplateColumns == "1fr" ? "1fr 1fr" : "1fr";
+        $("output-main").style.gridTemplateColumns ==
+        "minmax(3.6em, 3vw) 48.5vw 48.5vw"
+          ? "33.3vw 0vw minmax(15em, 33.3vw) 33.3vw"
+          : "minmax(3.6em, 3vw) 48.5vw 48.5vw";
     }
+
+    const container = document.querySelector(".summary-boxes");
+
+    // Close all other details when one is shown
+    container.addEventListener("sl-show", (event) => {
+      [...container.querySelectorAll("sl-details")].map(
+        (details) => (details.open = event.target === details)
+      );
+    });
   }
 }

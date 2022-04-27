@@ -1,0 +1,19 @@
+#drop-zone {
+  margin-top: 20vh;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed lightgrey;
+  width: 50%;
+  height: 12em;
+  border-radius: 1em;
+  font-size: 1.5em;
+  font-family: "Raleway", sans-serif;
+  overflow: hidden;
+}
+
+#drop-zone:hover {
+  border: 3px dashed grey;
+}

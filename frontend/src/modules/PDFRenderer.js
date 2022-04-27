@@ -17,6 +17,9 @@ let myState = {
 let pageRendering = false,
   pageNumPending = null;
 
+let zoomArray = [1.0, 1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0];
+let counter = 0;
+
 /**
  * Loads pdf into a loading task and then renders the page from a promise.
  * Loads pdf and details into state object.
@@ -30,6 +33,7 @@ export function renderPDF(pdf) {
     myState.zoom = 1;
     myState.currentPage = 1;
     myState.totalPages = pdf.numPages;
+    counter = 0;
     render();
   });
 }
@@ -55,6 +59,17 @@ function render() {
     let containerWidth = $("canvas_container").clientWidth;
     var scale =
       (containerWidth / page.getViewport({ scale: 1.0 }).width) * myState.zoom;
+
+    //This is hacky code to remove horizontal scrollbar
+    //as the width gets generated without vertical scroll
+    // and then adds it after, which then generates a
+    // horizontal scroll, and i didn't know how to fix.
+    // the class just removes the scroll bar.
+    if (myState.zoom === 1) {
+      $("canvas_container").classList.add("fullPage");
+    } else {
+      $("canvas_container").classList.remove("fullPage");
+    }
 
     var viewport = page.getViewport({ scale: scale });
     // Support HiDPI-screens.
@@ -145,22 +160,40 @@ function onPageEntry() {
  * Zoom into page by 0.1 scale.
  */
 function zoomIntoPage() {
-  myState.zoom += 0.1;
+  if (Reflect.get($("zoom_in"), "disabled") === true) {
+    return;
+  }
+
+  myState.zoom = zoomArray[++counter];
   $("zoom_out").removeAttribute("disabled");
+  $("zoom_label").innerText = Math.floor(myState.zoom * 100) + "%";
   queueRenderPage(myState.currentPage);
+  if (myState.zoom >= 5) {
+    Reflect.set($("zoom_in"), "disabled", true);
+    return;
+  }
 }
 
 /**
  * Zoom Out of page by 0.1 scale.
  */
 function zoomOutPage() {
-  myState.zoom -= 0.1;
+  if (Reflect.get($("zoom_out"), "disabled") === true) {
+    return;
+  }
+  myState.zoom = zoomArray[--counter];
+  $("zoom_in").removeAttribute("disabled");
   queueRenderPage(myState.currentPage);
+  $("zoom_label").innerText = Math.floor(myState.zoom * 100) + "%";
   if (myState.zoom <= 1) {
-    $("zoom_out").setAttribute("disabled", true);
+    Reflect.set($("zoom_out"), "disabled", true);
     return;
   }
 }
+
+window.addEventListener("resize", function () {
+  render();
+});
 
 /**
  * Asynchronously downloads PDF.

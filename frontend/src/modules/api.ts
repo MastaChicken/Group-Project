@@ -1,9 +1,10 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse } from "../models/api";
+import { UploadResponse, Author } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
+import { SlDialog } from "@shoelace-style/shoelace";
 
 /**
  * Resets form and sets the text to default state.
@@ -57,6 +58,39 @@ function displayError(
   resetForm();
 }
 
+function createAuthorModal(author: Author) {
+  const modal = $("author-modal") as SlDialog;
+  const emailAnchor = document.createElement("a");
+  const mailToString = "mailto: " + author.email;
+
+  emailAnchor.setAttribute("href", mailToString);
+  emailAnchor.textContent = author.email;
+
+  // Get the <span> element that closes the modal
+  const closeButton = modal.querySelector('sl-button[slot="footer"]');
+
+  modal.show();
+
+  // TODO: move this to a class
+  // Some of the properties aren't guaranteed to show
+  $("modal-content").innerHTML =
+    author.person_name.first_name +
+    " " +
+    author.person_name.surname +
+    "<br>" +
+    author.affiliations[0].department +
+    "<br>" +
+    author.affiliations[0].institution +
+    "<br>" +
+    author.affiliations[0].laboratory +
+    "<br>";
+  $("modal-content").append(emailAnchor);
+
+  // When the user clicks on <span> (x), close the modal
+  closeButton.addEventListener("click", () => {
+    modal.hide();
+  });
+}
 export let uploadResponse: UploadResponse;
 
 /**
@@ -94,6 +128,19 @@ export async function uploadPDF(file: File) {
       fileReader.readAsArrayBuffer(file);
       const article = data.article;
 
+      // Key Words
+      const variantArray = ["primary", "neutral"];
+      const variants = variantArray.length;
+      let keywordIndex = 0;
+      article.keywords.forEach((keyword) => {
+        const badge = document.createElement("sl-tag");
+        badge.innerText = keyword;
+        const variantIndex = keywordIndex % variants;
+        badge.setAttribute("variant", variantArray[variantIndex]);
+        keywordIndex++;
+        $("key-words").appendChild(badge);
+      });
+
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
       const sos = $("size-of-summary") as HTMLInputElement;
@@ -104,9 +151,49 @@ export async function uploadPDF(file: File) {
         makeWordCloudCanvas(data.common_words)
       );
 
+      // TODO: Return list of tuples by default
+      const phrases = [];
+      for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
+        phrases.push([phrase, rank]);
+      }
+      $("word-cloud-return-display").appendChild(makeWordCloudCanvas(phrases));
+
       // Metadata
-      $("metadata-return-display").textContent = article.bibliography.title;
-      // TODO: display the rest of the bibliography
+      $("title-return-display").textContent = article.bibliography.title;
+      article.bibliography.authors.forEach((author, id, array) => {
+        const a = document.createElement("a");
+        const divider = document.createElement("sl-divider");
+        divider.setAttribute("vertical", "true");
+        const authorString =
+          author.person_name.surname + ", " + author.person_name.first_name;
+        a.innerText = authorString;
+        $("authors-return-display").append(a);
+        if (id < array.length - 1) {
+          $("authors-return-display").append(divider);
+        }
+
+        a.addEventListener("click", function () {
+          createAuthorModal(author);
+        });
+      });
+
+      const imrad = ["introduction", "methods", "results", "discussion"];
+      const imradDiv = $("imrad");
+      article.sections.forEach((section) => {
+        const title = section.title.toLowerCase();
+        if (imrad.includes(title)) {
+          const details = document.createElement("sl-details");
+          details.setAttribute("summary", section.title.toUpperCase());
+          section.paragraphs.forEach((p) => {
+            const pTag = document.createElement("p");
+            // TODO: add inline references
+            pTag.innerText = p.text;
+            details.appendChild(pTag);
+          });
+          imradDiv.appendChild(details);
+        }
+      });
+      imradDiv.replaceWith(...imradDiv.childNodes);
 
       // References
       const oListEl = document.createElement("ol");

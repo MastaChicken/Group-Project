@@ -23,7 +23,7 @@ The `src` folder is where the CSS, JS and TS is stored.
 Using TypeScript for writing modules is preferred due to its type checker, however,
 using JavaScript is also acceptable.
 
-## Serve
+## Running
 
 We use the `Vite` build tool for development and bundling.
 
