@@ -11,7 +11,7 @@ test("Checks if initial page is upload", async ({ page }) => {
 /**
  * Test for when academic uploads journal article as a PDF
  */
-test("If uploads a PDF, switch to display screen", async ({ page }) => {
+test.skip("If uploads a PDF, should switch to display screen", async ({ page }) => {
   await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.pdf",
@@ -50,7 +50,7 @@ test("If uploads a empty PDF, stay on upload screen", async ({ page }) => {
 /**
  * Test for file with non-pdf extension and pdf mimetype.
  */
-test("If uploads a text file with a pdf mime type, switch to display screen", async ({
+test.skip("If uploads a text file with a pdf mime type, should return client error", async ({
   page,
 }) => {
   await page.goto("/");
