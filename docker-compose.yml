@@ -13,4 +13,4 @@ services:
   client:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "4173:4173"
