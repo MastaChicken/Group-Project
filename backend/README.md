@@ -113,9 +113,9 @@ If you want to use the external API, the `.env` file should like below
 GROBID_API_URL=https://cloud.science-miner.com/grobid/api
 ```
 
-### Debug
+### Running
 
-Run the server in debug mode:
+Debug mode:
 
 ```
 $ python debug_server.py
@@ -124,6 +124,26 @@ $ python debug_server.py
 Debug mode runs on `localhost:8000` and enables hot-reloading (allows you to
 make changes without having to restart the server)
 
+### Status codes
+
+#### `/upload` route
+
+| HTTP status codes | Reason |
+|-------------------|--------|
+| 200 | Successful operation |
+| 400 | PDF could not be parsed into Article object |
+| 415 | PDF could not be read |
+| 500 | Internal server error, i.e. Article object couldn't be serialised |
+| 503 | GROBID API returned an error or is down |
+
+
+### `/validate_url` route
+
+| HTTP status codes | Reason |
+|-------------------|--------|
+| 200 | Successful operation |
+| 415 | Link isn't a PDF |
+| 500 | Internal server error, i.e. URL is invalid |
 
 ## Testing
 
