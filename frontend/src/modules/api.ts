@@ -100,16 +100,15 @@ export async function uploadPDF(file: File) {
       // Key Words
       const variantArray = [
         "primary",
-        "success",
         "neutral",
-        "warning",
-        "danger",
       ];
+      const variants = variantArray.length;
       let keywordIndex = 0;
       article.keywords.forEach((keyword) => {
         const badge = document.createElement("sl-tag");
-        badge.innerHTML = keyword;
-        badge.setAttribute("variant", variantArray[keywordIndex]);
+        badge.innerText = keyword;
+        const variantIndex = keywordIndex % variants;
+        badge.setAttribute("variant", variantArray[variantIndex]);
         keywordIndex++;
         $("key-words").appendChild(badge);
       });
