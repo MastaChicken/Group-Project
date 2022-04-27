@@ -114,21 +114,6 @@ export async function uploadPDF(file: File) {
         $("key-words").appendChild(badge);
       });
 
-      // Abstract
-      $("abstract-return-display").textContent =
-        article.abstract.paragraphs[0].text;
-
-      // Introduction
-      article.sections.forEach((entry) => {
-        if (entry.title === "Introduction") {
-          entry.paragraphs.forEach((para) => {
-            $("intro-return-display").innerHTML += para.text;
-            $("intro-return-display").innerHTML += "<br><br>";
-          });
-          return;
-        }
-      });
-
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
 
@@ -156,18 +141,24 @@ export async function uploadPDF(file: File) {
         });
       });
 
-      //Conclusion
-      article.sections.forEach((entry) => {
-        if (entry.title === "Conclusions") {
-          entry.paragraphs.forEach((para) => {
-            $("conclusion-return-display").innerHTML += para.text;
-            $("conclusion-return-display").innerHTML += "<br><br>";
+      const imrad = ["introduction", "methods", "results", "discussion"];
+      const imradDiv = $("imrad");
+      article.sections.forEach((section) => {
+        const title = section.title.toLowerCase();
+        if (imrad.includes(title)) {
+          const details = document.createElement("sl-details")
+          details.setAttribute("summary", section.title.toUpperCase())
+          section.paragraphs.forEach((p) => {
+            const pTag = document.createElement("p")
+            // TODO: add inline references
+            pTag.innerText = p.text;
+            details.appendChild(pTag);
           });
-          return;
+          imradDiv.appendChild(details);
         }
       });
+      imradDiv.replaceWith(...imradDiv.childNodes);
 
-      console.log(article);
       // References
       const oListEl = document.createElement("ol");
       Object.entries(article.citations).forEach(([ref, citation]) => {

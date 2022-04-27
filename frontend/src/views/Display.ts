@@ -69,26 +69,13 @@ export default class extends AbstractView {
           <div id="summary-container">
             <div id="summary-info" class="summary-boxes">
               <div id="key-words"></div>
-
-              <sl-details summary="ABSTRACT">
-                <p id="abstract-return-display"></p>
-              </sl-details>
-
-              <sl-details summary="INTRODUCTION">
-                <p id="intro-return-display"></p>
-              </sl-details>
-
               <sl-details summary="WORDCLOUD">
                 <div
                   id="word-cloud-return-display"
                   class="output-box-info"
                 ></div>
               </sl-details>
-
-              <sl-details summary="CONCLUSION">
-                <p id="conclusion-return-display"></p>
-              </sl-details>
-
+              <div id="imrad"></div>
               <sl-details summary="REFERENCES">
                 <div
                   id="references-return-display"
