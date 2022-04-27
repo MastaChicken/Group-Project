@@ -158,6 +158,15 @@ export async function uploadPDF(file: File) {
         makeWordCloudCanvas(data.common_words)
       );
 
+      // TODO: Return list of tuples by default
+      const phrases = [];
+      for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
+        phrases.push([phrase, rank]);
+      }
+      $("word-cloud-return-display").appendChild(
+        makeWordCloudCanvas(phrases)
+      );
+
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
       article.bibliography.authors.forEach((author, id, array) => {

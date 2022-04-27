@@ -38,13 +38,11 @@ export function dropHandler(ev: DragEvent): void {
         dropText.innerHTML = `File accepted: ${file.name}`;
         ($("pdfpicker-file") as HTMLInputElement).files = ev.dataTransfer.files;
         clearData(ev.dataTransfer);
-        $("selection-boxes").style.display = "block";
       } else {
         // If not a valid .pdf Add reject messsage and clear data from file input and event data.
         dropText.innerHTML = "File Rejected: Please add .pdf file type";
         ($("pdfpicker-file") as HTMLInputElement).value = "";
         clearData(ev.dataTransfer);
-        $("selection-boxes").style.display = "none";
       }
     }
   }
