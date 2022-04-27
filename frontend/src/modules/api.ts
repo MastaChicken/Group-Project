@@ -2,7 +2,8 @@ import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
-import { renderPDF } from "../modules/PDFRenderer";
+import { renderPDF } from "./PDFRenderer";
+import { createAlert, Icon, Variant } from "./alert";
 
 /**
  * Resets form and sets the text to default state.
@@ -80,13 +81,19 @@ function displayUploadError(response: Response | Error): void {
     503: "The service you requested is not available at this time",
   };
 
-  let errorMessage = "Server is down. Try again later.";
+  let alertVariant = Variant.danger;
+  let alertIcon = Icon.danger;
+  let errorMessage = "Server is down. Try again later";
   if (response instanceof Response) {
     if (response.status in uploadCodesMap) {
+      alertVariant = Variant.warning;
+      alertIcon = Icon.warning;
       errorMessage = uploadCodesMap[response.status];
     }
   }
-  alert(errorMessage);
+
+  errorMessage = `<strong>Something went wrong</strong><br/>${errorMessage}`;
+  createAlert(errorMessage, alertVariant, alertIcon);
   resetForm();
 }
 
