@@ -1,0 +1,25 @@
+h1 {
+  font-family: var(--sl-font-sans);
+  margin: auto;
+  width: 80%;
+  color: var(--sl-color-neutral-800);
+  // border-top: 1px solid var(--sl-color-neutral-900);
+  // background: var(--sl-color-gray-900);
+}
+
+h4 {
+  font-family: var(--sl-font-sans);
+  margin: auto;
+  padding: 0;
+  color: var(--sl-color-neutral-400);
+  width: 60%;
+  height: 1em;
+}
+
+#authors-return-display {
+  padding-bottom: 1em;
+}
+
+a {
+  color: var(--sl-color-blue-700);
+}

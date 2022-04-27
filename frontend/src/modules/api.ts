@@ -4,6 +4,7 @@ import makeWordCloudCanvas from "./wordcloud";
 import { UploadResponse, Author } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
+import { SlDialog } from "@shoelace-style/shoelace";
 
 /**
  * Resets form and sets the text to default state.
@@ -58,7 +59,7 @@ function displayError(
 }
 
 function createAuthorModal(author: Author) {
-  const modal = $("author-modal") as HTMLElement;
+  const modal = $("author-modal") as SlDialog;
   const emailAnchor = document.createElement("a");
   const mailToString = "mailto: " + author.email;
 
@@ -66,9 +67,9 @@ function createAuthorModal(author: Author) {
   emailAnchor.textContent = author.email;
 
   // Get the <span> element that closes the modal
-  const span = document.getElementsByClassName("close")[0];
+  const closeButton = modal.querySelector('sl-button[slot="footer"]');
 
-  modal.style.display = "block";
+  modal.show();
 
   $("modal-content").innerHTML =
     author.person_name.first_name +
@@ -84,14 +85,14 @@ function createAuthorModal(author: Author) {
   $("modal-content").append(emailAnchor);
 
   // When the user clicks on <span> (x), close the modal
-  span.addEventListener("click", () => {
-    modal.style.display = "none";
+  closeButton.addEventListener("click", () => {
+    modal.hide();
   });
 
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = function (event: Event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
+    if (event.target == modal.panel) {
+      modal.hide();
     }
   };
 }
@@ -133,10 +134,7 @@ export async function uploadPDF(file: File) {
       const article = data.article;
 
       // Key Words
-      const variantArray = [
-        "primary",
-        "neutral",
-      ];
+      const variantArray = ["primary", "neutral"];
       const variants = variantArray.length;
       let keywordIndex = 0;
       article.keywords.forEach((keyword) => {
@@ -163,9 +161,7 @@ export async function uploadPDF(file: File) {
       for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
         phrases.push([phrase, rank]);
       }
-      $("word-cloud-return-display").appendChild(
-        makeWordCloudCanvas(phrases)
-      );
+      $("word-cloud-return-display").appendChild(makeWordCloudCanvas(phrases));
 
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
@@ -191,10 +187,10 @@ export async function uploadPDF(file: File) {
       article.sections.forEach((section) => {
         const title = section.title.toLowerCase();
         if (imrad.includes(title)) {
-          const details = document.createElement("sl-details")
-          details.setAttribute("summary", section.title.toUpperCase())
+          const details = document.createElement("sl-details");
+          details.setAttribute("summary", section.title.toUpperCase());
           section.paragraphs.forEach((p) => {
-            const pTag = document.createElement("p")
+            const pTag = document.createElement("p");
             // TODO: add inline references
             pTag.innerText = p.text;
             details.appendChild(pTag);

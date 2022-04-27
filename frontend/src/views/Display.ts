@@ -26,12 +26,12 @@ export default class extends AbstractView {
         </div>
         <h1 id="title-return-display">Content Visualisation</h1>
         <h4 id="authors-return-display"></h4>
-        <div id="author-modal" class="modal">
+        <sl-dialog class="dialog-overview" id="author-modal">
           <div class="modal-content">
-            <span class="close">&times;</span>
             <p id="modal-content"></p>
           </div>
-        </div>
+          <sl-button slot="footer" variant="primary">Close</sl-button>
+        </sl-dialog>
         <div id="output-main">
           <div id="pdf-renderer">
             <div id="my_pdf_viewer">

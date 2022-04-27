@@ -1,0 +1,60 @@
+#summary-container {
+  position: relative;
+  overflow: hidden;
+  background: var(--sl-color-neutral-200);
+  min-width: 328px;
+  flex-shrink: 0;
+}
+
+#summary-info {
+  border-radius: 0.5em;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-content: flex-start;
+  overflow: hidden;
+}
+
+#key-words {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  width: 95%;
+  border-radius: 0.3em;
+  font-size: var(--sl-font-size-x-large);
+}
+
+.summary-boxes sl-details:not(:last-of-type) {
+  margin-bottom: var(--sl-spacing-2x-small);
+}
+
+sl-details {
+  margin-left: auto;
+  margin-right: auto;
+  width: 95%;
+  color: var(--sl-color-neutral-900);
+  max-height: 70%;
+  overflow: auto;
+  overflow-x: hidden;
+  font-family: var(--sl-font-serif);
+  font-size: var(--sl-font-size-x-medium);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+sl-details::part(header) {
+  background: var(--sl-color-sky-400);
+  font-size: var(--sl-font-size-x-large);
+  font-weight: var(--sl-font-weight-light);
+  font-family: var(--sl-font-sans);
+  letter-spacing: var(--sl-letter-spacing-loose);
+  height: 2rem;
+  transition: 0.5s;
+  color: var(--sl-color-sky-800);
+}
+
+sl-details[open]::part(header) {
+  background: var(--sl-color-sky-600);
+  height: 4rem;
+  transition: 0.5s;
+}

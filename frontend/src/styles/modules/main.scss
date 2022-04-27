@@ -1,0 +1,41 @@
+body {
+  background: var(--sl-color-neutral-50);
+  color: var(--sl-color-neutral-900);
+  margin: 0;
+  padding: 0;
+}
+
+.main {
+  font-family: var(--sl-font-sans);
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+}
+
+#outlet {
+  height: 100%;
+}
+
+.output-display {
+  height: 100%;
+}
+
+#output-main {
+  // min-height: min-content;
+  // max-height: 90vh;
+  max-height: 92%;
+  height: 92%;
+  // border: 1px solid black;
+  border-radius: 0.5em;
+  width: 100%;
+  min-width: 1150px;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: minmax(23em, 33.3vw) 0vw minmax(15em, 33.3vw) 33.3vw;
+  overflow: hidden;
+  // padding-top: 1em;
+  overflow-x: auto;
+}
