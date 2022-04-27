@@ -25,7 +25,7 @@ export function dropHandler(ev: DragEvent): void {
   ev.preventDefault();
   const pdfpickerInput = $("pdfpicker-file") as HTMLInputElement;
   pdfpickerInput.files = ev.dataTransfer.files;
-  const event = new Event('change');
+  const event = new Event("change");
   pdfpickerInput.dispatchEvent(event);
   clearData(ev.dataTransfer);
 }

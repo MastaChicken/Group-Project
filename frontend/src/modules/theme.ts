@@ -1,6 +1,5 @@
 import { $ } from "../constants";
 
-
 export function setupListeners() {
   const lDSwitch = $("light-dark-switch") as HTMLInputElement;
   lDSwitch.addEventListener("sl-change", () => {

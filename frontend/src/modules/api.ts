@@ -71,6 +71,8 @@ function createAuthorModal(author: Author) {
 
   modal.show();
 
+  // TODO: move this to a class
+  // Some of the properties aren't guaranteed to show
   $("modal-content").innerHTML =
     author.person_name.first_name +
     " " +
@@ -88,13 +90,6 @@ function createAuthorModal(author: Author) {
   closeButton.addEventListener("click", () => {
     modal.hide();
   });
-
-  // When the user clicks anywhere outside of the modal, close it
-  window.onclick = function (event: Event) {
-    if (event.target == modal.panel) {
-      modal.hide();
-    }
-  };
 }
 export let uploadResponse: UploadResponse;
 
