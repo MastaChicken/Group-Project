@@ -1,6 +1,7 @@
 import AbstractView from "./AbstractView";
 import { $, html } from "../constants";
 import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
+import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
   constructor() {
@@ -85,7 +86,7 @@ export default class extends AbstractView {
           min="0"
           max="100"
           value="100"
-          step="10"
+          step="5"
           class="slider"
           id="size-of-summary"
         />
@@ -95,10 +96,22 @@ export default class extends AbstractView {
 
   setupListeners() {
     const sos = $("size-of-summary") as HTMLInputElement;
+    sos.disabled = true;
+
     sos.addEventListener(
       "change",
       () => {
         $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
+
+        if (sos.textContent != null) {
+          const data = uploadResponse;
+          const length = data.summary.length;
+          const multiplier = sos.valueAsNumber / 100;
+
+          const adjusted_length = Math.floor(length * multiplier);
+          const summary2 = data.summary.slice(0, adjusted_length).join(" ");
+          $("summary-return-display").textContent = summary2;
+        }
       },
       true
     );

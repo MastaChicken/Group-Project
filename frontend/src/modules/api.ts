@@ -43,6 +43,8 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
+export let uploadResponse: UploadResponse;
+
 /**
  * Sends request to API with the pdf uploaded to form
  *
@@ -56,9 +58,12 @@ export async function uploadPDF(file: File) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
+      uploadResponse = data;
       const article = data.article;
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
+      const sos = $("size-of-summary") as HTMLInputElement;
+      sos.disabled = false;
 
       // Word cloud
       $("word-cloud-return-display").appendChild(
