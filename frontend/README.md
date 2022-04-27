@@ -5,10 +5,9 @@ The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
 
 [[_TOC_]]
 
-
 ## Requirements
 
-- `Node.js` >= 16
+-   `Node.js` >= 16
 
 ## Setup
 
@@ -125,7 +124,7 @@ We follow Google's HTML/CSS, JavaScript and TypeScript style guides.
 
 ### ES6 Modules
 
-Similar to classes in OOP languages, we can use the [Module design pattern](https://coryrylan.com/blog/javascript-module-pattern-basics) to 
+Similar to classes in OOP languages, we can use the [Module design pattern](https://coryrylan.com/blog/javascript-module-pattern-basics) to
 ensure a maintainable codebase.
 
 Modules allow us to use the `import` and `export` statements.
@@ -152,7 +151,6 @@ a given module.
 We use [Tailwind CSS](https://tailwindcss.com/) to make styling of the web app
 effortless. If using Visual Studio Code, you should install the [Tailwind CSS
 IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) to enhance the development experience.
-
 
 ### Web Components
 

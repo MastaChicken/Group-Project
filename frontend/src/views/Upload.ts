@@ -3,7 +3,6 @@ import { $, html } from "../constants";
 import { validateURL, uploadPDF } from "../modules/api";
 import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
-import { renderPDF } from "../modules/PDFRenderer";
 
 export default class extends AbstractView {
   constructor() {
@@ -18,7 +17,8 @@ export default class extends AbstractView {
     <sl-divider></sl-divider>
         <form id="upload-form">
           <div id="drop-zone">
-          <label for="pdfpicker-file" id="drop-text">
+          <label for="pdfpicker-file">
+            <span id="pfdpicker-text-default">
               <a
                 id="pdfpicker-link"
                 href="javascript:;"
@@ -26,6 +26,8 @@ export default class extends AbstractView {
                 Click here
               </a>
               or drop your .pdf files here
+              </span>
+              <span id="pdfpicker-text"></span>
             </label>
             <input
               required
@@ -69,25 +71,21 @@ export default class extends AbstractView {
       "change",
       () => {
         const files = pdfpickerInput.files;
-        const dropText = $("drop-text");
+        const pdfPickerSpan = $("pdfpicker-text");
+        const defPdfPickerSpan = $("pfdpicker-text-default");
         // checks file exists and passes PDF checks.
 
         if (files.length > 0 && isValidPDF(files[0])) {
-          dropText.innerHTML = `File accepted: ${files[0].name}`;
-          $("selection-boxes").style.display = "block";
-          history.pushState(null, null, "/display");
-          const fileReader = new FileReader();
-          fileReader.onload = function () {
-            renderPDF(this.result);
-          };
-          fileReader.readAsArrayBuffer(files[0]);
+          pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
+
           uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type
           pdfpickerInput.value = "";
-          dropText.innerHTML = "File Rejected: Please add .pdf file type";
-          $("selection-boxes").style.display = "none";
+          pdfPickerSpan.innerText = "File Rejected: Please add .pdf file type";
         }
+        pdfPickerSpan.style.display = "block";
+        defPdfPickerSpan.style.display = "none";
       },
       false
     );
@@ -101,7 +99,7 @@ export default class extends AbstractView {
     dropZone.addEventListener("drop", (ev) => {
       dropHandler(ev);
       const files = ($("pdfpicker-file") as HTMLInputElement).files;
-      history.pushState(null, null, "/display");
+
       uploadPDF(files[0]);
     });
 

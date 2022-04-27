@@ -265,6 +265,11 @@ sl-details[open]::part(header) {
   max-height: 99%;
   padding-bottom: 1.5%;
   min-width: 350px;
+  overflow: scroll;
+}
+
+#summary-output::-webkit-scrollbar {
+  display: none;
 }
 
 #light-dark-switch {
