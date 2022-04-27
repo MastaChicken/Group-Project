@@ -128,19 +128,6 @@ export default class extends AbstractView {
       true
     );
 
-    const lDSwitch = $("light-dark-switch") as HTMLInputElement;
-    lDSwitch.addEventListener("sl-change", () => {
-      if (lDSwitch.checked === true) {
-        document.body.classList.remove("sl-theme-dark");
-        document.body.classList.add("sl-theme-light");
-        lDSwitch.innerHTML = "Light";
-      } else {
-        document.body.classList.remove("sl-theme-light");
-        document.body.classList.add("sl-theme-dark");
-        lDSwitch.innerHTML = "Dark";
-      }
-    });
-
     setupPDFListeners();
 
     // Toggle PDF
