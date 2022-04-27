@@ -43,15 +43,7 @@ function handleErrors(response: Response): Response {
   return response;
 }
 
-let uploadResponse: UploadResponse;
-
-function setData(data: UploadResponse) {
-  uploadResponse = data;
-}
-
-export function getData() {
-  return uploadResponse;
-}
+export let uploadResponse: UploadResponse;
 
 /**
  * Sends request to API with the pdf uploaded to form
@@ -66,7 +58,7 @@ export async function uploadPDF(file: File) {
     .then(handleErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
-      setData(data);
+      uploadResponse = data;
       const article = data.article;
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");

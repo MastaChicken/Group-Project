@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import { $, html } from "../constants";
 import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
-import { getData } from "../modules/api";
+import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
   constructor() {
@@ -104,7 +104,7 @@ export default class extends AbstractView {
         $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
 
         if (sos.textContent != null) {
-          const data = getData();
+          const data = uploadResponse;
           const length = data.summary.length;
           const multiplier = sos.valueAsNumber / 100;
 
