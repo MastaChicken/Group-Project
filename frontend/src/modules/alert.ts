@@ -1,6 +1,6 @@
-/*
+/**
  * Represents the variants used for the alert
-*/
+ */
 export enum Variant {
   primary,
   success,
@@ -9,9 +9,9 @@ export enum Variant {
   danger,
 }
 
-/*
+/**
  * Represents the icons used for the alert
-*/
+ */
 export enum Icon {
   primary = "info-circle",
   success = "check2-circle",
@@ -20,9 +20,9 @@ export enum Icon {
   danger = "exclamation-octagon",
 }
 
-/*
+/**
  * Creates an alert programmatically.
-*/
+ */
 export function createAlert(
   message: string,
   variant: Variant,

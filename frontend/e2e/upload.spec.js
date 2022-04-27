@@ -11,7 +11,9 @@ test("Checks if initial page is upload", async ({ page }) => {
 /**
  * Test for when academic uploads journal article as a PDF
  */
-test.skip("If uploads a PDF, should switch to display screen", async ({ page }) => {
+test.skip("If uploads a PDF, should switch to display screen", async ({
+  page,
+}) => {
   await page.goto("/");
   await page.setInputFiles("input#pdfpicker-file", {
     name: "file.pdf",
