@@ -57,6 +57,8 @@ function displayError(
   resetForm();
 }
 
+export let uploadResponse: UploadResponse;
+
 /**
  * Represents the documented status codes for /upload endpoint
  */
@@ -83,6 +85,7 @@ export async function uploadPDF(file: File) {
     .then(handleClientErrors)
     .then((r) => r.json())
     .then((data: UploadResponse) => {
+      uploadResponse = data;
       history.pushState(null, null, "/display");
       const fileReader = new FileReader();
       fileReader.onload = function () {
@@ -93,6 +96,8 @@ export async function uploadPDF(file: File) {
 
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
+      const sos = $("size-of-summary") as HTMLInputElement;
+      sos.disabled = false;
 
       // Word cloud
       $("word-cloud-return-display").appendChild(
