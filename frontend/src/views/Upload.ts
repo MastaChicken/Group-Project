@@ -75,15 +75,15 @@ export default class extends AbstractView {
         // checks file exists and passes PDF checks.
 
         if (files.length > 0 && isValidPDF(files[0])) {
-          pdfPickerSpan.innerHTML = `File accepted: ${files[0].name}`;
+          pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
 
           uploadPDF(files[0]);
-
         } else {
           // throws alert for wrong file type
           pdfpickerInput.value = "";
           pdfPickerSpan.innerText = "File Rejected: Please add .pdf file type";
         }
+        pdfPickerSpan.style.display = "block";
         defPdfPickerSpan.style.display = "none";
       },
       false
