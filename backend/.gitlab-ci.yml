@@ -1,10 +1,5 @@
 image: python:3.10
 
-workflow:
-  rules:
-    - changes:
-        - backend/*
-
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
@@ -55,8 +50,6 @@ dependencies:
     paths:
       - backend/requirements.txt
       - backend/requirements-dev.txt
-      - backend/dist/
-      - backend/.venv/
     exclude:
       - backend/.venv/**/__pycache__/*
     when: on_success
@@ -74,7 +67,7 @@ linting:
   script:
     - poetry install
     - poetry run pydocstyle . --verbose
-    - poetry run flake8 --config .flake8 --extend-ignore=D --diff --verbose
+    - poetry run flake8 --config .flake8 --extend-ignore=D,E203 --verbose --statistics
 
 coverage:
   stage: test

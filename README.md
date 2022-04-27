@@ -6,19 +6,17 @@ This project is divided into two components: frontend (client) and backend (serv
 
 ## Quick start
 
-For the backend, you can either use the [docker-compose](#docker) or [install](#source) 
-using the Python's distribution format, `wheels`.
+In order to run the app, you need build the frontend and backend.
 
-However, the frontend currently doesn't require any external dependencies for production
-For development, see [frontend](frontend/README.md)
+You will need to setup the `.env` file in the backend folder. For instructions on how
+to do so, refer to [Environment setup](./backend/README.md#environment)
 
-You should be able to launch the [homepage](frontend/index.html) directly
-
-Once you have the server running, the application is ready to use!
+By default, the backend API server will run on `http://localhost:8000` and the
+web app will run on `http://localhost:4173`.
 
 ### Docker
 
-This is the easiest method of running the server
+This is the easiest method of running the web application (backend and frontend)
 
 #### Requirements
 
@@ -31,26 +29,26 @@ This is the easiest method of running the server
 $ docker-compose up
 ```
 
-This will run the API server in production mode using `gunicorn` on
-`http://localhost:8000` and the web app in development mode on `http://localhost:3000`
-
 ### Source
 
-Despite the frontend and backend using interpreted languages, it is possible to
-build the backend into a distribution format, known as `wheels`.
+This method builds the backend into a Python distribution format, known as `wheels`
 
 #### Requirements
 
 - `python` >= 3.10
-- `poetry` >= 1.1.12 (optional)
+- `poetry` >= 1.1.12
+- `Node.js` >= 16 
 
 #### Building
 
+> Backend
+
 ```bash
+$ cd backend
 $ poetry build
 ```
 
-This will build the source and wheels archive (run this command in the backend folder)
+This will build the source and wheels archive
 
 #### Release
 
@@ -74,7 +72,16 @@ This will also install the dependencies but in the current directory
 $ python debug_server.py
 ```
 
-This will run the server in debug mode
+This will run the backend API server in debug mode
+
+> Frontend
+
+```bash
+$ cd frontend
+$ npm run serve:dev
+```
+
+This will run the frontend using the development environment
 
 ## Development guides 
 

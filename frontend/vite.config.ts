@@ -1,12 +1,15 @@
 import { defineConfig } from "vite";
+import { resolve } from "path";
 import checker from "vite-plugin-checker";
 import EnvironmentPlugin from "vite-plugin-environment";
+import template from "rollup-plugin-html-literals";
 
 /**
  * @type {import('vite').UserConfig}
  */
 export default defineConfig({
   plugins: [
+    template(),
     checker({
       typescript: true,
       eslint: { lintCommand: 'eslint "./src/**/*.{js,ts}"' },
@@ -18,5 +21,20 @@ export default defineConfig({
   ],
   build: {
     minify: true,
+    manifest: true,
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+      },
+      output: {
+        manualChunks: {
+          wordcloud: ["wordcloud"],
+          pdfjs: ["pdfjs-dist"],
+          navaid: ["navaid"],
+          shoelace: ["@shoelace-style/shoelace"],
+        },
+      },
+    },
   },
 });

@@ -1,12 +1,13 @@
 # Frontend
 
 The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
-(ES6 Modules).
+(ES6 Modules). Refer to [Code Style](#code-style) guide for more information.
 
+[[_TOC_]]
 
 ## Requirements
 
-- `Node.js` >= 16
+-   `Node.js` >= 16
 
 ## Setup
 
@@ -22,7 +23,7 @@ The `src` folder is where the CSS, JS and TS is stored.
 Using TypeScript for writing modules is preferred due to its type checker, however,
 using JavaScript is also acceptable.
 
-## Serve
+## Running
 
 We use the `Vite` build tool for development and bundling.
 
@@ -91,14 +92,22 @@ This will build the documentation in `docs/`
 
 > Build for production
 
-`$ npm run build`
+`$ npm run build:prod`
 
 This will create a folder, `dist/`, which will contain the files needed for
 production
 
+> Build for development
+
+`$ npm run build:dev`
+
 > Locally preview the production build (live server)
 
-`$ npm run preview`
+`$ npm run preview:prod`
+
+> Locally preview the dev build (live server)
+
+`$ npm run preview:dev`
 
 By default, the server runs on [http://localhost:4173](http://localhost:4173).
 
@@ -115,14 +124,14 @@ We follow Google's HTML/CSS, JavaScript and TypeScript style guides.
 
 ### ES6 Modules
 
-Similar to classes in OOP languages, we can use the [Module design pattern](https://coryrylan.com/blog/javascript-module-pattern-basics) to 
+Similar to classes in OOP languages, we can use the [Module design pattern](https://coryrylan.com/blog/javascript-module-pattern-basics) to
 ensure a maintainable codebase.
 
 Modules allow us to use the `import` and `export` statements.
 
-In the `index.js` file, ensure that you use [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+In the relevant module (views), ensure that you use [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
 instead of polluting the global namespace (exporting to window) when you want to
-add an interaction between a HTMLElement and Javascript.
+add an interaction for HTMLElement using Javascript.
 
 To create a module, create a Javascript file in the `src/modules/` folder. Make
 sure to `export` any functions/classes/variables you want to use in other
@@ -136,6 +145,26 @@ a given module.
 `import MyClass from './MyModule.js';`
 
 [Guide on modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+
+### Tailwind CSS
+
+We use [Tailwind CSS](https://tailwindcss.com/) to make styling of the web app
+effortless. If using Visual Studio Code, you should install the [Tailwind CSS
+IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) to enhance the development experience.
+
+### Web Components
+
+We make use of [Shoelace](https://shoelace.style/) for
+components that we require in the web app.
+
+> Example usage (button)
+> <https://shoelace.style/components/button>
+
+1. Copy the bundler command from the "Importing" section, <https://shoelace.style/components/button?id=importing>
+2. Add `import "@shoelace-style/shoelace/dist/components/button/button.js";` to top of `src/index.ts` file
+3. You can use the `<sl-button></sl-button>` HTML tags now.
+
+Check the component documentation for all available tags.
 
 ### ESLint
 

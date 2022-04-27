@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "module": "esnext",
     "target": "es6",
-    "allowJs": true
+    "moduleResolution": "node",
+    "allowJs": true,
+    "types": ["vite/client", "node"],
+    "rootDir": "./src",
+    "outDir": "./types",
+    "forceConsistentCasingInFileNames": true
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "include": ["src/**/*.ts"],
   "typedocOptions": {
     "entryPointStrategy": "expand",

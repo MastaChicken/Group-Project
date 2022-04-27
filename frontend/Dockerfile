@@ -6,16 +6,11 @@ WORKDIR /app
 
 # Copy and install app dependencies
 COPY package*.json ./
-
-RUN npm install --loglevel verbose
-
-# Production
-# RUN NPM CI --only=production
+RUN npm ci --loglevel verbose
 
 # Bundle app source
 COPY . .
 
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
-# Production
-# CMD ["npm", "run", "preview"]
+EXPOSE 4173
+CMD ["npm", "run", "build:dev"]
+CMD ["npm", "run", "serve:dev"]

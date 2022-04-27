@@ -1,6 +1,20 @@
 """Represents the text sections in a scholarly article."""
 # TODO: use pydantic dataclass or BaseModel when pydantic is updated to v1.9
 from dataclasses import dataclass, field
+from enum import Enum
+
+
+class Marker(str, Enum):
+    """Represents the callouts to structures.
+
+    <https://grobid.readthedocs.io/en/latest/training/fulltext/#markers-callouts-to-structures>
+    """
+
+    bibr = "bibr"
+    figure = "figure"
+    table = "table"
+    box = "box"
+    formula = "formula"
 
 
 @dataclass
@@ -12,8 +26,8 @@ class Ref:
 
     start: int
     end: int
+    marker: Marker | None = None
     target: str | None = None
-    type_: str | None = None
 
 
 @dataclass
@@ -26,6 +40,24 @@ class RefText:
     text: str
     refs: list[Ref] = field(default_factory=list)
 
+    @property
+    def plain_text(self) -> str:
+        """Return text without any references.
+
+        Trailing whitespace is removed.
+        """
+        if len(self.refs) == 0:
+            return self.text
+
+        ranges = [(ref.start, ref.end) for ref in self.refs]
+        text = ""
+        left_bound = 0
+        for start, end in ranges:
+            text += self.text[left_bound:start].rstrip()
+            left_bound = end
+        text += self.text[ranges[-1][1] :].rstrip()
+        return text
+
 
 @dataclass
 class Section:
@@ -33,3 +65,11 @@ class Section:
 
     title: str
     paragraphs: list[RefText] = field(default_factory=list)
+
+    def to_str(self) -> str:
+        """Return paragraphs in plain text format."""
+        text = ""
+        for paragraph in self.paragraphs:
+            text += paragraph.plain_text
+
+        return text

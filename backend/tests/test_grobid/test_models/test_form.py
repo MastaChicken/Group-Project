@@ -3,7 +3,7 @@
 
 import fitz
 
-from app.grobid.models import File, Form
+from app.grobid.models.form import File, Form
 
 with fitz.open(filetype="pdf") as test_pdf:
     test_pdf.new_page()

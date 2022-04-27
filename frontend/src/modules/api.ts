@@ -1,95 +1,203 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
-import { resetForm } from "./drag_drop";
+import makeWordCloudCanvas from "./wordcloud";
+import { UploadResponse, Author } from "../models/api";
+import { renderPDF } from "./PDFRenderer";
+import { createAlert, Icon, Variant } from "./alert";
+import { SlDialog } from "@shoelace-style/shoelace";
 
 /**
- * Checks url is has .pdf suffix, passes it to backend to get a status response.
- * If response is 200 then it is a valid url
- *
- * @returns Returns true if the URL is valid
+ * Resets form and sets the text to default state.
  */
-export async function validateURL(): Promise<boolean> {
-  const url = ($("pdfpicker-url") as HTMLInputElement).value;
+export function resetForm(): void {
+  ($("upload-form") as HTMLFormElement).reset();
+  $("pdfpicker-text").style.display = "none";
+  $("pfdpicker-text-default").style.display = "block";
+}
 
-  if (!url.endsWith(".pdf")) {
-    // TODO: handle this error
-    console.log(url);
-    return false;
+/**
+ * Handle fetch client errors
+ *
+ * @param response - response object from fetch call.
+ * @returns response
+ * @throws response object
+ */
+function handleClientErrors(response: Response): Response {
+  if (response.ok) {
+    return response;
   }
 
-  const code = await fetch(
-    `${API}/validate_url/?url=${encodeURIComponent(url)}`
-  )
-    .then(handleErrors)
-    .then((response) => response.json())
-    .then((response) => response.status)
-    .catch((e) => e.message);
-
-  console.log(code);
-
-  return code == 200;
+  throw response;
 }
 
 /**
- * Handle non-network errors
+ * Displays error using map
  *
- * @param response - response state from fetch call.
- * @returns response
- * @throws {Error}
+ * @param response - can be a generic Error
+ * @param statusMap - map of status codes and error messages
+ * @param defaultError - error message that will be shown if status not in map
  */
-function handleErrors(response: Response): Response {
-  if (!response.ok) throw new Error(response.status.toString());
-  return response;
+function displayError(
+  response: Response | Error,
+  statusMap: Record<number, string>,
+  defaultError: string
+): void {
+  let alertVariant = Variant.danger;
+  let alertIcon = Icon.danger;
+  let errorMessage = defaultError;
+  if (response instanceof Response) {
+    if (response.status in statusMap) {
+      alertVariant = Variant.warning;
+      alertIcon = Icon.warning;
+      errorMessage = uploadCodesMap[response.status];
+    }
+  }
+
+  errorMessage = `<strong>Something went wrong</strong><br/>${errorMessage}`;
+  createAlert(errorMessage, alertVariant, alertIcon);
+  resetForm();
 }
+
+function createAuthorModal(author: Author) {
+  const modal = $("author-modal") as SlDialog;
+  const emailAnchor = document.createElement("a");
+  const mailToString = "mailto: " + author.email;
+
+  emailAnchor.setAttribute("href", mailToString);
+  emailAnchor.textContent = author.email;
+
+  // Get the <span> element that closes the modal
+  const closeButton = modal.querySelector('sl-button[slot="footer"]');
+
+  modal.show();
+
+  // TODO: move this to a class
+  // Some of the properties aren't guaranteed to show
+  $("modal-content").innerHTML =
+    author.person_name.first_name +
+    " " +
+    author.person_name.surname +
+    "<br>" +
+    author.affiliations[0].department +
+    "<br>" +
+    author.affiliations[0].institution +
+    "<br>" +
+    author.affiliations[0].laboratory +
+    "<br>";
+  $("modal-content").append(emailAnchor);
+
+  // When the user clicks on <span> (x), close the modal
+  closeButton.addEventListener("click", () => {
+    modal.hide();
+  });
+}
+export let uploadResponse: UploadResponse;
+
+/**
+ * Represents the documented status codes for /upload endpoint
+ */
+const uploadCodesMap = {
+  400: "PDF isn't a scholarly article",
+  415: "PDF file is broken",
+  500: "Unexpected error",
+  503: "The service you requested is not available at this time",
+};
 
 /**
  * Sends request to API with the pdf uploaded to form
  *
- * @param event - only called to prevent default.
+ * @param file - pdf file to be uploaded and parsed.
  */
-export async function uploadPDF(event: SubmitEvent) {
-  event.preventDefault();
-  const data = new FormData();
-  // Add first file in file input, the PDF, as "file"
-  const target = event.target as HTMLFormElement;
-  data.append("file", target.file.files[0]);
+export async function uploadPDF(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
 
-  resetForm();
-
-  await fetch(`${API}/upload`, { method: "POST", body: data })
-    .then(handleErrors)
+  await fetch(`${API}/upload`, {
+    method: "POST",
+    body: formData,
+  })
+    .then(handleClientErrors)
     .then((r) => r.json())
-    .then((data) => {
-      $("title-return-display").textContent = data.title;
-      $("metadata-return-display").innerHTML = "";
-      Object.entries(data.metadata).forEach(([k, v]) => {
-        $("metadata-return-display").innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
-      $("summary-return-display").textContent = data.summary;
-      $("toc-return-display").textContent = data.toc;
-      $("toc-return-display").innerHTML = "";
-      Object.entries(data.toc).forEach(([_, v]) => {
-        $("toc-return-display").innerHTML += `${v[1]}<br><br>`;
+    .then((data: UploadResponse) => {
+      uploadResponse = data;
+      history.pushState(null, null, "/display");
+      const fileReader = new FileReader();
+      fileReader.onload = function () {
+        renderPDF(this.result);
+      };
+      fileReader.readAsArrayBuffer(file);
+      const article = data.article;
+
+      // Key Words
+      const variantArray = ["primary", "neutral"];
+      const variants = variantArray.length;
+      let keywordIndex = 0;
+      article.keywords.forEach((keyword) => {
+        const badge = document.createElement("sl-tag");
+        badge.innerText = keyword;
+        const variantIndex = keywordIndex % variants;
+        badge.setAttribute("variant", variantArray[variantIndex]);
+        keywordIndex++;
+        $("key-words").appendChild(badge);
       });
 
-      $("common-words-return-display").textContent = data.common_words;
-      $("common-words-return-display").innerHTML = "";
-      Object.entries(data.common_words).forEach(([k, v]) => {
-        $(
-          "common-words-return-display"
-        ).innerHTML += `<b>${k}:</b> ${v}<br><br>`;
-      });
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+      // Summary
+      $("summary-return-display").textContent = data.summary.join(" ");
+      const sos = $("size-of-summary") as HTMLInputElement;
+      sos.disabled = false;
 
-  await fetch(`${API}/parse`, { method: "POST", body: data })
-    .then(handleErrors)
-    .then((r) => r.json())
-    .then((data) => {
-      const oLinkEl = document.createElement("ol");
-      Object.entries(data.citations).forEach(([ref, citation]) => {
+      // Word cloud
+      $("word-cloud-return-display").appendChild(
+        makeWordCloudCanvas(data.common_words)
+      );
+
+      // TODO: Return list of tuples by default
+      const phrases = [];
+      for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
+        phrases.push([phrase, rank]);
+      }
+      $("word-cloud-return-display").appendChild(makeWordCloudCanvas(phrases));
+
+      // Metadata
+      $("title-return-display").textContent = article.bibliography.title;
+      article.bibliography.authors.forEach((author, id, array) => {
+        const a = document.createElement("a");
+        const divider = document.createElement("sl-divider");
+        divider.setAttribute("vertical", "true");
+        const authorString =
+          author.person_name.surname + ", " + author.person_name.first_name;
+        a.innerText = authorString;
+        $("authors-return-display").append(a);
+        if (id < array.length - 1) {
+          $("authors-return-display").append(divider);
+        }
+
+        a.addEventListener("click", function () {
+          createAuthorModal(author);
+        });
+      });
+
+      const imrad = ["introduction", "methods", "results", "discussion"];
+      const imradDiv = $("imrad");
+      article.sections.forEach((section) => {
+        const title = section.title.toLowerCase();
+        if (imrad.includes(title)) {
+          const details = document.createElement("sl-details");
+          details.setAttribute("summary", section.title.toUpperCase());
+          section.paragraphs.forEach((p) => {
+            const pTag = document.createElement("p");
+            // TODO: add inline references
+            pTag.innerText = p.text;
+            details.appendChild(pTag);
+          });
+          imradDiv.appendChild(details);
+        }
+      });
+      imradDiv.replaceWith(...imradDiv.childNodes);
+
+      // References
+      const oListEl = document.createElement("ol");
+      Object.entries(article.citations).forEach(([ref, citation]) => {
         const citationObj = new MLA8Citation(citation);
 
         const listEl = document.createElement("li");
@@ -122,10 +230,51 @@ export async function uploadPDF(event: SubmitEvent) {
         // Google scholar link
         listEl.appendChild(citationObj.googleScholarAnchor());
 
-        oLinkEl.append(listEl);
+        oListEl.append(listEl);
       });
-      $("references-return-display").append(oLinkEl);
+      $("references-return-display").append(oListEl);
+      $("output-main").scrollIntoView();
+    })
+    .catch((e) => {
+      displayError(e, uploadCodesMap, "Server is down. Please try again later");
+    });
+}
+
+/**
+ * Represents the documented status codes for /validate_url endpoint
+ */
+const validateUrlCodesMap = {
+  415: "Link is not a PDF",
+  500: "Unexpected error. Link may be broken",
+};
+
+/**
+ * Checks url is has .pdf suffix, passes it to backend to get a status response.
+ * If response is 200 then it is a valid url
+ *
+ * @returns Returns true if the URL is valid
+ */
+export async function validateURL(): Promise<boolean> {
+  const url = ($("pdfpicker-url") as HTMLInputElement).value;
+
+  if (!url.endsWith(".pdf")) {
+    // TODO: handle this error
+    return false;
+  }
+
+  const code = await fetch(
+    `${API}/validate_url/?url=${encodeURIComponent(url)}`
+  )
+    .then(handleClientErrors)
+    .then((response) => response.json())
+    .then((response) => response.status)
+    .catch((e) => {
+      displayError(
+        e,
+        validateUrlCodesMap,
+        "Server is down. Please try again later"
+      );
     });
 
-  $("output-main").scrollIntoView();
+  return code == 200;
 }
