@@ -34,7 +34,12 @@ export function renderPDF(pdf) {
     myState.currentPage = 1;
     myState.totalPages = pdf.numPages;
     counter = 0;
-    render();
+    var pdfRender = $("canvas_container");
+    for (var i = 0; i < myState.totalPages; i++) {
+      var canvas = render();
+      pdfRender.append(canvas);
+      onNextPage();
+    }
   });
 }
 
@@ -55,6 +60,9 @@ export function setupListeners() {
 function render() {
   pageRendering = true;
 
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
+  console.log(myState.currentPage);
   myState.pdf.getPage(myState.currentPage).then((page) => {
     let containerWidth = $("canvas_container").clientWidth;
     var scale =
@@ -74,9 +82,6 @@ function render() {
     var viewport = page.getViewport({ scale: scale });
     // Support HiDPI-screens.
     var outputScale = window.devicePixelRatio || 1;
-
-    var canvas = $("pdf_renderer");
-    var context = canvas.getContext("2d");
 
     canvas.width = Math.floor(viewport.width * outputScale);
     canvas.height = Math.floor(viewport.height * outputScale);
@@ -104,6 +109,7 @@ function render() {
     });
   });
   $("current_page").value = myState.currentPage;
+  return canvas;
 }
 
 /**

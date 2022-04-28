@@ -53,9 +53,7 @@ export default class extends AbstractView {
                 <label id="zoom_label">100%</label>
                 <sl-icon-button name="plus-lg" id="zoom_in"></sl-icon-button>
               </div>
-              <div id="canvas_container">
-                <canvas id="pdf_renderer"></canvas>
-              </div>
+              <div id="canvas_container"></div>
             </div>
           </div>
           <div>
