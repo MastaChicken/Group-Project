@@ -31,7 +31,6 @@ export default class WordCloudCanvas {
     canvas.height = this.height;
     wordcloud(canvas, {
       list: list,
-      gridSize: Math.round((16 * canvas.width) / 1024),
       weightFactor: (size) => {
         return size * (1 + canvas.height / canvas.height);
       },

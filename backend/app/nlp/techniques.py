@@ -8,7 +8,6 @@ Example::
 """
 from collections import Counter
 from functools import cached_property
-from heapq import nlargest
 from math import ceil
 
 import pytextrank  # noqa: F401
