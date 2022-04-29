@@ -41,17 +41,22 @@ export default class MLA8Citation {
   /**
    * @returns Google scholar query link
    */
-  googleScholarAnchor(): HTMLAnchorElement {
+  googleScholarAnchor(logos): HTMLAnchorElement {
     const rawDisplayName = this.joinAuthors(true);
     const encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
     );
     const anchorEl = document.createElement("a");
     anchorEl.href = `https://scholar.google.co.uk/scholar?q=${encodedQuery}`;
-    anchorEl.text = "Google Scholar";
     anchorEl.target = "_blank";
-
-    return anchorEl;
+    const img = document.createElement("img");
+    img.src = "icons8-google-scholar.svg";
+    img.alt = "Google Scholar";
+    img.width = 50;
+    img.height = 50;
+    anchorEl.append(img);
+    logos.append(anchorEl);
+    return logos;
   }
 
   // TODO: using string literal is too naive
