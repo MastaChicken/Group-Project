@@ -219,7 +219,7 @@ export async function uploadPDF(file: File) {
 
         // console.log(citation);
         if (citationObj.target || citation.ids) {
-          makeSVG(logos, citation);
+          prepareMaker(logos, citation);
         }
         listEl.appendChild(pEl);
 
@@ -236,7 +236,7 @@ export async function uploadPDF(file: File) {
     });
 }
 
-function makeSVG(logos: HTMLElement, citation: Citation) {
+function prepareMaker(logos, citation) {
   if (citation.ids == null) {
     return;
   }
@@ -247,47 +247,47 @@ function makeSVG(logos: HTMLElement, citation: Citation) {
       target = null;
     }
   }
-  console.log("New Target " + target);
-  // if (target.charAt(target.length-1))
 
-  // [0][1] index of DOI and [1][1] index of arXiv.
-  if (Object.entries(citation.ids)[0][1]) {
-    const anchorEl = document.createElement("a");
-    if (target == null) {
-      target = `https://doi.org/${Object.entries(citation.ids)[0][1]}`;
-    } else {
-      target = citation.target;
+  Object.entries(citation.ids).forEach((id) => {
+    if (id == null || id[1] == null) {
+      return;
     }
-    anchorEl.href = target;
-    anchorEl.target = "_blank";
-    const img = document.createElement("img");
 
+    if (id[0] === "DOI") {
+      if (target == null) {
+        target = `https://doi.org/${id[1]}`;
+      } else {
+        target = citation.target;
+      }
+    } else if (id[0] === "arXiv") {
+      if (target == null) {
+        target = `https://arxiv.org/abs/${id[1]}`;
+      } else {
+        target = citation.target;
+      }
+    }
+    makeSVG(logos, id[0], target);
+  });
+}
+function makeSVG(logos: HTMLElement, id: string, target: string) {
+  const anchorEl = document.createElement("a");
+
+  anchorEl.href = target;
+  anchorEl.target = "_blank";
+  const img = document.createElement("img");
+
+  if (id == "DOI") {
     img.src = "DOI_logo.svg";
     img.alt = "DOI";
-    img.width = 44;
-    img.height = 44;
-    anchorEl.append(img);
-    logos.append(anchorEl);
-  }
-  if (Object.entries(citation.ids)[1][1]) {
-    const anchorEl = document.createElement("a");
-    if (target == null) {
-      target = `https://arxiv.org/abs/${Object.entries(citation.ids)[1][1]}`;
-    } else {
-      target = citation.target;
-    }
-    anchorEl.href = target;
-    anchorEl.target = "_blank";
-
-    const img = document.createElement("img");
-
+  } else {
     img.src = "264px-ArXiv_web.svg.png";
     img.alt = "arXiv";
-    img.width = 44;
-    img.height = 44;
-    anchorEl.append(img);
-    logos.append(anchorEl);
   }
+
+  img.width = 44;
+  img.height = 44;
+  anchorEl.append(img);
+  logos.append(anchorEl);
 }
 
 /**
