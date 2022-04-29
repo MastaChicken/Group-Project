@@ -206,22 +206,10 @@ export async function uploadPDF(file: File) {
         const logos = document.createElement("div");
         const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
-        if (citationObj.target) {
-          const anchorEl = document.createElement("a");
-          anchorEl.href = citationObj.target;
-          anchorEl.target = "_blank";
-          const img = document.createElement("img");
-          img.src = "DOI_logo.svg";
-          img.alt = "DOI";
-          img.width = 44;
-          img.height = 44;
-          anchorEl.append(img);
-          logos.append(anchorEl);
 
-          // anchorEl.text = ` ${citationObj.target}`;
-          // anchorEl.target = "_blank";
-
-          // pEl.append(anchorEl);
+        // console.log(citation);
+        if (citationObj.target || citation.ids) {
+          makeSVG(logos, citation);
         }
         listEl.appendChild(pEl);
 
@@ -238,36 +226,59 @@ export async function uploadPDF(file: File) {
     });
 }
 
-// function makeSVG(logos: HTMLElement, citation: Citation) {
-//   const target = citation.target;
+function makeSVG(logos: HTMLElement, citation: Citation) {
+  if (citation.ids == null) {
+    return;
+  }
+  console.log(citation);
+  let target = citation.target;
+  if (target != null) {
+    if (target.charAt(target.length - 1) == "/") {
+      target = null;
+    }
+  }
+  console.log("New Target " + target);
+  // if (target.charAt(target.length-1))
 
-//   if (citation.ids.arxiv) {
-//     const anchorEl = document.createElement("a");
-//     anchorEl.href = target;
-//     anchorEl.target = "_blank";
-//     const img = document.createElement("img");
+  // [0][1] index of DOI and [1][1] index of arXiv.
+  if (Object.entries(citation.ids)[0][1]) {
+    const anchorEl = document.createElement("a");
+    if (target == null) {
+      target = `https://doi.org/${Object.entries(citation.ids)[0][1]}`;
+    } else {
+      target = citation.target;
+    }
+    anchorEl.href = target;
+    anchorEl.target = "_blank";
+    const img = document.createElement("img");
 
-//     img.src = "264px-ArXiv_web.svg.png";
-//     img.alt = "arXiv";
-//     img.width = 44;
-//     img.height = 44;
-//     anchorEl.append(img);
-//     logos.append(anchorEl);
-//   }
-//   if (citation.ids.doi) {
-// const anchorEl = document.createElement("a");
-// anchorEl.href = target;
-// anchorEl.target = "_blank";
-// const img = document.createElement("img");
+    img.src = "DOI_logo.svg";
+    img.alt = "DOI";
+    img.width = 44;
+    img.height = 44;
+    anchorEl.append(img);
+    logos.append(anchorEl);
+  }
+  if (Object.entries(citation.ids)[1][1]) {
+    const anchorEl = document.createElement("a");
+    if (target == null) {
+      target = `https://arxiv.org/abs/${Object.entries(citation.ids)[1][1]}`;
+    } else {
+      target = citation.target;
+    }
+    anchorEl.href = target;
+    anchorEl.target = "_blank";
 
-// img.src = "DOI_logo.svg";
-// img.alt = "DOI";
-// img.width = 44;
-// img.height = 44;
-// anchorEl.append(img);
-// logos.append(anchorEl);
-//   }
-// }
+    const img = document.createElement("img");
+
+    img.src = "264px-ArXiv_web.svg.png";
+    img.alt = "arXiv";
+    img.width = 44;
+    img.height = 44;
+    anchorEl.append(img);
+    logos.append(anchorEl);
+  }
+}
 
 /**
  * Represents the documented status codes for /validate_url endpoint
