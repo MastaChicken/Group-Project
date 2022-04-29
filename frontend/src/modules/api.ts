@@ -1,7 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author, Citation } from "../models/api";
+import { UploadResponse, Author } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
 import { SlDialog } from "@shoelace-style/shoelace";

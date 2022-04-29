@@ -20,7 +20,7 @@ export default class extends AbstractView {
           
           <div id="drop-zone">
           <div id="myProgress">
-            <div id="myBar"></div>
+            <sl-skeleton id="myBar" effect="sheen"></sl-skeleton>
           </div>
           <label for="pdfpicker-file">
             <span id="pfdpicker-text-default">

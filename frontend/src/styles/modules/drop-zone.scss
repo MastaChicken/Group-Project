@@ -35,7 +35,8 @@
 }
 
 #myBar {
+  --border-radius: 0%;
   width: 0%;
-  height: 12em;
-  background-color: var(--sl-color-sky-400);
+  height: 13em;
+  --sheen-color: var(--sl-color-sky-600);
 }
