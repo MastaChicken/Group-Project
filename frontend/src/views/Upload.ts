@@ -13,10 +13,15 @@ export default class extends AbstractView {
   getHtml() {
     return html`
     <div class="tab-contents">
-    <h1>Content Visualisation</h1>
+    <h1>SummarEase</h1>
+    <h4>The easiest scholarly article summariser in the world! Just Drag n Drop your articles and we'll do the rest!</h4>
     <sl-divider></sl-divider>
         <form id="upload-form">
+          
           <div id="drop-zone">
+          <div id="myProgress">
+            <div id="myBar"></div>
+          </div>
           <label for="pdfpicker-file">
             <span id="pfdpicker-text-default">
               <a
@@ -77,6 +82,7 @@ export default class extends AbstractView {
 
         if (files.length > 0 && isValidPDF(files[0])) {
           pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
+          loadingBar();
 
           uploadPDF(files[0]);
         } else {
@@ -90,6 +96,23 @@ export default class extends AbstractView {
       false
     );
 
+    let i = 0;
+    function loadingBar() {
+      if (i == 0) {
+        i = 1;
+        let width = 1;
+        const frame = () => {
+          if (width >= 100) {
+            clearInterval(id);
+            i = 0;
+          } else {
+            width++;
+            $("myBar").style.width = width + "%";
+          }
+        };
+        const id = setInterval(frame, 10);
+      }
+    }
     // Upload URL
     const urlInput = $("url-input");
     urlInput.addEventListener("click", validateURL);

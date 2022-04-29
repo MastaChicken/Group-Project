@@ -142,6 +142,7 @@ export async function uploadPDF(file: File) {
       });
 
       // Summary
+      // $("skele-load").style.display = "none";
       $("summary-return-display").textContent = data.summary.join(" ");
       const sos = $("size-of-summary") as HTMLInputElement;
       sos.disabled = false;
@@ -160,22 +161,31 @@ export async function uploadPDF(file: File) {
 
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
-      article.bibliography.authors.forEach((author, id, array) => {
-        const a = document.createElement("a");
+      const authors = article.bibliography.authors;
+      authors
+        .slice(0, Math.min(authors.length, 4))
+        .forEach((author, id, array) => {
+          const a = document.createElement("a");
+          const divider = document.createElement("sl-divider");
+          divider.setAttribute("vertical", "true");
+          const authorString =
+            author.person_name.surname + ", " + author.person_name.first_name;
+          a.innerText = authorString;
+          $("authors-return-display").append(a);
+          if (id < array.length - 1) {
+            $("authors-return-display").append(divider);
+          }
+
+          a.addEventListener("click", function () {
+            createAuthorModal(author);
+          });
+        });
+      if (authors.length > 3) {
         const divider = document.createElement("sl-divider");
         divider.setAttribute("vertical", "true");
-        const authorString =
-          author.person_name.surname + ", " + author.person_name.first_name;
-        a.innerText = authorString;
-        $("authors-return-display").append(a);
-        if (id < array.length - 1) {
-          $("authors-return-display").append(divider);
-        }
-
-        a.addEventListener("click", function () {
-          createAuthorModal(author);
-        });
-      });
+        $("authors-return-display").append(divider);
+        $("authors-return-display").append("et al.");
+      }
 
       const imrad = ["introduction", "methods", "results", "discussion"];
       const imradDiv = $("imrad");
@@ -219,7 +229,7 @@ export async function uploadPDF(file: File) {
         oListEl.append(listEl);
       });
       $("references-return-display").append(oListEl);
-      $("output-main").scrollIntoView();
+      // $("output-main").scrollIntoView();
     })
     .catch((e) => {
       displayError(e, uploadCodesMap, "Server is down. Please try again later");
