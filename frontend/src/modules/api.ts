@@ -164,7 +164,7 @@ export async function uploadPDF(file: File) {
         "canvas"
       ) as HTMLCanvasElement;
       wordcloud.update(phraseCanvas, phrases);
-      $("word-cloud-return-display").appendChild(phraseCanvas);
+      $("phrase-cloud-return-display").appendChild(phraseCanvas);
 
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
