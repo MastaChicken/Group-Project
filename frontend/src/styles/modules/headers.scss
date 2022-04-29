@@ -7,6 +7,10 @@ h1 {
   // background: var(--sl-color-gray-900);
 }
 
+h2 {
+  margin-bottom: 0.5em;
+}
+
 h4 {
   font-family: var(--sl-font-sans);
   margin: auto;
@@ -22,4 +26,8 @@ h4 {
 
 a {
   color: var(--sl-color-blue-700);
+}
+
+#sos-lbl {
+  font-size: var(--sl-font-size-small);
 }

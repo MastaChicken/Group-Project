@@ -24,8 +24,10 @@ export default class extends AbstractView {
             <div></div>
           </div>
         </div>
-        <h1 id="title-return-display">Content Visualisation</h1>
-        <h4 id="authors-return-display"></h4>
+        <div id="header"> 
+          <h1 id="title-return-display">Content Visualisation</h1>
+          <h4 id="authors-return-display"></h4>
+        </div>
         <sl-dialog class="dialog-overview" id="author-modal">
           <div class="modal-content">
             <p id="modal-content"></p>
@@ -42,7 +44,13 @@ export default class extends AbstractView {
                 ></sl-icon-button>
 
                 <sl-button id="go_previous">Prev</sl-button>
-                <sl-input id="current_page" value="1" type="number"></sl-input>
+                <sl-input
+                  id="current_page"
+                  value="1"
+                  type="number"
+                  inputMode="numeric"
+                  valueAsNumber
+                ></sl-input>
                 <sl-button id="go_next">Next</sl-button>
 
                 <sl-icon-button
@@ -85,19 +93,35 @@ export default class extends AbstractView {
           </div>
           <div id="summary-output">
             <h2>Summary</h2>
-            <sl-divider></sl-divider>
-            <label for="size-of-summary" id="sos-lbl">
-              Size of Summary: 100%</label
-            >
-            <sl-range
-              min="10"
-              max="100"
-              value="100"
-              step="10"
-              class="slider"
-              id="size-of-summary"
-            ></sl-range>
-            <div id="summary-return-display"></div>
+                <div id="summary-slider">
+                
+                  
+                  <sl-range
+                    min="10"
+                    max="100"
+                    value="100"
+                    step="10"
+                    class="slider"
+                    id="size-of-summary"
+                  ></sl-range>
+                </div>
+                <sl-divider></sl-divider>
+                <div id="summary-return-display">
+                  <div id="skele_load"> 
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -111,7 +135,7 @@ export default class extends AbstractView {
     sos.addEventListener(
       "sl-change",
       () => {
-        $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
+        // $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
 
         if (sos.textContent != null) {
           const data = uploadResponse;
@@ -125,6 +149,12 @@ export default class extends AbstractView {
       },
       true
     );
+
+    const skeleDivs = document.getElementsByTagName("sl-skeleton");
+    for (let i = 0; i < skeleDivs.length; i++) {
+      skeleDivs[i].style.width =
+        Math.floor(Math.random() * (100 - 70 + 1) + 70).toString() + "%";
+    }
 
     setupPDFListeners();
 
