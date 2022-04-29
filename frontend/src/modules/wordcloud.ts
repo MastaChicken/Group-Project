@@ -1,18 +1,34 @@
 import wordcloud from "wordcloud";
 
-/**
- * Create wordcloud canvas
- *
- * @param list - represents the words and frequencies
- */
-export default function makeWordCloudCanvas(
-  list: Array<[string, number]>
-): HTMLCanvasElement {
-  const canvas = document.createElement("canvas") as HTMLCanvasElement;
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
-  // TODO: customise
-  wordcloud(canvas, { list: list });
+export default class WordCloudCanvas {
+  rect: DOMRect;
+  constructor(container: HTMLDivElement) {
+    this.rect = container.getBoundingClientRect();
+  }
 
-  return canvas;
+  public get width(): number {
+    return this.rect.width * 0.8;
+  }
+
+  public get height(): number {
+    return this.width * 0.65;
+  }
+
+  /**
+   * Update canvas with wordcloud
+   *
+   * @param canvas - canvas to draw wordcloud on
+   * @param list - represents the words and frequencies
+   */
+  update(canvas: HTMLCanvasElement, list: Array<[string, number]>) {
+    canvas.width = this.width;
+    canvas.height = this.height;
+    wordcloud(canvas, {
+      list: list,
+      gridSize: Math.round((16 * canvas.width) / 1024),
+      weightFactor: (size) => {
+        return size * (1 + canvas.height / canvas.height);
+      },
+    });
+  }
 }
