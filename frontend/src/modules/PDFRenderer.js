@@ -34,6 +34,8 @@ export function renderPDF(pdf) {
     myState.currentPage = 1;
     myState.totalPages = pdf.numPages;
     counter = 0;
+
+    preCalculateSize();
     var pdfRender = $("canvas_container");
     for (var i = 0; i < myState.totalPages; i++) {
       var canvas = render();
@@ -54,12 +56,9 @@ export function setupListeners() {
   $("zoom_out").addEventListener("click", zoomOutPage);
 }
 
-/**
- * Render pdf.
- */
-function render() {
-  pageRendering = true;
+var canvas_info;
 
+function preCalculateSize() {
   var canvas = document.createElement("canvas");
   var context = canvas.getContext("2d");
   console.log(myState.currentPage);
@@ -83,10 +82,19 @@ function render() {
     // Support HiDPI-screens.
     var outputScale = window.devicePixelRatio || 1;
 
-    canvas.width = Math.floor(viewport.width * outputScale);
-    canvas.height = Math.floor(viewport.height * outputScale);
-    canvas.style.width = Math.floor(viewport.width) + "px";
-    canvas.style.height = Math.floor(viewport.height) + "px";
+    var width = Math.floor(viewport.width * outputScale);
+    var height = Math.floor(viewport.height * outputScale);
+    var style_width = Math.floor(viewport.width) + "px";
+    var style_height = Math.floor(viewport.height) + "px";
+
+    canvas_info = [
+      width,
+      height,
+      style_width,
+      style_height,
+      viewport,
+      outputScale,
+    ];
 
     var transform =
       outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
@@ -95,6 +103,54 @@ function render() {
       canvasContext: context,
       transform: transform,
       viewport: viewport,
+    };
+    let renderTask = page.render(renderContext);
+
+    renderTask.promise.then(function () {
+      pageRendering = false;
+      document.body.style.cursor = "default";
+      if (pageNumPending !== null) {
+        // New page rendering is pending
+        render();
+        pageNumPending = null;
+      }
+    });
+  });
+  $("current_page").value = myState.currentPage;
+  return canvas;
+}
+/**
+ * Render pdf.
+ */
+function render() {
+  pageRendering = true;
+
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
+  console.log(myState.currentPage);
+  myState.pdf.getPage(myState.currentPage).then((page) => {
+    if (myState.zoom === 1) {
+      $("canvas_container").classList.add("fullPage");
+    } else {
+      $("canvas_container").classList.remove("fullPage");
+    }
+    //                        0     1       2             3             4         5
+    // var canvas_info = [width, height, style_width, style_height, viewport, outputScale];
+
+    canvas.width = canvas_info[0];
+    canvas.height = canvas_info[1];
+    canvas.style.width = canvas_info[2];
+    canvas.style.height = canvas_info[3];
+
+    var transform =
+      canvas_info[5] !== 1
+        ? [canvas_info[5], 0, 0, canvas_info[5], 0, 0]
+        : null;
+
+    var renderContext = {
+      canvasContext: context,
+      transform: transform,
+      viewport: canvas_info[4],
     };
     let renderTask = page.render(renderContext);
 
