@@ -1,7 +1,8 @@
 import { $ } from "../constants";
 import * as PDFJS from "pdfjs-dist";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
-PDFJS.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+PDFJS.GlobalWorkerOptions.workerSrc =
+  "../../node_modules/pdfjs-dist/build/pdf.worker.min.js";
 
 // cdn.jsdelivr.net/npm/pdfjs-dist@2.13.216/build/pdf.worker.js
 // keeping cdn link in case any issues arise from loading in worker
