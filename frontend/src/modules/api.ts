@@ -219,7 +219,7 @@ export async function uploadPDF(file: File) {
 
         // console.log(citation);
         if (citationObj.target || citation.ids) {
-          prepareMaker(logos, citation);
+          prepareSVGMaker(logos, citation);
         }
         listEl.appendChild(pEl);
 
@@ -236,7 +236,7 @@ export async function uploadPDF(file: File) {
     });
 }
 
-function prepareMaker(logos, citation) {
+function prepareSVGMaker(logos, citation) {
   if (citation.ids == null) {
     return;
   }
