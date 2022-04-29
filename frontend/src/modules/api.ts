@@ -1,7 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author } from "../models/api";
+import { UploadResponse, Author, Citation } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
 import { SlDialog } from "@shoelace-style/shoelace";
@@ -202,33 +202,31 @@ export async function uploadPDF(file: File) {
 
         const listEl = document.createElement("li");
         listEl.id = ref;
-        let pEl = document.createElement("p");
+
+        const logos = document.createElement("div");
+        const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
         if (citationObj.target) {
           const anchorEl = document.createElement("a");
           anchorEl.href = citationObj.target;
-          anchorEl.text = ` ${citationObj.target}`;
           anchorEl.target = "_blank";
-          pEl.append(anchorEl);
+          const img = document.createElement("img");
+          img.src = "DOI_logo.svg";
+          img.alt = "DOI";
+          img.width = 44;
+          img.height = 44;
+          anchorEl.append(img);
+          logos.append(anchorEl);
+
+          // anchorEl.text = ` ${citationObj.target}`;
+          // anchorEl.target = "_blank";
+
+          // pEl.append(anchorEl);
         }
         listEl.appendChild(pEl);
 
-        // TODO: use a grid of icons instead of paragraphs
-        // Show ids
-        if (citationObj.ids?.length) {
-          pEl = document.createElement("p");
-          citationObj.ids.forEach((idUrl) => {
-            const anchorEl = document.createElement("a");
-            anchorEl.href = idUrl.url;
-            anchorEl.text = idUrl.id;
-            anchorEl.target = "_blank";
-            pEl.append(anchorEl);
-          });
-          listEl.appendChild(pEl);
-        }
-
         // Google scholar link
-        listEl.appendChild(citationObj.googleScholarAnchor());
+        listEl.appendChild(citationObj.googleScholarAnchor(logos));
 
         oListEl.append(listEl);
       });
@@ -239,6 +237,37 @@ export async function uploadPDF(file: File) {
       displayError(e, uploadCodesMap, "Server is down. Please try again later");
     });
 }
+
+// function makeSVG(logos: HTMLElement, citation: Citation) {
+//   const target = citation.target;
+
+//   if (citation.ids.arxiv) {
+//     const anchorEl = document.createElement("a");
+//     anchorEl.href = target;
+//     anchorEl.target = "_blank";
+//     const img = document.createElement("img");
+
+//     img.src = "264px-ArXiv_web.svg.png";
+//     img.alt = "arXiv";
+//     img.width = 44;
+//     img.height = 44;
+//     anchorEl.append(img);
+//     logos.append(anchorEl);
+//   }
+//   if (citation.ids.doi) {
+// const anchorEl = document.createElement("a");
+// anchorEl.href = target;
+// anchorEl.target = "_blank";
+// const img = document.createElement("img");
+
+// img.src = "DOI_logo.svg";
+// img.alt = "DOI";
+// img.width = 44;
+// img.height = 44;
+// anchorEl.append(img);
+// logos.append(anchorEl);
+//   }
+// }
 
 /**
  * Represents the documented status codes for /validate_url endpoint
