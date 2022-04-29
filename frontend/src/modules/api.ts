@@ -155,15 +155,10 @@ export async function uploadPDF(file: File) {
       wordcloud.update(wordCloudCanvas, data.common_words);
       $("word-cloud-return-display").appendChild(wordCloudCanvas);
 
-      // TODO: Return list of tuples by default
-      const phrases = [];
-      for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
-        phrases.push([phrase, rank]);
-      }
       const phraseCanvas = document.createElement(
         "canvas"
       ) as HTMLCanvasElement;
-      wordcloud.update(phraseCanvas, phrases);
+      wordcloud.update(phraseCanvas, data.phrase_ranks);
       $("phrase-cloud-return-display").appendChild(phraseCanvas);
 
       // Metadata

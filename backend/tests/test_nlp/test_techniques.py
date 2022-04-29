@@ -104,16 +104,16 @@ class TestTechniques:
         """Ensure that the normalised ranking of phrase is correct."""
         phrase_techniques = Phrase(self.text_test_phrase, self.model)
         result = phrase_techniques.ranks
-        assert result == {
-            "human happiness": 12,
-            "great pleasure": 10,
-            "resultant pleasure": 9,
-            "great explorer": 6,
-            "complete account": 6,
-            "actual teachings": 6,
-            "annoying consequences": 6,
-            "mistaken idea": 5,
-            "master builder": 4,
-            "laborious physical exercise": 4,
-            "trivial example": 2,
-        }
+        assert result == [
+            ("human happiness", 12),
+            ("great pleasure", 10),
+            ("resultant pleasure", 9),
+            ("great explorer", 6),
+            ("complete account", 6),
+            ("actual teachings", 6),
+            ("annoying consequences", 6),
+            ("mistaken idea", 5),
+            ("master builder", 4),
+            ("laborious physical exercise", 4),
+            ("trivial example", 2),
+        ]
