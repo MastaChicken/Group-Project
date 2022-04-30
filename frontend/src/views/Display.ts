@@ -3,6 +3,7 @@ import { $, html } from "../constants";
 import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 import "@shoelace-style/shoelace/dist/components/tooltip/tooltip.js";
+import "@shoelace-style/shoelace/dist/components/button/button.js";
 
 export default class extends AbstractView {
   constructor() {
@@ -12,6 +13,7 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
+    
       <div class="tab-contents output-display">
         <div style="display: none" id="loading-screen">
           <div class="lds-roller">
@@ -26,6 +28,7 @@ export default class extends AbstractView {
           </div>
         </div>
         <div id="header"> 
+        <sl-button id="home-button" onclick="goHome()">Upload a new PDF!</sl-button>
         <sl-tooltip id="date-tooltip" content="No date to display">
           <h1 id="title-return-display">Content Visualisation</h1>
         </sl-tooltip>
@@ -152,6 +155,11 @@ export default class extends AbstractView {
       },
       true
     );
+
+    const homeButton = document.getElementById("home-button");
+    homeButton.addEventListener("click", () => {
+      history.pushState(null, null, "/");
+    });
 
     const skeleDivs = document.getElementsByTagName("sl-skeleton");
     for (let i = 0; i < skeleDivs.length; i++) {
