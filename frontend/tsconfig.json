@@ -11,8 +11,8 @@
     "outDir": "./types",
     "forceConsistentCasingInFileNames": true
   },
-  "exclude": ["node_modules"],
   "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "src/build_"],
   "typedocOptions": {
     "entryPointStrategy": "expand",
     "out": "docs"
