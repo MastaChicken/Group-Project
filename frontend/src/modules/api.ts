@@ -74,15 +74,15 @@ function createAuthorModal(author: Author) {
   // TODO: move this to a class
   // Some of the properties aren't guaranteed to show
   $("modal-content").innerHTML =
-    author.person_name.first_name +
+    (author.person_name.first_name || "") +
     " " +
-    author.person_name.surname +
+    (author.person_name.surname || "") +
     "<br>" +
-    author.affiliations[0].department +
+    (author.affiliations[0].department || "") +
     "<br>" +
-    author.affiliations[0].institution +
+    (author.affiliations[0].institution || "") +
     "<br>" +
-    author.affiliations[0].laboratory +
+    (author.affiliations[0].laboratory || "") +
     "<br>";
   $("modal-content").append(emailAnchor);
 
@@ -161,6 +161,22 @@ export async function uploadPDF(file: File) {
 
       // Metadata
       $("title-return-display").textContent = article.bibliography.title;
+
+      const date = article.bibliography.date;
+
+      if (date == null) return "";
+      const year = date.year;
+      const month = date.month || "";
+      const day = date.day || "";
+
+      let dateF = "Date: " + [year, month, day].join(" ").trim();
+      if (dateF !== "") {
+        dateF += ".";
+      }
+
+      $("date-tooltip").setAttribute("content", dateF);
+
+      // console.log(article.bibliography.date);
       const authors = article.bibliography.authors;
       authors
         .slice(0, Math.min(authors.length, 4))
@@ -217,7 +233,6 @@ export async function uploadPDF(file: File) {
         const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
 
-        // console.log(citation);
         if (citationObj.target || citation.ids) {
           prepareSVGMaker(logos, citation);
         }
@@ -240,7 +255,6 @@ function prepareSVGMaker(logos, citation) {
   if (citation.ids == null) {
     return;
   }
-  console.log(citation);
   let target = citation.target;
   if (target != null) {
     if (target.charAt(target.length - 1) == "/") {

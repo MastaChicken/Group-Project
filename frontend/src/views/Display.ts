@@ -2,6 +2,7 @@ import AbstractView from "./AbstractView";
 import { $, html } from "../constants";
 import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
+import "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/components/tooltip/tooltip.js";
 
 export default class extends AbstractView {
   constructor() {
@@ -25,7 +26,9 @@ export default class extends AbstractView {
           </div>
         </div>
         <div id="header"> 
+        <sl-tooltip id="date-tooltip" content="No date to display">
           <h1 id="title-return-display">Content Visualisation</h1>
+        </sl-tooltip>
           <h4 id="authors-return-display"></h4>
         </div>
         <sl-dialog class="dialog-overview" id="author-modal">
