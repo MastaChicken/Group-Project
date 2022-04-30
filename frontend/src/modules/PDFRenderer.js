@@ -168,7 +168,7 @@ function onPrevPage() {
     return;
   }
   --myState.currentPage;
-  canvasArray[myState.currentPage - 1].scrollIntoView({ behavior: "smooth" });
+  canvasArray[myState.currentPage - 1].scrollIntoView();
 }
 
 /**
@@ -179,7 +179,7 @@ function onNextPage() {
     return;
   }
   ++myState.currentPage;
-  canvasArray[myState.currentPage - 1].scrollIntoView({ behavior: "smooth" });
+  canvasArray[myState.currentPage - 1].scrollIntoView();
 }
 
 /**
@@ -192,7 +192,7 @@ function onPageEntry() {
     return;
   }
   myState.currentPage = pageInput.value;
-  canvasArray[myState.currentPage - 1].scrollIntoView({ behavior: "smooth" });
+  canvasArray[myState.currentPage - 1].scrollIntoView();
 }
 
 /**
@@ -232,7 +232,7 @@ function zoomOutPage() {
 
 function onScroll() {
   myState.currentPage =
-    Math.floor($("canvas_container").scrollTop / myState.pageHeight) + 1;
+    Math.round($("canvas_container").scrollTop / myState.pageHeight) + 1;
 
   $("current_page").value = myState.currentPage;
 }
