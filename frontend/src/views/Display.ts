@@ -2,7 +2,7 @@ import AbstractView from "./AbstractView";
 import { $, html } from "../constants";
 import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
-import "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/components/tooltip/tooltip.js";
+import "@shoelace-style/shoelace/dist/components/tooltip/tooltip.js";
 
 export default class extends AbstractView {
   constructor() {

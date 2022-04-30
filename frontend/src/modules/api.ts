@@ -164,20 +164,22 @@ export async function uploadPDF(file: File) {
 
       const date = article.bibliography.date;
 
-      if (date == null) return "";
-      const year = date.year;
-      const month = date.month || "";
-      const day = date.day || "";
+      if (date != null) {
+        const year = date.year;
+        const month = date.month || "";
+        const day = date.day || "";
 
-      let dateF = "Date: " + [year, month, day].join(" ").trim();
-      if (dateF !== "") {
-        dateF += ".";
+        let dateF = "Date: " + [year, month, day].join(" ").trim();
+        if (dateF !== "") {
+          dateF += ".";
+        }
+
+        $("date-tooltip").setAttribute("content", dateF);
       }
-
-      $("date-tooltip").setAttribute("content", dateF);
 
       // console.log(article.bibliography.date);
       const authors = article.bibliography.authors;
+      console.log(authors);
       authors
         .slice(0, Math.min(authors.length, 4))
         .forEach((author, id, array) => {
@@ -186,6 +188,7 @@ export async function uploadPDF(file: File) {
           divider.setAttribute("vertical", "true");
           const authorString =
             author.person_name.surname + ", " + author.person_name.first_name;
+          console.log(authorString);
           a.innerText = authorString;
           $("authors-return-display").append(a);
           if (id < array.length - 1) {
@@ -196,12 +199,12 @@ export async function uploadPDF(file: File) {
             createAuthorModal(author);
           });
         });
-      if (authors.length > 3) {
-        const divider = document.createElement("sl-divider");
-        divider.setAttribute("vertical", "true");
-        $("authors-return-display").append(divider);
-        $("authors-return-display").append("et al.");
-      }
+      // if (authors.length > 3) {
+      //   const divider = document.createElement("sl-divider");
+      //   divider.setAttribute("vertical", "true");
+      //   $("authors-return-display").append(divider);
+      //   $("authors-return-display").append("et al.");
+      // }
 
       const imrad = ["introduction", "methods", "results", "discussion"];
       const imradDiv = $("imrad");
