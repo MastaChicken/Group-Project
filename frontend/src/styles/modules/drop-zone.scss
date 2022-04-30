@@ -1,12 +1,9 @@
 #drop-zone {
-  margin-top: 20vh;
-  margin-left: auto;
-  margin-right: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px dashed lightgrey;
-  width: 50%;
+  width: 50vw;
   height: 12em;
   border-radius: 1em;
   font-size: 1.5em;
@@ -21,6 +18,13 @@
     margin: auto;
     width: 30%;
   }
+}
+
+.form-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 #upload-skeleton {

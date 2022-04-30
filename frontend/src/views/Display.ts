@@ -4,22 +4,38 @@ import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
+   headingCenter = $("header-center") as HTMLDivElement;
+   headingLeft = $("header-left") as HTMLDivElement;
+
   constructor() {
     super();
     this.setTitle("Display");
+
+    // Set headings to center of header
+    const dateTooltip = document.createElement("sl-tooltip")
+    dateTooltip.id = "date-tooltip";
+    dateTooltip.placement = "bottom";
+    dateTooltip.disabled = true;
+    const headingEl = document.createElement("h2");
+    headingEl.id = "title-return-display";
+    headingEl.innerText = "Content Visualisation";
+    dateTooltip.appendChild(headingEl);
+    const subHeadingEl = document.createElement("h4");
+
+    subHeadingEl.id = "authors-return-display";
+    this.headingCenter.replaceChildren(...[dateTooltip, subHeadingEl]);
+
+    // Set home button to left of header
+    const homeButton = document.createElement("sl-button")
+    homeButton.textContent = "Back to home";
+    homeButton.addEventListener("click", () => {
+      history.pushState(null, null, "/");
+    });
+    this.headingLeft.replaceChildren(homeButton);
   }
 
   getHtml() {
     return html`
-
-      <div class="tab-contents output-display">
-        <div id="header">
-        <sl-button id="home-button">Back to upload</sl-button>
-        <sl-tooltip id="date-tooltip" content="Undated">
-          <h1 id="title-return-display">Content Visualisation</h1>
-        </sl-tooltip>
-          <h4 id="authors-return-display"></h4>
-        </div>
         <sl-dialog class="dialog-overview" id="author-modal">
           <div class="modal-content">
             <p id="modal-content"></p>
@@ -28,7 +44,6 @@ export default class extends AbstractView {
         </sl-dialog>
         <div id="output-main">
           <div id="pdf-renderer">
-            <div id="my_pdf_viewer">
               <div id="navigation_controls">
                 <sl-icon-button
                   name="chevron-double-left"
@@ -54,7 +69,6 @@ export default class extends AbstractView {
                 <sl-icon-button name="plus-lg" id="zoom_in"></sl-icon-button>
               </div>
               <div id="canvas_container"></div>
-            </div>
           </div>
           <div>
             <div id="show-pdf-div">
@@ -75,19 +89,12 @@ export default class extends AbstractView {
                 ></div>
               </sl-details>
               <div id="imrad"></div>
-              <sl-details summary="REFERENCES">
-                <div
-                  id="references-return-display"
-                  class="output-box-info"
-                ></div
-              ></sl-details>
+              <sl-details summary="REFERENCES" id="references-return-display"></sl-details>
             </div>
           </div>
           <div id="summary-output">
             <h2>Summary</h2>
                 <div id="summary-slider">
-
-
                   <sl-range
                     min="10"
                     max="100"
@@ -116,7 +123,6 @@ export default class extends AbstractView {
             </div>
           </div>
         </div>
-      </div>
     `;
   }
 
@@ -139,11 +145,6 @@ export default class extends AbstractView {
       },
       true
     );
-
-    const homeButton = document.getElementById("home-button");
-    homeButton.addEventListener("click", () => {
-      history.pushState(null, null, "/");
-    });
 
     const skeleDivs = document.getElementsByTagName("sl-skeleton");
     for (let i = 0; i < skeleDivs.length; i++) {

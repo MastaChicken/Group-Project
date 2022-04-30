@@ -89,17 +89,6 @@ function render() {
     var scale =
       (containerWidth / page.getViewport({ scale: 1.0 }).width) * myState.zoom;
 
-    //This is hacky code to remove horizontal scrollbar
-    //as the width gets generated without vertical scroll
-    // and then adds it after, which then generates a
-    // horizontal scroll, and i didn't know how to fix.
-    // the class just removes the scroll bar.
-    if (myState.zoom === 1) {
-      $("canvas_container").classList.add("fullPage");
-    } else {
-      $("canvas_container").classList.remove("fullPage");
-    }
-
     var viewport = page.getViewport({ scale: scale });
     // Support HiDPI-screens.
     var outputScale = window.devicePixelRatio || 1;
@@ -168,7 +157,8 @@ function onPrevPage() {
     return;
   }
   --myState.currentPage;
-  canvasArray[myState.currentPage - 1].scrollIntoView();
+  let target = canvasArray[myState.currentPage - 1]
+  target.parentNode.scrollTop = target.offsetTop;
 }
 
 /**
@@ -179,7 +169,8 @@ function onNextPage() {
     return;
   }
   ++myState.currentPage;
-  canvasArray[myState.currentPage - 1].scrollIntoView();
+  let target = canvasArray[myState.currentPage - 1]
+  target.parentNode.scrollTop = target.offsetTop;
 }
 
 /**
@@ -192,7 +183,8 @@ function onPageEntry() {
     return;
   }
   myState.currentPage = pageInput.value;
-  canvasArray[myState.currentPage - 1].scrollIntoView();
+  let target = canvasArray[myState.currentPage - 1]
+  target.parentNode.scrollTop = target.offsetTop;
 }
 
 /**

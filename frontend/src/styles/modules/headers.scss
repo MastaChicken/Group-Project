@@ -1,14 +1,13 @@
 h1 {
   font-family: var(--sl-font-sans);
   margin: auto;
-  width: 80%;
   color: var(--sl-color-neutral-800);
   // border-top: 1px solid var(--sl-color-neutral-900);
   // background: var(--sl-color-gray-900);
 }
 
 h2 {
-  margin-bottom: 0.5em;
+  margin: auto;
 }
 
 h4 {
@@ -16,12 +15,7 @@ h4 {
   margin: auto;
   padding: 0;
   color: var(--sl-color-neutral-400);
-  width: 60%;
   height: 1em;
-}
-
-#authors-return-display {
-  padding-bottom: 1em;
 }
 
 a {
@@ -32,17 +26,39 @@ a {
   font-size: var(--sl-font-size-small);
 }
 
-#home-button {
-  margin-top: 1em;
-  margin-right: -20%;
-  margin-left: 1em;
-  float: left;
-}
-
 #light-dark-switch {
-  float: right;
-  margin-top: 1em;
-  margin-right: 1em;
-  margin-left: -20%;
+  height: 10vh;
+  display: flex;
+  align-items: center;
 }
 
+#header {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  height: 10vh;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+  }
+
+  #header-left {
+    width: 7.5vw;
+    align-items: flex-start;
+    padding-left: .5vw;
+  }
+  #header-center {
+    align-items: center;
+    width: 85vw;
+    // padding-top: 0.5vh;
+    // padding-bottom: 0.5vh;
+  }
+  #header-right {
+    width: 7.5vw;
+    align-items: flex-end;
+    padding-right: .5vw;
+  }
+
+}

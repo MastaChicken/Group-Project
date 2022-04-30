@@ -41,7 +41,7 @@ export default class MLA8Citation {
   /**
    * @returns Google scholar query link
    */
-  googleScholarAnchor(logos: HTMLElement): HTMLElement {
+  googleScholarAnchor(): HTMLAnchorElement {
     const rawDisplayName = this.joinAuthors(true);
     const encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
@@ -52,11 +52,10 @@ export default class MLA8Citation {
     const img = document.createElement("img");
     img.src = "../../public/assets/icons/icons8-google-scholar.svg";
     img.alt = "Google Scholar";
-    img.width = 45;
-    img.height = 45;
+    img.width = 40;
+    img.height = 40;
     anchorEl.append(img);
-    logos.append(anchorEl);
-    return logos;
+    return anchorEl;
   }
 
   // TODO: using string literal is too naive

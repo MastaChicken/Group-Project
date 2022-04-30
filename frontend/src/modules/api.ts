@@ -1,11 +1,10 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author, Citation, CitationIDs } from "../models/api";
+import { UploadResponse, Author } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
-import { SlDialog } from "@shoelace-style/shoelace";
-import { prepareSVGMaker } from "./svg";
+import { SlDialog, SlTooltip } from "@shoelace-style/shoelace";
 
 /**
  * Resets form and sets the text to default state.
@@ -145,7 +144,6 @@ export async function uploadPDF(file: File) {
       });
 
       // Summary
-      // $("skele-load").style.display = "none";
       $("summary-return-display").textContent = data.summary.join(" ");
       const sos = $("size-of-summary") as HTMLInputElement;
       sos.disabled = false;
@@ -163,24 +161,16 @@ export async function uploadPDF(file: File) {
       $("word-cloud-return-display").appendChild(makeWordCloudCanvas(phrases));
 
       // Metadata
-      $("title-return-display").textContent = article.bibliography.title;
+      const bibliography = new MLA8Citation(article.bibliography);
+      $("title-return-display").textContent = bibliography.title;
 
-      const date = article.bibliography.date;
 
-      if (date != null) {
-        const year = date.year;
-        const month = date.month || "";
-        const day = date.day || "";
-
-        let dateF = "Date: " + [year, month, day].join(" ").trim();
-        if (dateF !== "") {
-          dateF += ".";
-        }
-
-        $("date-tooltip").setAttribute("content", dateF);
+      if (bibliography.date) {
+        const dateTooltip = $("date-tooltip") as SlTooltip;
+        dateTooltip.content = bibliography.date;
+        dateTooltip.disabled = false;
       }
 
-      // console.log(article.bibliography.date);
       const authors = article.bibliography.authors;
       authors
         .slice(0, Math.min(authors.length, 3))
@@ -232,25 +222,21 @@ export async function uploadPDF(file: File) {
 
         const listEl = document.createElement("li");
         listEl.id = ref;
-
-        const logos: HTMLElement = document.createElement("div");
         const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
-
-        if (citationObj.target || citation.ids) {
-          prepareSVGMaker(logos, citation);
-        }
         listEl.appendChild(pEl);
 
+        // const logos: HTMLDivElement = document.createElement("div");
+
         // Google scholar link
-        listEl.appendChild(citationObj.googleScholarAnchor(logos));
+        listEl.appendChild(citationObj.googleScholarAnchor());
 
         oListEl.append(listEl);
       });
       $("references-return-display").append(oListEl);
-      // $("output-main").scrollIntoView();
     })
     .catch((e) => {
+      console.error(e);
       displayError(e, uploadCodesMap, "Server is down. Please try again later");
     });
 }
