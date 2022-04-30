@@ -154,16 +154,16 @@ export default class MLA8Citation {
     const citationIds = this.citation.ids;
     if (citationIds == null) return [];
 
-    if (citationIds.doi != null) {
+    if (citationIds.DOI != null) {
       idUrlArr.push({
-        id: citationIds.doi,
-        url: `https://doi.org/${citationIds.doi}`,
+        id: citationIds.DOI,
+        url: `https://doi.org/${citationIds.DOI}`,
       });
     }
-    if (citationIds.arxiv != null) {
+    if (citationIds.arXiv != null) {
       idUrlArr.push({
-        id: citationIds.arxiv,
-        url: `https://arxiv.org/abs/${citationIds.arxiv}`,
+        id: citationIds.arXiv,
+        url: `https://arxiv.org/abs/${citationIds.arXiv}`,
       });
     }
 
