@@ -146,11 +146,6 @@ a given module.
 
 [Guide on modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
 
-### Tailwind CSS
-
-We use [Tailwind CSS](https://tailwindcss.com/) to make styling of the web app
-effortless. If using Visual Studio Code, you should install the [Tailwind CSS
-IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) to enhance the development experience.
 
 ### Web Components
 
