@@ -50,10 +50,10 @@ export default class MLA8Citation {
     anchorEl.href = `https://scholar.google.co.uk/scholar?q=${encodedQuery}`;
     anchorEl.target = "_blank";
     const img = document.createElement("img");
-    img.src = "icons8-google-scholar.svg";
+    img.src = "../../public/assets/icons/icons8-google-scholar.svg";
     img.alt = "Google Scholar";
-    img.width = 50;
-    img.height = 50;
+    img.width = 45;
+    img.height = 45;
     anchorEl.append(img);
     logos.append(anchorEl);
     return logos;

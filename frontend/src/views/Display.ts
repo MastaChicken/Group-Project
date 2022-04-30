@@ -15,7 +15,7 @@ export default class extends AbstractView {
       <div class="tab-contents output-display">
         <div id="header">
         <sl-button id="home-button">Back to upload</sl-button>
-        <sl-tooltip id="date-tooltip" content="No date to display">
+        <sl-tooltip id="date-tooltip" content="Undated">
           <h1 id="title-return-display">Content Visualisation</h1>
         </sl-tooltip>
           <h4 id="authors-return-display"></h4>

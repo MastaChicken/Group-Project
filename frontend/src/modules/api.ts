@@ -1,7 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author, Citation } from "../models/api";
+import { UploadResponse, Author, Citation, CitationIDs } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
 import { SlDialog } from "@shoelace-style/shoelace";
@@ -181,16 +181,14 @@ export async function uploadPDF(file: File) {
 
       // console.log(article.bibliography.date);
       const authors = article.bibliography.authors;
-      console.log(authors);
       authors
-        .slice(0, Math.min(authors.length, 4))
+        .slice(0, Math.min(authors.length, 3))
         .forEach((author, id, array) => {
           const a = document.createElement("a");
           const divider = document.createElement("sl-divider");
           divider.setAttribute("vertical", "true");
           const authorString =
             author.person_name.surname + ", " + author.person_name.first_name;
-          console.log(authorString);
           a.innerText = authorString;
           $("authors-return-display").append(a);
           if (id < array.length - 1) {
@@ -234,7 +232,7 @@ export async function uploadPDF(file: File) {
         const listEl = document.createElement("li");
         listEl.id = ref;
 
-        let logos: HTMLElement = document.createElement("div");
+        const logos: HTMLElement = document.createElement("div");
         const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
 
@@ -260,52 +258,51 @@ function prepareSVGMaker(logos: HTMLElement, citation: Citation) {
   if (citation.ids == null) {
     return;
   }
+  console.log(citation.ids.DOI);
+  console.log(citation.ids.arXiv);
   let target = citation.target;
+
+  // Check if last character is a / because if it is then link is incomplete.
   if (target != null) {
     if (target.charAt(target.length - 1) == "/") {
       target = null;
     }
   }
+  const id: CitationIDs = citation.ids;
 
-  Object.entries(citation.ids).forEach((id) => {
-    if (id == null || id[1] == null) {
-      return;
+  if (id.DOI) {
+    if (target == null) {
+      target = `https://doi.org/${id.DOI}`;
+    } else {
+      target = citation.target;
     }
-
-    if (id[0] === "DOI") {
-      if (target == null) {
-        target = `https://doi.org/${id[1]}`;
-      } else {
-        target = citation.target;
-      }
-    } else if (id[0] === "arXiv") {
-      if (target == null) {
-        target = `https://arxiv.org/abs/${id[1]}`;
-      } else {
-        target = citation.target;
-      }
+  } else if (id.arXiv) {
+    if (target == null) {
+      target = `https://arxiv.org/abs/${id.arXiv}`;
+    } else {
+      target = citation.target;
     }
-    makeSVG(logos, id[0], target);
-  });
+  }
+  makeSVG(logos, citation.ids, target);
 }
 
-function makeSVG(logos: HTMLElement, id: string, target: string) {
+function makeSVG(logos: HTMLElement, id: CitationIDs, target: string) {
   const anchorEl = document.createElement("a");
 
   anchorEl.href = target;
   anchorEl.target = "_blank";
   const img = document.createElement("img");
 
-  if (id == "DOI") {
-    img.src = "DOI_logo.svg";
+  if (id.DOI) {
+    img.src = "../../public/assets/icons/DOI_logo.svg";
     img.alt = "DOI";
-  } else {
-    img.src = "264px-ArXiv_web.svg.png";
+  } else if (id.arXiv) {
+    img.src = "../../public/assets/icons/ArXiv_web.svg";
     img.alt = "arXiv";
   }
 
-  img.width = 44;
-  img.height = 44;
+  img.width = 45;
+  img.height = 45;
   anchorEl.append(img);
   logos.append(anchorEl);
 }
