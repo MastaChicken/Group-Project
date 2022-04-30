@@ -41,7 +41,7 @@ export default class MLA8Citation {
   /**
    * @returns Google scholar query link
    */
-  googleScholarAnchor(logos): HTMLAnchorElement {
+  googleScholarAnchor(logos: HTMLElement): HTMLElement {
     const rawDisplayName = this.joinAuthors(true);
     const encodedQuery = encodeURI(
       `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`

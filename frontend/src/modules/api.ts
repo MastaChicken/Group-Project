@@ -1,7 +1,7 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import makeWordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author } from "../models/api";
+import { UploadResponse, Author, Citation } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
 import { SlDialog } from "@shoelace-style/shoelace";
@@ -199,12 +199,12 @@ export async function uploadPDF(file: File) {
             createAuthorModal(author);
           });
         });
-      // if (authors.length > 3) {
-      //   const divider = document.createElement("sl-divider");
-      //   divider.setAttribute("vertical", "true");
-      //   $("authors-return-display").append(divider);
-      //   $("authors-return-display").append("et al.");
-      // }
+      if (authors.length > 3) {
+        const divider = document.createElement("sl-divider");
+        divider.setAttribute("vertical", "true");
+        $("authors-return-display").append(divider);
+        $("authors-return-display").append("et al.");
+      }
 
       const imrad = ["introduction", "methods", "results", "discussion"];
       const imradDiv = $("imrad");
@@ -232,7 +232,7 @@ export async function uploadPDF(file: File) {
         const listEl = document.createElement("li");
         listEl.id = ref;
 
-        const logos = document.createElement("div");
+        let logos: HTMLElement = document.createElement("div");
         const pEl = document.createElement("p");
         pEl.innerHTML = citationObj.entryHTMLString();
 
@@ -254,7 +254,7 @@ export async function uploadPDF(file: File) {
     });
 }
 
-function prepareSVGMaker(logos, citation) {
+function prepareSVGMaker(logos: HTMLElement, citation: Citation) {
   if (citation.ids == null) {
     return;
   }
@@ -286,6 +286,7 @@ function prepareSVGMaker(logos, citation) {
     makeSVG(logos, id[0], target);
   });
 }
+
 function makeSVG(logos: HTMLElement, id: string, target: string) {
   const anchorEl = document.createElement("a");
 
