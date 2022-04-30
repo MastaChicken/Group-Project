@@ -3,15 +3,6 @@
   width: 8em;
 }
 
-sl-skeleton {
-  --sheen-color: var(--sl-color-sky-500);
-  height: 1.5rem;
-  margin-top: 1rem;
-}
-
-sl-skeleton:nth-child(4n) {
-  margin-top: 2.5rem;
-}
 
 #summary-output {
   // border-left: 1px solid black;
@@ -24,6 +15,14 @@ sl-skeleton:nth-child(4n) {
   padding-bottom: 1.5%;
   min-width: 350px;
   overflow: scroll;
+  sl-skeleton {
+    height: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  sl-skeleton:nth-child(4n) {
+    margin-top: 2.5rem;
+  }
 }
 
 #summary-output::-webkit-scrollbar {

@@ -11,6 +11,8 @@ import { SlDialog } from "@shoelace-style/shoelace";
  */
 export function resetForm(): void {
   ($("upload-form") as HTMLFormElement).reset();
+  ($("pdfpicker-file") as HTMLInputElement).disabled = false;
+  $("upload-skeleton").setAttribute("effect", "none");
   $("pdfpicker-text").style.display = "none";
   $("pfdpicker-text-default").style.display = "block";
 }

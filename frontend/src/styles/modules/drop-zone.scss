@@ -12,31 +12,19 @@
   font-size: 1.5em;
   font-family: "Raleway", sans-serif;
   overflow: hidden;
+
+  &:hover {
+    border: 2px dashed grey;
+  }
+  label {
+    position: absolute;
+    margin: auto;
+    width: 30%;
+  }
 }
 
-#drop-zone label {
-  position: absolute;
-  margin: auto;
-  width: 30%;
-}
-
-#drop-zone:hover {
-  border: 2px dashed grey;
-}
-
-#myProgress {
-  width: 100%;
-  background-color: var(--sl-color-neutral-5000);
-  user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
-}
-
-#myBar {
+#upload-skeleton {
   --border-radius: 0%;
-  width: 0%;
-  height: 13em;
-  --sheen-color: var(--sl-color-sky-600);
+  width: 100%;
+  height: inherit;
 }

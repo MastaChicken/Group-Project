@@ -17,11 +17,9 @@ export default class extends AbstractView {
     <h4>The easiest scholarly article summariser in the world! Just Drag n Drop your articles and we'll do the rest!</h4>
     <sl-divider></sl-divider>
         <form id="upload-form">
-          
+
           <div id="drop-zone">
-          <div id="myProgress">
-            <sl-skeleton id="myBar" effect="sheen"></sl-skeleton>
-          </div>
+          <sl-skeleton id="upload-skeleton" effect="none"></sl-skeleton>
           <label for="pdfpicker-file">
             <span id="pfdpicker-text-default">
               <a
@@ -82,8 +80,8 @@ export default class extends AbstractView {
 
         if (files.length > 0 && isValidPDF(files[0])) {
           pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
-          loadingBar();
-
+          $("upload-skeleton").setAttribute("effect", "sheen")
+          pdfpickerInput.disabled = true;
           uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type
@@ -96,23 +94,6 @@ export default class extends AbstractView {
       false
     );
 
-    let i = 0;
-    function loadingBar() {
-      if (i == 0) {
-        i = 1;
-        let width = 1;
-        const frame = () => {
-          if (width >= 100) {
-            clearInterval(id);
-            i = 0;
-          } else {
-            width++;
-            $("myBar").style.width = width + "%";
-          }
-        };
-        const id = setInterval(frame, 10);
-      }
-    }
     // Upload URL
     const urlInput = $("url-input");
     urlInput.addEventListener("click", validateURL);
