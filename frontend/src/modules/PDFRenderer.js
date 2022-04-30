@@ -1,8 +1,8 @@
 import { $ } from "../constants";
-import * as PDFJS from "pdfjs-dist";
+import * as _pdfjs from "pdfjs-dist";
 
-PDFJS.GlobalWorkerOptions.workerSrc =
-  "../../node_modules/pdfjs-dist/build/pdf.worker.min.js";
+const workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${_pdfjs.version}/pdf.worker.js`;
+_pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 // cdn.jsdelivr.net/npm/pdfjs-dist@2.13.216/build/pdf.worker.js
 // keeping cdn link in case any issues arise from loading in worker
@@ -34,7 +34,7 @@ let counter = 0;
  */
 export function renderPDF(pdf) {
   init = true;
-  let loadingTask = PDFJS.getDocument(pdf);
+  let loadingTask = _pdfjs.getDocument(pdf);
   loadingTask.promise.then(function (pdf) {
     myState.pdf = pdf;
     myState.zoom = 1;
@@ -236,10 +236,6 @@ function onScroll() {
 
   $("current_page").value = myState.currentPage;
 }
-
-window.addEventListener("resize", function () {
-  render();
-});
 
 /**
  * Asynchronously downloads PDF.
