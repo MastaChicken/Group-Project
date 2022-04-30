@@ -76,6 +76,12 @@ export default class extends AbstractView {
                   class="output-box-info"
                 ></div>
               </sl-details>
+              <sl-details summary="PHRASECLOUD">
+                <div
+                  id="phrase-cloud-return-display"
+                  class="output-box-info"
+                ></div>
+              </sl-details>
               <div id="imrad"></div>
               <sl-details summary="REFERENCES">
                 <div

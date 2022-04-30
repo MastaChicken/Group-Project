@@ -8,7 +8,6 @@ Example::
 """
 from collections import Counter
 from functools import cached_property
-from heapq import nlargest
 from math import ceil
 
 import pytextrank  # noqa: F401
@@ -99,7 +98,7 @@ class Phrase:
         self.__doc = model(text)
 
     @cached_property
-    def ranks(self) -> dict[str, int]:
+    def ranks(self) -> list[tuple[str, int]]:
         """Return sorted dictionary with phrases and their normalised rank.
 
         If normalised rank is zero, the phrase is ignored.
@@ -107,12 +106,12 @@ class Phrase:
         Returns:
             Sorted dictionary of phrases mapping to their normalised rank
         """
-        phrases = {}
+        phrases = []
 
         for phrase in self.__doc._.phrases:
             n_rank = ceil(phrase.rank * 100)
             if phrase.text and n_rank:
-                phrases[phrase.text] = n_rank
+                phrases.append((phrase.text, n_rank))
 
         return phrases
 
