@@ -11,22 +11,10 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-    
+
       <div class="tab-contents output-display">
-        <div style="display: none" id="loading-screen">
-          <div class="lds-roller">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        </div>
-        <div id="header"> 
-        <sl-button id="home-button">Upload a new PDF!</sl-button>
+        <div id="header">
+        <sl-button id="home-button">Back to upload</sl-button>
         <sl-tooltip id="date-tooltip" content="No date to display">
           <h1 id="title-return-display">Content Visualisation</h1>
         </sl-tooltip>
@@ -98,8 +86,8 @@ export default class extends AbstractView {
           <div id="summary-output">
             <h2>Summary</h2>
                 <div id="summary-slider">
-                
-                  
+
+
                   <sl-range
                     min="10"
                     max="100"
@@ -111,7 +99,7 @@ export default class extends AbstractView {
                 </div>
                 <sl-divider></sl-divider>
                 <div id="summary-return-display">
-                  <div id="skele_load"> 
+                  <div id="skele_load">
                     <sl-skeleton effect="pulse"></sl-skeleton>
                     <sl-skeleton effect="pulse"></sl-skeleton>
                     <sl-skeleton effect="pulse"></sl-skeleton>
@@ -139,8 +127,6 @@ export default class extends AbstractView {
     sos.addEventListener(
       "sl-change",
       () => {
-        // $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
-
         if (sos.textContent != null) {
           const data = uploadResponse;
           const length = data.summary.length;
