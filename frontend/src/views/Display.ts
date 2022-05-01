@@ -27,7 +27,8 @@ export default class extends AbstractView {
 
     // Set home button to left of header
     const homeButton = document.createElement("sl-button")
-    homeButton.textContent = "Back to home";
+    homeButton.textContent = "Upload";
+    homeButton.innerHTML += '<sl-icon slot="prefix" name="caret-left"></sl-icon>';
     homeButton.addEventListener("click", () => {
       history.pushState(null, null, "/");
     });

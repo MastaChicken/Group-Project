@@ -130,7 +130,9 @@ export async function uploadPDF(file: File) {
 
       // Article ids
       const articleIDsDiv = $("article-ids");
-      articleIDsDiv.replaceWith(makeIconGrid(article.bibliography.ids));
+      const articleIDsDivNew = makeIconGrid(article.bibliography.ids);
+      articleIDsDivNew.id = "article-ids";
+      articleIDsDiv.replaceWith(articleIDsDivNew);
 
       $("title-return-display").textContent = bibliography.title;
       if (bibliography.date) {
