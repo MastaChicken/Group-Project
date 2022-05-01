@@ -10,7 +10,7 @@ export const IDMap = {
     alt: "DOI",
   },
   arXiv: {
-    target: "https://arxiv/abs/",
+    target: "https://arxiv.org/abs/",
     name: "arxiv-logo",
     alt: "arXiv ID",
   },
