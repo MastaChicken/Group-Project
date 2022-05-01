@@ -101,7 +101,6 @@ export async function uploadPDF(file: File) {
       fileReader.readAsArrayBuffer(file);
       const article = data.article;
 
-
       // Key Words
       const keyWordsDiv = $("key-words");
       makeKeywordTags(article.keywords).forEach((tag) =>

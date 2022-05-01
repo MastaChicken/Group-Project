@@ -2,6 +2,7 @@ import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
 const config: PlaywrightTestConfig = {
+  workers: process.env.CI ? 2 : undefined,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   webServer: {
@@ -17,10 +18,6 @@ const config: PlaywrightTestConfig = {
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-    },
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
     },
   ],
 };

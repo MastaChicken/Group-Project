@@ -4,15 +4,15 @@ import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
-   headingCenter = $("header-center") as HTMLDivElement;
-   headingLeft = $("header-left") as HTMLDivElement;
+  headingCenter = $("header-center") as HTMLDivElement;
+  headingLeft = $("header-left") as HTMLDivElement;
 
   constructor() {
     super();
     this.setTitle("Display");
 
     // Set headings to center of header
-    const dateTooltip = document.createElement("sl-tooltip")
+    const dateTooltip = document.createElement("sl-tooltip");
     dateTooltip.id = "date-tooltip";
     dateTooltip.placement = "bottom";
     dateTooltip.disabled = true;
@@ -26,9 +26,10 @@ export default class extends AbstractView {
     this.headingCenter.replaceChildren(...[dateTooltip, subHeadingEl]);
 
     // Set home button to left of header
-    const homeButton = document.createElement("sl-button")
+    const homeButton = document.createElement("sl-button");
     homeButton.textContent = "Upload";
-    homeButton.innerHTML += '<sl-icon slot="prefix" name="caret-left"></sl-icon>';
+    homeButton.innerHTML +=
+      '<sl-icon slot="prefix" name="caret-left"></sl-icon>';
     homeButton.addEventListener("click", () => {
       history.pushState(null, null, "/");
     });

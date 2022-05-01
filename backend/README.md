@@ -60,7 +60,7 @@ $ cp .env.example .env
 
 - `GROBID_API_URL` (required)
     - Used for parsing the PDF
-    - See [API Prerequisities](#api-prerequisites)
+    - See [API Prerequisities](#prerequisites)
 - `HUGGINGFACE_API_TOKEN` (optional)
     - Defaults to "" (empty string)
     - Default won't compute a final summary (returns large summary)
@@ -76,7 +76,7 @@ $ cp .env.example .env
 
 The API is written using [FastAPI](https://fastapi.tiangolo.com/)
 
-<h3 id="api-prerequisites">Prerequisites</h3>
+### Prerequisites
 
 The GROBID REST API needs to be running for the PDF parser.
 
@@ -198,8 +198,8 @@ should warn you when compliance has not been met.
 You need to be in the virtual environment and/or have `sphinx` installed.
 
 ```bash
-$ sphinx-apidoc -o docs/ app/
-$ sphinx-apidoc -o docs/ tests/
+$ sphinx-apidoc -fo docs/ app/
+$ sphinx-apidoc -fo docs/ tests/
 $ cd docs && make html
 ```
 
