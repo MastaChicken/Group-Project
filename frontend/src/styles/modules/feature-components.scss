@@ -13,12 +13,14 @@
   background: #555;
 }
 
-#light-dark-switch {
-  float: right;
-  margin-right: 1em;
-  margin-left: -20%;
-}
-
 sl-dialog {
   width: 40%;
+}
+
+#size-of-summary {
+  width: 80%;
+  --track-color-inactive: var(--sl-color-sky-800);
+  --track-color-active: var(--sl-color-sky-600);
+
+  color: var(--sl-color-sky-200);
 }

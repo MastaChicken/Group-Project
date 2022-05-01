@@ -7,12 +7,9 @@
   position: relative;
   width: 33vw;
   min-width: 370px;
-  max-height: 87vh;
+  max-height: 85vh;
   height: 100%;
   overflow: auto;
-  border-left: 1px solid var(--sl-color-neutral-800);
-  border-top: 1px solid var(--sl-color-neutral-800);
-  // border-bottom: 1px solid black;
 }
 
 #navigation_controls {
@@ -74,8 +71,4 @@
 
 #zoom_label {
   margin-top: 0.5em;
-}
-
-.fullPage {
-  overflow-x: hidden !important;
 }

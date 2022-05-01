@@ -59,8 +59,8 @@ export interface Date {
  * Represents the <idno> XML tag.
  */
 export interface CitationIDs {
-  doi?: string;
-  arxiv?: string;
+  DOI?: string;
+  arXiv?: string;
 }
 /**
  * Represents the <biblScope/> XML tag.

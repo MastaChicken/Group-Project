@@ -1,16 +1,22 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
 import WordCloudCanvas from "./wordcloud";
-import { UploadResponse, Author } from "../models/api";
+import { UploadResponse } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
-import { SlDialog } from "@shoelace-style/shoelace";
+import { SlDivider, SlTooltip } from "@shoelace-style/shoelace";
+import { makeIconGrid, makeReferenceList } from "./references";
+import setupImradDetails from "./imrad";
+import makeKeywordTags from "./keywords";
+import { AuthorDetails, truncateAuthors, TRUNCATION_STRING } from "./author";
 
 /**
  * Resets form and sets the text to default state.
  */
 export function resetForm(): void {
   ($("upload-form") as HTMLFormElement).reset();
+  ($("pdfpicker-file") as HTMLInputElement).disabled = false;
+  $("upload-skeleton").setAttribute("effect", "none");
   $("pdfpicker-text").style.display = "none";
   $("pfdpicker-text-default").style.display = "block";
 }
@@ -58,39 +64,6 @@ function displayError(
   resetForm();
 }
 
-function createAuthorModal(author: Author) {
-  const modal = $("author-modal") as SlDialog;
-  const emailAnchor = document.createElement("a");
-  const mailToString = "mailto: " + author.email;
-
-  emailAnchor.setAttribute("href", mailToString);
-  emailAnchor.textContent = author.email;
-
-  // Get the <span> element that closes the modal
-  const closeButton = modal.querySelector('sl-button[slot="footer"]');
-
-  modal.show();
-
-  // TODO: move this to a class
-  // Some of the properties aren't guaranteed to show
-  $("modal-content").innerHTML =
-    author.person_name.first_name +
-    " " +
-    author.person_name.surname +
-    "<br>" +
-    author.affiliations[0].department +
-    "<br>" +
-    author.affiliations[0].institution +
-    "<br>" +
-    author.affiliations[0].laboratory +
-    "<br>";
-  $("modal-content").append(emailAnchor);
-
-  // When the user clicks on <span> (x), close the modal
-  closeButton.addEventListener("click", () => {
-    modal.hide();
-  });
-}
 export let uploadResponse: UploadResponse;
 
 /**
@@ -128,18 +101,12 @@ export async function uploadPDF(file: File) {
       fileReader.readAsArrayBuffer(file);
       const article = data.article;
 
+
       // Key Words
-      const variantArray = ["primary", "neutral"];
-      const variants = variantArray.length;
-      let keywordIndex = 0;
-      article.keywords.forEach((keyword) => {
-        const badge = document.createElement("sl-tag");
-        badge.innerText = keyword;
-        const variantIndex = keywordIndex % variants;
-        badge.setAttribute("variant", variantArray[variantIndex]);
-        keywordIndex++;
-        $("key-words").appendChild(badge);
-      });
+      const keyWordsDiv = $("key-words");
+      makeKeywordTags(article.keywords).forEach((tag) =>
+        keyWordsDiv.appendChild(tag)
+      );
 
       // Summary
       $("summary-return-display").textContent = data.summary.join(" ");
@@ -162,83 +129,56 @@ export async function uploadPDF(file: File) {
       $("phrase-cloud-return-display").appendChild(phraseCanvas);
 
       // Metadata
-      $("title-return-display").textContent = article.bibliography.title;
-      article.bibliography.authors.forEach((author, id, array) => {
-        const a = document.createElement("a");
-        const divider = document.createElement("sl-divider");
-        divider.setAttribute("vertical", "true");
-        const authorString =
-          author.person_name.surname + ", " + author.person_name.first_name;
-        a.innerText = authorString;
-        $("authors-return-display").append(a);
-        if (id < array.length - 1) {
-          $("authors-return-display").append(divider);
-        }
+      const bibliography = new MLA8Citation(article.bibliography);
 
-        a.addEventListener("click", function () {
-          createAuthorModal(author);
-        });
-      });
+      // Article ids
+      const articleIDsDiv = $("article-ids");
+      const articleIDsDivNew = makeIconGrid(article.bibliography.ids);
+      articleIDsDivNew.id = "article-ids";
+      articleIDsDiv.replaceWith(articleIDsDivNew);
 
-      const imrad = ["introduction", "methods", "results", "discussion"];
-      const imradDiv = $("imrad");
-      article.sections.forEach((section) => {
-        const title = section.title.toLowerCase();
-        if (imrad.includes(title)) {
-          const details = document.createElement("sl-details");
-          details.setAttribute("summary", section.title.toUpperCase());
-          section.paragraphs.forEach((p) => {
-            const pTag = document.createElement("p");
-            // TODO: add inline references
-            pTag.innerText = p.text;
-            details.appendChild(pTag);
+      $("title-return-display").textContent = bibliography.title;
+      if (bibliography.date) {
+        const dateTooltip = $("date-tooltip") as SlTooltip;
+        dateTooltip.content = bibliography.date;
+        dateTooltip.disabled = false;
+      }
+
+      // Authors
+      const authors = truncateAuthors(bibliography.authors, 3);
+      const authorsHeading = $("authors-return-display");
+      authors.forEach((authorName, index, array) => {
+        if (authorName == TRUNCATION_STRING && index === array.length - 1) {
+          authorsHeading.append(TRUNCATION_STRING);
+        } else {
+          const anchor = document.createElement("a");
+          anchor.href = "javascript:;";
+          anchor.innerText = authorName;
+          authorsHeading.append(anchor);
+          anchor.addEventListener("click", () => {
+            const authorObj = new AuthorDetails(
+              article.bibliography.authors[index]
+            );
+            authorObj.showAuthorDialog();
           });
-          imradDiv.appendChild(details);
+        }
+
+        if (index < array.length - 1) {
+          const divider = document.createElement("sl-divider") as SlDivider;
+          divider.vertical = true;
+
+          authorsHeading.append(divider);
         }
       });
-      imradDiv.replaceWith(...imradDiv.childNodes);
+
+      setupImradDetails(article.sections);
 
       // References
-      const oListEl = document.createElement("ol");
-      Object.entries(article.citations).forEach(([ref, citation]) => {
-        const citationObj = new MLA8Citation(citation);
-
-        const listEl = document.createElement("li");
-        listEl.id = ref;
-        let pEl = document.createElement("p");
-        pEl.innerHTML = citationObj.entryHTMLString();
-        if (citationObj.target) {
-          const anchorEl = document.createElement("a");
-          anchorEl.href = citationObj.target;
-          anchorEl.text = ` ${citationObj.target}`;
-          anchorEl.target = "_blank";
-          pEl.append(anchorEl);
-        }
-        listEl.appendChild(pEl);
-
-        // TODO: use a grid of icons instead of paragraphs
-        // Show ids
-        if (citationObj.ids?.length) {
-          pEl = document.createElement("p");
-          citationObj.ids.forEach((idUrl) => {
-            const anchorEl = document.createElement("a");
-            anchorEl.href = idUrl.url;
-            anchorEl.text = idUrl.id;
-            anchorEl.target = "_blank";
-            pEl.append(anchorEl);
-          });
-          listEl.appendChild(pEl);
-        }
-
-        // Google scholar link
-        listEl.appendChild(citationObj.googleScholarAnchor());
-
-        oListEl.append(listEl);
-      });
+      const oListEl = makeReferenceList(article.citations);
       $("references-return-display").append(oListEl);
-      $("output-main").scrollIntoView();
     })
     .catch((e) => {
+      console.error(e);
       displayError(e, uploadCodesMap, "Server is down. Please try again later");
     });
 }

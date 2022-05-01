@@ -9,7 +9,12 @@
 
   <body class="sl-theme-dark">
     <div class="main">
-      <sl-switch id="light-dark-switch">Dark</sl-switch>
+      <div id="header">
+        <div id="header-left"> </div>
+        <div id="header-center"> </div>
+        <div id="header-right"> <sl-switch id="light-dark-switch">Dark</sl-switch> </div>
+      </div>
+      <sl-divider id="main-divider"></sl-divider>
       <div id="outlet"></div>
     </div>
     <script defer type="module" src="/src/index.ts"></script>

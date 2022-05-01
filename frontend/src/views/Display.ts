@@ -4,37 +4,46 @@ import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
+   headingCenter = $("header-center") as HTMLDivElement;
+   headingLeft = $("header-left") as HTMLDivElement;
+
   constructor() {
     super();
     this.setTitle("Display");
+
+    // Set headings to center of header
+    const dateTooltip = document.createElement("sl-tooltip")
+    dateTooltip.id = "date-tooltip";
+    dateTooltip.placement = "bottom";
+    dateTooltip.disabled = true;
+    const headingEl = document.createElement("h2");
+    headingEl.id = "title-return-display";
+    headingEl.innerText = "Content Visualisation";
+    dateTooltip.appendChild(headingEl);
+    const subHeadingEl = document.createElement("h4");
+
+    subHeadingEl.id = "authors-return-display";
+    this.headingCenter.replaceChildren(...[dateTooltip, subHeadingEl]);
+
+    // Set home button to left of header
+    const homeButton = document.createElement("sl-button")
+    homeButton.textContent = "Upload";
+    homeButton.innerHTML += '<sl-icon slot="prefix" name="caret-left"></sl-icon>';
+    homeButton.addEventListener("click", () => {
+      history.pushState(null, null, "/");
+    });
+    this.headingLeft.replaceChildren(homeButton);
   }
 
   getHtml() {
     return html`
-      <div class="tab-contents output-display">
-        <div style="display: none" id="loading-screen">
-          <div class="lds-roller">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        </div>
-        <h1 id="title-return-display">Content Visualisation</h1>
-        <h4 id="authors-return-display"></h4>
-        <sl-dialog class="dialog-overview" id="author-modal">
-          <div class="modal-content">
-            <p id="modal-content"></p>
+        <sl-dialog class="dialog-overview" id="author-dialog">
+          <div id="dialog-content">
           </div>
           <sl-button slot="footer" variant="primary">Close</sl-button>
         </sl-dialog>
         <div id="output-main">
           <div id="pdf-renderer">
-            <div id="my_pdf_viewer">
               <div id="navigation_controls">
                 <sl-icon-button
                   name="chevron-double-left"
@@ -42,7 +51,13 @@ export default class extends AbstractView {
                 ></sl-icon-button>
 
                 <sl-button id="go_previous">Prev</sl-button>
-                <sl-input id="current_page" value="1" type="number"></sl-input>
+                <sl-input
+                  id="current_page"
+                  value="1"
+                  type="number"
+                  inputMode="numeric"
+                  valueAsNumber
+                ></sl-input>
                 <sl-button id="go_next">Next</sl-button>
 
                 <sl-icon-button
@@ -53,10 +68,7 @@ export default class extends AbstractView {
                 <label id="zoom_label">100%</label>
                 <sl-icon-button name="plus-lg" id="zoom_in"></sl-icon-button>
               </div>
-              <div id="canvas_container">
-                <canvas id="pdf_renderer"></canvas>
-              </div>
-            </div>
+              <div id="canvas_container"></div>
           </div>
           <div>
             <div id="show-pdf-div">
@@ -69,46 +81,48 @@ export default class extends AbstractView {
           </div>
           <div id="summary-container">
             <div id="summary-info" class="summary-boxes">
+              <div id="article-ids"></div>
               <div id="key-words"></div>
-              <sl-details summary="WORDCLOUD">
-                <div
-                  id="word-cloud-return-display"
-                  class="output-box-info"
-                ></div>
-              </sl-details>
-              <sl-details summary="PHRASECLOUD">
-                <div
-                  id="phrase-cloud-return-display"
-                  class="output-box-info"
-                ></div>
-              </sl-details>
-              <div id="imrad"></div>
-              <sl-details summary="REFERENCES">
-                <div
-                  id="references-return-display"
-                  class="output-box-info"
-                ></div
-              ></sl-details>
+              <sl-details summary="WORDCLOUD" id="word-cloud-return-display"></sl-details>
+              <sl-details summary="PHRASECLOUD" id="phrase-cloud-return-display"> </sl-details>
+              <sl-details disabled summary="INTRODUCTION" id="introduction-return-display"></sl-details>
+              <sl-details disabled summary="METHODS" id="methods-return-display"></sl-details>
+              <sl-details disabled summary="RESULTS" id="results-return-display"></sl-details>
+              <sl-details disabled summary="DISCUSSION" id="discussion-return-display"></sl-details>
+              <sl-details summary="REFERENCES" id="references-return-display"></sl-details>
             </div>
           </div>
           <div id="summary-output">
             <h2>Summary</h2>
-            <sl-divider></sl-divider>
-            <label for="size-of-summary" id="sos-lbl">
-              Size of Summary: 100%</label
-            >
-            <sl-range
-              min="10"
-              max="100"
-              value="100"
-              step="10"
-              class="slider"
-              id="size-of-summary"
-            ></sl-range>
-            <div id="summary-return-display"></div>
+                <div id="summary-slider">
+                  <sl-range
+                    min="10"
+                    max="100"
+                    value="100"
+                    step="10"
+                    class="slider"
+                    id="size-of-summary"
+                  ></sl-range>
+                </div>
+                <sl-divider></sl-divider>
+                <div id="summary-return-display">
+                  <div id="skele_load">
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                    <sl-skeleton effect="pulse"></sl-skeleton>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
     `;
   }
 
@@ -119,8 +133,6 @@ export default class extends AbstractView {
     sos.addEventListener(
       "sl-change",
       () => {
-        $("sos-lbl").innerHTML = `Size of Summary: ${sos.value}%`;
-
         if (sos.textContent != null) {
           const data = uploadResponse;
           const length = data.summary.length;
@@ -133,6 +145,12 @@ export default class extends AbstractView {
       },
       true
     );
+
+    const skeleDivs = document.getElementsByTagName("sl-skeleton");
+    for (let i = 0; i < skeleDivs.length; i++) {
+      skeleDivs[i].style.width =
+        Math.floor(Math.random() * (100 - 70 + 1) + 70).toString() + "%";
+    }
 
     setupPDFListeners();
 

@@ -3,17 +3,25 @@
   width: 8em;
 }
 
+
 #summary-output {
   // border-left: 1px solid black;
   padding-right: 2em;
   padding-left: 2em;
   color: var(--sl-color-neutral-900);
   background: var(--sl-color-neutral-300);
-  overflow: auto;
-  max-height: 99%;
-  padding-bottom: 1.5%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 90vh;
   min-width: 350px;
-  overflow: scroll;
+  sl-skeleton {
+    height: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  sl-skeleton:nth-child(4n) {
+    margin-top: 2.5rem;
+  }
 }
 
 #summary-output::-webkit-scrollbar {

@@ -28,6 +28,9 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
       },
       output: {
+        globals: {
+          "pdfjs-dist": "pdfjsLib",
+        },
         manualChunks: {
           wordcloud: ["wordcloud"],
           pdfjs: ["pdfjs-dist"],

@@ -5,18 +5,26 @@ import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
 
 export default class extends AbstractView {
+  headingCenter = $("header-center") as HTMLDivElement;
+  headingLeft = $("header-left") as HTMLDivElement;
+
   constructor() {
     super();
     this.setTitle("Upload");
+    const headingEl = document.createElement("h1");
+    headingEl.innerText = "SummarEase";
+    this.headingCenter.replaceChildren(headingEl);
+
+    this.headingLeft.replaceChildren();
   }
 
   getHtml() {
     return html`
-    <div class="tab-contents">
-    <h1>Content Visualisation</h1>
-    <sl-divider></sl-divider>
+    <div class="form-center">
         <form id="upload-form">
+
           <div id="drop-zone">
+          <sl-skeleton id="upload-skeleton" effect="none"></sl-skeleton>
           <label for="pdfpicker-file">
             <span id="pfdpicker-text-default">
               <a
@@ -77,7 +85,8 @@ export default class extends AbstractView {
 
         if (files.length > 0 && isValidPDF(files[0])) {
           pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
-
+          $("upload-skeleton").setAttribute("effect", "sheen");
+          pdfpickerInput.disabled = true;
           uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type

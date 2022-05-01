@@ -7,13 +7,16 @@
 }
 
 #summary-info {
-  border-radius: 0.5em;
   display: flex;
   height: 100%;
   flex-direction: column;
   justify-content: flex-start;
   align-content: flex-start;
   overflow: hidden;
+}
+
+#article-ids {
+  background-color: var(--sl-color-neutral-100);
 }
 
 #key-words {
@@ -33,7 +36,7 @@ sl-details {
   margin-right: auto;
   width: 95%;
   color: var(--sl-color-neutral-900);
-  max-height: 70%;
+  max-height: 56%;
   overflow: auto;
   overflow-x: hidden;
   font-family: var(--sl-font-serif);
