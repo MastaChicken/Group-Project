@@ -9,12 +9,7 @@ variables:
 
 # Cache modules in between jobs
 cache: &package_cache
-  key:
-    files:
-      - backend/poetry.lock
-      - backend/.gitlab-ci.yml
-    # prefix: $CI_JOB_NAME
-    prefix: poetry
+  key: $CI_COMMIT_REF_SLUG
   policy: pull
   paths:
     - .cache
@@ -107,7 +102,7 @@ pages:
   stage: deploy
   script:
     - mkdir -p ../public/backend
-    - cp -R docs/build/* ../public/frontend
+    - cp -R docs/build/* ../public/backend
   artifacts:
     paths:
       - public
