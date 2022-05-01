@@ -95,7 +95,6 @@ export class AuthorDetails {
       if (affiliation.institution) affArr.push(affiliation.institution);
       affsArr.push(affArr);
     });
-    console.log(affsArr);
 
     return affsArr;
   }

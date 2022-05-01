@@ -1,6 +1,6 @@
 import MLA8Citation from "./mla8_citation";
 import { $, API } from "../constants";
-import makeWordCloudCanvas from "./wordcloud";
+import WordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
@@ -114,16 +114,19 @@ export async function uploadPDF(file: File) {
       sos.disabled = false;
 
       // Word cloud
-      $("word-cloud-return-display").appendChild(
-        makeWordCloudCanvas(data.common_words)
-      );
+      const summaryDiv = $("summary-container") as HTMLDivElement;
+      const wordcloud = new WordCloudCanvas(summaryDiv);
+      const wordCloudCanvas = document.createElement(
+        "canvas"
+      ) as HTMLCanvasElement;
+      wordcloud.update(wordCloudCanvas, data.common_words);
+      $("word-cloud-return-display").appendChild(wordCloudCanvas);
 
-      // TODO: Return list of tuples by default
-      const phrases = [];
-      for (const [phrase, rank] of Object.entries(data.phrase_ranks)) {
-        phrases.push([phrase, rank]);
-      }
-      $("word-cloud-return-display").appendChild(makeWordCloudCanvas(phrases));
+      const phraseCanvas = document.createElement(
+        "canvas"
+      ) as HTMLCanvasElement;
+      wordcloud.update(phraseCanvas, data.phrase_ranks);
+      $("phrase-cloud-return-display").appendChild(phraseCanvas);
 
       // Metadata
       const bibliography = new MLA8Citation(article.bibliography);

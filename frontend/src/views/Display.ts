@@ -84,6 +84,7 @@ export default class extends AbstractView {
               <div id="article-ids"></div>
               <div id="key-words"></div>
               <sl-details summary="WORDCLOUD" id="word-cloud-return-display"></sl-details>
+              <sl-details summary="PHRASECLOUD" id="phrase-cloud-return-display"> </sl-details>
               <sl-details disabled summary="INTRODUCTION" id="introduction-return-display"></sl-details>
               <sl-details disabled summary="METHODS" id="methods-return-display"></sl-details>
               <sl-details disabled summary="RESULTS" id="results-return-display"></sl-details>

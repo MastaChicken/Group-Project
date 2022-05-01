@@ -117,8 +117,6 @@ export interface Table {
 export interface UploadResponse {
   article: Article;
   common_words: [string, number][];
-  phrase_ranks: {
-    [k: string]: number;
-  };
+  phrase_ranks: [string, number][];
   summary: string[];
 }
