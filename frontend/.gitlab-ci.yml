@@ -48,7 +48,7 @@ e2e:
   script:
     - npm run e2e
 
-docs:
+pages:
   stage: build
   script:
     - npm run doc
