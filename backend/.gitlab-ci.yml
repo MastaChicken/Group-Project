@@ -19,12 +19,14 @@ cache: &package_cache
   paths:
     - .cache
     - backend/.venv/
+    - public
   when: always
 
 stages:
   - prepare
   - test
   - build
+  - deploy
 
 before_script:
   - pip install poetry==${POETRY_VERSION}
@@ -82,15 +84,15 @@ coverage:
       cobertura: backend/coverage.xml
       junit: backend/report.xml
 
-pages:
+docs:
   stage: build
   script:
     - poetry run sphinx-apidoc -o docs/ app/
     - poetry run sphinx-apidoc -o docs/ tests/
-    - poetry run sphinx-build -b html docs ../public/backend
+    - poetry run sphinx-build -b html docs docs/build
   artifacts:
     paths:
-      - public
+      - backend/docs/build/
 
 build:
   stage: build
@@ -100,3 +102,13 @@ build:
   artifacts:
     paths:
       - backend/dist/*.whl
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p ../public/backend
+    - cp -R docs/build/* ../public/frontend
+  artifacts:
+    paths:
+      - public
+    when: always

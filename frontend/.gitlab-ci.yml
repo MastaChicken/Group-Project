@@ -10,12 +10,14 @@ cache: &package_cache
   policy: pull
   paths:
     - frontend/.npm/
+    - public
   when: always
 
 stages:
   - prepare
   - test
   - build
+  - deploy
 
 before_script:
   - cd frontend
@@ -48,23 +50,30 @@ e2e:
   script:
     - npm run e2e
 
-pages:
+docs:
   stage: build
   script:
     - npm run doc
-    - mkdir -p ../public/frontend
-    - cp -R docs/* ../public/frontend
   artifacts:
     paths:
-      - public
+      - frontend/docs/
 
 build:
   stage: build
   script:
     # TODO: build for production by using Gitlab environment secret
     - npm run build:dev
-    - mkdir -p ../public
+  artifacts:
+    paths:
+      - frontend/dist/
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p ../public/frontend
+    - cp -R docs/* ../public/frontend
     - cp -R dist/* ../public
   artifacts:
     paths:
       - public
+    when: always
