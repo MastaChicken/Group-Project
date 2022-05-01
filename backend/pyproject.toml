@@ -44,6 +44,8 @@ Sphinx = "^4.3.1"
 colorama = "^0.4.4"
 pytest-asyncio = "^0.18.3"
 respx = "^0.19.2"
+myst-parser = "^0.17.2"
+furo = "^2022.4.7"
 
 [tool.isort]
 profile = "black"
