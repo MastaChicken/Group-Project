@@ -36,9 +36,8 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-        <sl-dialog class="dialog-overview" id="author-modal">
-          <div class="modal-content">
-            <p id="modal-content"></p>
+        <sl-dialog class="dialog-overview" id="author-dialog">
+          <div id="dialog-content">
           </div>
           <sl-button slot="footer" variant="primary">Close</sl-button>
         </sl-dialog>
@@ -81,14 +80,13 @@ export default class extends AbstractView {
           </div>
           <div id="summary-container">
             <div id="summary-info" class="summary-boxes">
+              <div id="article-ids"></div>
               <div id="key-words"></div>
-              <sl-details summary="WORDCLOUD">
-                <div
-                  id="word-cloud-return-display"
-                  class="output-box-info"
-                ></div>
-              </sl-details>
-              <div id="imrad"></div>
+              <sl-details summary="WORDCLOUD" id="word-cloud-return-display"></sl-details>
+              <sl-details disabled summary="INTRODUCTION" id="introduction-return-display"></sl-details>
+              <sl-details disabled summary="METHODS" id="methods-return-display"></sl-details>
+              <sl-details disabled summary="RESULTS" id="results-return-display"></sl-details>
+              <sl-details disabled summary="DISCUSSION" id="discussion-return-display"></sl-details>
               <sl-details summary="REFERENCES" id="references-return-display"></sl-details>
             </div>
           </div>

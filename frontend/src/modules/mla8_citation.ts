@@ -1,14 +1,7 @@
 /** @module MLA8Citation */
 
 import { Citation } from "../models/api";
-
-/**
- * Represents a document ID and its respective URL
- */
-type IDUrl = {
-  id: string;
-  url: string;
-};
+import { mapFullname, truncateAuthors } from "./author";
 
 /** @class */
 export default class MLA8Citation {
@@ -17,53 +10,13 @@ export default class MLA8Citation {
   constructor(citation: Citation) {
     this.citation = citation;
   }
-  /**
-   * @param all - whether it should truncate at 2 authors.
-   * Default is false
-   * @returns concatenated author strings
-   */
-  joinAuthors(all = false): string {
-    if (all) return this.authors.join(", ");
-    if (this.authors.length == 1) return this.authors[0];
-
-    let authorNames = "";
-    for (let index = 0; index < this.authors.length; index++) {
-      if (index == 2) {
-        authorNames += "et al.";
-        break;
-      }
-      authorNames += `${this.authors[index]}, `;
-    }
-
-    return authorNames;
-  }
-
-  /**
-   * @returns Google scholar query link
-   */
-  googleScholarAnchor(): HTMLAnchorElement {
-    const rawDisplayName = this.joinAuthors(true);
-    const encodedQuery = encodeURI(
-      `${rawDisplayName} "${this.title}". ${this.journal} ${this.volume} ${this.date}`
-    );
-    const anchorEl = document.createElement("a");
-    anchorEl.href = `https://scholar.google.co.uk/scholar?q=${encodedQuery}`;
-    anchorEl.target = "_blank";
-    const img = document.createElement("img");
-    img.src = "../../public/assets/icons/icons8-google-scholar.svg";
-    img.alt = "Google Scholar";
-    img.width = 40;
-    img.height = 40;
-    anchorEl.append(img);
-    return anchorEl;
-  }
 
   // TODO: using string literal is too naive
   /**
    * @returns HTML string structured as an MLA8 Citation entry
    */
   entryHTMLString(): string {
-    const displayName = this.joinAuthors();
+    const displayName = truncateAuthors(this.authors, 2).join(", ");
     return `${displayName} ${this.title} <i>${this.journal}</i> ${this.date} ${this.pages}`;
   }
 
@@ -73,16 +26,9 @@ export default class MLA8Citation {
   }
 
   /** @returns authors full names */
-  get authors(): Array<string> {
-    const authors: Array<string> = [];
-    if (this.citation.authors == null) return authors;
-    for (let index = 0; index < this.citation.authors.length; index++) {
-      const person_name = this.citation.authors[index].person_name;
-      const first_name = person_name.first_name || "";
-      const surname = person_name.surname || "";
-      authors.push(`${first_name} ${surname}`.trim());
-    }
-    return authors;
+  get authors(): string[] {
+    if (this.citation.authors == null) return [];
+    return mapFullname(this.citation.authors);
   }
 
   // NOTE: add to MLA8 citation string
@@ -141,31 +87,5 @@ export default class MLA8Citation {
   /** @returns citation target (can be empty string) */
   get target(): string {
     return this.citation.target || "";
-  }
-
-  /**
-   * Supported types: DOI and arXiv
-   *
-   * @returns array of {idURL}
-   */
-  get ids(): IDUrl[] {
-    const idUrlArr: IDUrl[] = [];
-    const citationIds = this.citation.ids;
-    if (citationIds == null) return [];
-
-    if (citationIds.DOI != null) {
-      idUrlArr.push({
-        id: citationIds.DOI,
-        url: `https://doi.org/${citationIds.DOI}`,
-      });
-    }
-    if (citationIds.arXiv != null) {
-      idUrlArr.push({
-        id: citationIds.arXiv,
-        url: `https://arxiv.org/abs/${citationIds.arXiv}`,
-      });
-    }
-
-    return idUrlArr;
   }
 }
