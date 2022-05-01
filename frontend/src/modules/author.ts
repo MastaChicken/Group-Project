@@ -2,17 +2,14 @@ import { SlDialog } from "@shoelace-style/shoelace";
 import { $ } from "../constants";
 import { Author } from "../models/api";
 
-export const TRUNCATION_STRING = "et al."
+export const TRUNCATION_STRING = "et al.";
 
 /**
  * @param authors - list of Author
  * @param n - number of authors to truncate at. Default is 3
  * @returns concatenated author strings
  */
-export function truncateAuthors(
-  authors: string[],
-  n = 3
-): string[] {
+export function truncateAuthors(authors: string[], n = 3): string[] {
   if (n == 0 || authors.length == 1) return authors;
 
   const authorsTrun = [];

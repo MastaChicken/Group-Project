@@ -157,7 +157,7 @@ function onPrevPage() {
     return;
   }
   --myState.currentPage;
-  let target = canvasArray[myState.currentPage - 1]
+  let target = canvasArray[myState.currentPage - 1];
   target.parentNode.scrollTop = target.offsetTop;
 }
 
@@ -169,7 +169,7 @@ function onNextPage() {
     return;
   }
   ++myState.currentPage;
-  let target = canvasArray[myState.currentPage - 1]
+  let target = canvasArray[myState.currentPage - 1];
   target.parentNode.scrollTop = target.offsetTop;
 }
 
@@ -183,7 +183,7 @@ function onPageEntry() {
     return;
   }
   myState.currentPage = pageInput.value;
-  let target = canvasArray[myState.currentPage - 1]
+  let target = canvasArray[myState.currentPage - 1];
   target.parentNode.scrollTop = target.offsetTop;
 }
 

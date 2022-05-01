@@ -3,11 +3,11 @@ import { $ } from "../constants";
 import { Section } from "../models/api";
 
 const IMRAD = {
-  "introduction": "introduction-return-display",
-  "methods": "methods-return-display",
-  "results": "results-return-display",
-  "discussion": "results-return-display",
-}
+  introduction: "introduction-return-display",
+  methods: "methods-return-display",
+  results: "results-return-display",
+  discussion: "results-return-display",
+};
 
 export default function setupImradDetails(sections: Section[]): void {
   sections.forEach((section) => {
@@ -20,7 +20,7 @@ export default function setupImradDetails(sections: Section[]): void {
         const pTag = document.createElement("p");
         // TODO: add inline references
         pTag.innerText = p.text;
-        detailEl.appendChild(pTag)
+        detailEl.appendChild(pTag);
       });
     }
   });
