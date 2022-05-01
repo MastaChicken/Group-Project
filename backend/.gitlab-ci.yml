@@ -82,6 +82,16 @@ coverage:
       cobertura: backend/coverage.xml
       junit: backend/report.xml
 
+docs:
+  stage: build
+  script:
+    - poetry run sphinx-apidoc -o docs/ app/
+    - poetry run sphinx-apidoc -o docs/ tests/
+    - poetry run sphinx-build -b html docs ../public/backend
+  artifacts:
+    paths:
+      - public
+
 build:
   stage: build
   script:

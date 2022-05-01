@@ -48,13 +48,23 @@ e2e:
   script:
     - npm run e2e
 
+docs:
+  stage: build
+  script:
+    - npm run doc
+    - mkdir -p ../public/frontend
+    - cp -R docs/* ../public/frontend
+  artifacts:
+    paths:
+      - public
+
 build:
   stage: build
   script:
     # TODO: build for production by using Gitlab environment secret
     - npm run build:dev
-    - npm run doc
+    - mkdir -p ../public
+    - cp -R dist/* ../public
   artifacts:
     paths:
-      - frontend/dist/*
-      - fronend/doc/*
+      - public

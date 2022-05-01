@@ -198,8 +198,8 @@ should warn you when compliance has not been met.
 You need to be in the virtual environment and/or have `sphinx` installed.
 
 ```bash
-$ sphinx-apidoc -o docs/ app/
-$ sphinx-apidoc -o docs/ tests/
+$ sphinx-apidoc -fo docs/ app/
+$ sphinx-apidoc -fo docs/ tests/
 $ cd docs && make html
 ```
 
