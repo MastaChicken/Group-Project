@@ -2,7 +2,11 @@ image: mcr.microsoft.com/playwright:focal
 
 # Cache modules in between jobs
 cache: &package_cache
-  key: $CI_COMMIT_REF_SLUG
+  key:
+    files:
+      - frontend/package-lock.json
+      - frontend/.gitlab-ci.yml
+    prefix: npm
   policy: pull
   paths:
     - frontend/.npm/
@@ -66,8 +70,8 @@ build:
 pages:
   stage: deploy
   script:
-    - mkdir -p ../public/frontend
-    - cp -R docs/* ../public/frontend
+    - mkdir -p ../public
+    - cp -R docs/* ../public/
   artifacts:
     paths:
       - public
