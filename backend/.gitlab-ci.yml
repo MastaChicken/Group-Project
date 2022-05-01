@@ -99,9 +99,9 @@ build:
   script:
     - poetry build
     - pip install dist/*.whl
-  artifacts:
-    paths:
-      - backend/dist/*.whl
+  # artifacts:
+  #   paths:
+  #     - backend/dist/*.whl
 
 pages:
   stage: deploy

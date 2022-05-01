@@ -63,16 +63,15 @@ build:
   script:
     # TODO: build for production by using Gitlab environment secret
     - npm run build:dev
-  artifacts:
-    paths:
-      - frontend/dist/
+  # artifacts:
+  #   paths:
+  #     - frontend/dist/
 
 pages:
   stage: deploy
   script:
     - mkdir -p ../public/frontend
     - cp -R docs/* ../public/frontend
-    - cp -R dist/* ../public
   artifacts:
     paths:
       - public
