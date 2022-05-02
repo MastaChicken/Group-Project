@@ -4,9 +4,6 @@ import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
-  headingCenter = $("header-center") as HTMLDivElement;
-  headingLeft = $("header-left") as HTMLDivElement;
-
   constructor() {
     super();
     this.setTitle("Display");

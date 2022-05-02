@@ -6,20 +6,9 @@ import { isValidPDF } from "../modules/pdf";
 import { SlDialog } from "@shoelace-style/shoelace";
 
 export default class extends AbstractView {
-  headingCenter = $("header-center") as HTMLDivElement;
-  headingLeft = $("header-left") as HTMLDivElement;
-
   constructor() {
     super();
     this.setTitle("Upload");
-    const headingEl = document.createElement("h1");
-    headingEl.innerText = "SummarEase";
-    const subHeadingEl = document.createElement("h4");
-    subHeadingEl.innerText =
-      "The easiest scholarly article summariser on the internet!";
-    this.headingCenter.replaceChildren(...[headingEl, subHeadingEl]);
-
-    this.headingLeft.replaceChildren();
   }
 
   getHtml() {
@@ -178,9 +167,9 @@ export default class extends AbstractView {
     });
     const qAndAMap = {
       "Why can't I select some dropdowns on the summary page?":
-        "The PDF may not include the IMRaD sections explicitely, so they will be disable if we aren't able to extract them.",
-      "My PDF isn't being summarised?":
-        "This could be a number of issues. The PDF file may be broken or the server may be down. Contact support if the issue persists.",
+        "The PDF may not include the IMRaD sections explicitly, so they will be disabled if we aren't able to extract them.",
+      "Why is my PDF not being summarised?":
+        "This could be due to a number of issues. The PDF file may be broken or the server may be down. <br> Contact support if the issue persists.",
     };
     const qAndALen = Object.keys(qAndAMap).length;
     faqButton.addEventListener("click", () => {
@@ -191,7 +180,7 @@ export default class extends AbstractView {
         descTerm.innerText = q;
         descList.appendChild(descTerm);
         const descDetails = document.createElement("dd");
-        descDetails.innerText = a;
+        descDetails.innerHTML = a;
         descList.appendChild(descDetails);
         if (idx < qAndALen - 1) {
           descList.appendChild(document.createElement("sl-divider"));
