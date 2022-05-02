@@ -35,7 +35,7 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-        <sl-dialog class="dialog-overview" id="author-dialog">
+        <sl-dialog class="dialog-overview" id="display-dialog">
           <div id="dialog-content">
           </div>
           <sl-button slot="footer" variant="primary">Close</sl-button>

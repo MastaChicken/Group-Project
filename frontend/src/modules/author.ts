@@ -32,36 +32,43 @@ export function mapFullname(authors: Author[]): string[] {
   });
 }
 
+/**
+ * Represents the details of the author.
+ */
 export class AuthorDetails {
   private author: Author;
   constructor(author: Author) {
     this.author = author;
   }
 
+  /** Show dialog with author details */
   showAuthorDialog(): void {
-    const dialog = $("author-dialog") as SlDialog;
+    const dialog = $("display-dialog") as SlDialog;
+    dialog.label = this.full_name;
+
     const emailAnchor = document.createElement("a");
     const mailToString = "mailto: " + this.author.email;
 
     emailAnchor.href = mailToString;
     emailAnchor.textContent = this.author.email;
 
-    // Get the <span> element that closes the modal
-    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+    $("dialog-content").replaceChildren(...[this.formattedSpan, emailAnchor]);
 
     dialog.show();
 
-    $("dialog-content").replaceChildren(...[this.formattedSpan, emailAnchor]);
-
+    // Get the <span> element that closes the modal
+    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
     // When the user clicks on <span> (x), close the modal
     closeButton.addEventListener("click", () => {
       dialog.hide();
     });
   }
 
+  /**
+   * @returns affiliations as a span element
+   */
   get formattedSpan(): HTMLSpanElement {
     const span = document.createElement("span");
-    span.innerHTML = `${this.full_name}<br>`;
     this.affiliations.forEach((affiliation) => {
       affiliation.forEach((v) => (span.innerHTML += v + "<br>"));
     });

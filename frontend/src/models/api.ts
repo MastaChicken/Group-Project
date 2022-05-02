@@ -92,6 +92,14 @@ export interface RefText {
   text: string;
   refs?: Ref[];
 }
+
+/**
+ * Represents the callouts to structures.
+ *
+ * <https://grobid.readthedocs.io/en/latest/training/fulltext/#markers-callouts-to-structures>
+ */
+export type Marker = "bibr" | "figure" | "table" | "box" | "formula";
+
 /**
  * Represents <ref> XML tag.
  *
@@ -101,7 +109,7 @@ export interface Ref {
   start: number;
   end: number;
   target?: string;
-  type_?: string;
+  marker?: Marker;
 }
 /**
  * Represents the <figure> XML tag of type table.

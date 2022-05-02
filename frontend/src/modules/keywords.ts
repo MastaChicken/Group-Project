@@ -1,5 +1,8 @@
 import { SlTag } from "@shoelace-style/shoelace";
 
+/**
+ * Create array of SlTags using keywords
+ */
 export default function makeKeywordTags(keywords: string[]): SlTag[] {
   const tagArr = new Array(keywords.length);
   const variantArray = ["primary", "neutral"];

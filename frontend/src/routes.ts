@@ -23,6 +23,6 @@ router
     const notFound = new NotFound();
     outlet.innerHTML = notFound.getHtml();
     notFound.setupListeners();
-  })
+  });
 
 router.listen();

@@ -6,7 +6,7 @@ import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
 import { SlDivider, SlTooltip } from "@shoelace-style/shoelace";
 import { makeIconGrid, makeReferenceList } from "./references";
-import setupImradDetails from "./imrad";
+import { setupImradDetails } from "./imrad";
 import makeKeywordTags from "./keywords";
 import { AuthorDetails, truncateAuthors, TRUNCATION_STRING } from "./author";
 

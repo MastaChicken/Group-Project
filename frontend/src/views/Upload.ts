@@ -124,7 +124,7 @@ export default class extends AbstractView {
     const manualButton = $("manual-button");
     const faqButton = $("faq-button");
 
-    const manualMap: {[key: string]: Array<string>} = {
+    const manualMap: { [key: string]: Array<string> } = {
       "Use the file upload to add your scholarly articles (ensure it is a PDF)":
         [],
       "Wait a few seconds so we can process your PDF": [],
@@ -151,11 +151,11 @@ export default class extends AbstractView {
         if (subSteps) {
           const uList = document.createElement("ul");
           subSteps.forEach((v) => {
-            const subListItem = document.createElement("li")
+            const subListItem = document.createElement("li");
             subListItem.innerText = v;
-            uList.appendChild(subListItem)
-          })
-          listItem.appendChild(uList)
+            uList.appendChild(subListItem);
+          });
+          listItem.appendChild(uList);
         }
         oList.appendChild(listItem);
         if (idx < manualLen - 1) {
