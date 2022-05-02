@@ -14,7 +14,14 @@
 }
 
 sl-dialog {
-  width: 40%;
+  --width: fit-content;
+  &::part(title) {
+    text-align: center;
+    padding-left: 80px;
+  }
+  ol {
+    text-align: left;
+  }
 }
 
 #size-of-summary {
