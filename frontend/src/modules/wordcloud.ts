@@ -32,7 +32,7 @@ export default class WordCloudCanvas {
     wordcloud(canvas, {
       list: list,
       weightFactor: (size) => {
-        return size * (1 + canvas.height / canvas.height);
+        return size * (3 + canvas.height / canvas.height);
       },
     });
   }

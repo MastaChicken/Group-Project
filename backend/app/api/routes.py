@@ -101,17 +101,20 @@ async def recieve_file(
             sentences = TextRank(section_text, model).sentences
             ranked_article_sentences += sentences
 
+    article_text_str = " ".join(article_text)
+
     # Phrase counts
-    phrase_ranks = {}
     if article.abstract:
         phrase = Phrase(article.abstract.to_str(), model)
-        phrase_ranks = phrase.ranks
+    else:
+        phrase = Phrase(article_text_str, model)
+    phrase_ranks = phrase.ranks
 
     # Common words
     # NOTE: uses full text
     common_words = []
     try:
-        word = Word(" ".join(article_text), model)
+        word = Word(article_text_str, model)
         common_words = word.words_threshold_n(5)
     except RuntimeError:
         pass

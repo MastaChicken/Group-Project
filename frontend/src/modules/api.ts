@@ -4,7 +4,7 @@ import WordCloudCanvas from "./wordcloud";
 import { UploadResponse } from "../models/api";
 import { renderPDF } from "./PDFRenderer";
 import { createAlert, Icon, Variant } from "./alert";
-import { SlDivider, SlTooltip } from "@shoelace-style/shoelace";
+import { SlDetails, SlDivider, SlTooltip } from "@shoelace-style/shoelace";
 import { makeIconGrid, makeReferenceList } from "./references";
 import { setupImradDetails } from "./imrad";
 import makeKeywordTags from "./keywords";
@@ -115,17 +115,25 @@ export async function uploadPDF(file: File) {
       // Word cloud
       const summaryDiv = $("summary-container") as HTMLDivElement;
       const wordcloud = new WordCloudCanvas(summaryDiv);
-      const wordCloudCanvas = document.createElement(
-        "canvas"
-      ) as HTMLCanvasElement;
-      wordcloud.update(wordCloudCanvas, data.common_words);
-      $("word-cloud-return-display").appendChild(wordCloudCanvas);
+      const worldcloudDetails = $("word-cloud-return-display") as SlDetails;
+      if (data.common_words.length) {
+        worldcloudDetails.disabled = false;
+        const wordCloudCanvas = document.createElement(
+          "canvas"
+        ) as HTMLCanvasElement;
+        wordcloud.update(wordCloudCanvas, data.common_words);
+        worldcloudDetails.appendChild(wordCloudCanvas);
+      }
 
-      const phraseCanvas = document.createElement(
-        "canvas"
-      ) as HTMLCanvasElement;
-      wordcloud.update(phraseCanvas, data.phrase_ranks);
-      $("phrase-cloud-return-display").appendChild(phraseCanvas);
+      const phrasecloudDetails = $("phrase-cloud-return-display") as SlDetails;
+      if (data.phrase_ranks.length) {
+        phrasecloudDetails.disabled = false;
+        const phraseCanvas = document.createElement(
+          "canvas"
+        ) as HTMLCanvasElement;
+        wordcloud.update(phraseCanvas, data.phrase_ranks);
+        phrasecloudDetails.appendChild(phraseCanvas);
+      }
 
       // Metadata
       const bibliography = new MLA8Citation(article.bibliography);
@@ -174,7 +182,11 @@ export async function uploadPDF(file: File) {
 
       // References
       const oListEl = makeReferenceList(article.citations);
-      $("references-return-display").append(oListEl);
+      if (oListEl.hasChildNodes()) {
+        const refDetails = $("references-return-display") as SlDetails;
+        refDetails.disabled = false;
+        refDetails.append(oListEl);
+      }
     })
     .catch((e) => {
       console.error(e);

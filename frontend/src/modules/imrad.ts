@@ -57,7 +57,7 @@ function embedReferences(refText: RefText): HTMLParagraphElement {
     }
   });
 
-  if (pArr) {
+  if (pArr.length) {
     pEl.replaceChildren(...pArr);
   } else {
     pEl.innerHTML = pStr;
