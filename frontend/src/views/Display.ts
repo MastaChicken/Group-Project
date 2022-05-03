@@ -4,9 +4,6 @@ import { setupListeners as setupPDFListeners } from "../modules/PDFRenderer.js";
 import { uploadResponse } from "../modules/api";
 
 export default class extends AbstractView {
-  headingCenter = $("header-center") as HTMLDivElement;
-  headingLeft = $("header-left") as HTMLDivElement;
-
   constructor() {
     super();
     this.setTitle("Display");
@@ -38,7 +35,7 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-        <sl-dialog class="dialog-overview" id="author-dialog">
+        <sl-dialog class="dialog-overview" id="display-dialog">
           <div id="dialog-content">
           </div>
           <sl-button slot="footer" variant="primary">Close</sl-button>
@@ -84,13 +81,13 @@ export default class extends AbstractView {
             <div id="summary-info" class="summary-boxes">
               <div id="article-ids"></div>
               <div id="key-words"></div>
-              <sl-details summary="WORDCLOUD" id="word-cloud-return-display"></sl-details>
-              <sl-details summary="PHRASECLOUD" id="phrase-cloud-return-display"> </sl-details>
+              <sl-details disabled summary="WORDCLOUD" id="word-cloud-return-display"></sl-details>
+              <sl-details disabled summary="PHRASECLOUD" id="phrase-cloud-return-display"> </sl-details>
               <sl-details disabled summary="INTRODUCTION" id="introduction-return-display"></sl-details>
               <sl-details disabled summary="METHODS" id="methods-return-display"></sl-details>
               <sl-details disabled summary="RESULTS" id="results-return-display"></sl-details>
               <sl-details disabled summary="DISCUSSION" id="discussion-return-display"></sl-details>
-              <sl-details summary="REFERENCES" id="references-return-display"></sl-details>
+              <sl-details disabled summary="REFERENCES" id="references-return-display"></sl-details>
             </div>
           </div>
           <div id="summary-output">

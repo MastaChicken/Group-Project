@@ -1,8 +1,12 @@
-import { SlIconButton } from "@shoelace-style/shoelace";
+import { SlDialog, SlIconButton } from "@shoelace-style/shoelace";
+import { $ } from "../constants";
 import { Citation, CitationIDs } from "../models/api";
 import { truncateAuthors } from "./author";
 import MLA8Citation from "./mla8_citation";
 
+/**
+ * Supported IDs
+ */
 export const IDMap = {
   DOI: {
     target: "https://doi.org/",
@@ -27,6 +31,9 @@ type IDProps = {
   alt: string;
 };
 
+/**
+ * Represents ID as a SlIconButton
+ */
 function IDToIcon(idProps: IDProps, id: string): SlIconButton {
   const anchorEl = document.createElement("sl-icon-button") as SlIconButton;
   anchorEl.href = `${idProps.target}${id}`;
@@ -38,6 +45,10 @@ function IDToIcon(idProps: IDProps, id: string): SlIconButton {
   return anchorEl;
 }
 
+/**
+ * Create div element with the supported ids as icons.
+ * @param ids - supported ids
+ */
 export function makeIconGrid(ids: CitationIDs): HTMLDivElement {
   const logos: HTMLDivElement = document.createElement("div");
   if (ids == null) return logos;
@@ -55,6 +66,11 @@ export function makeIconGrid(ids: CitationIDs): HTMLDivElement {
   return logos;
 }
 
+/**
+ * Creates ordered list of references
+ * @param citations - object with id as key and Citation as value
+ * @returns Ordered list of references
+ */
 export function makeReferenceList(citations: {
   [key: string]: Citation;
 }): HTMLOListElement {
@@ -91,4 +107,29 @@ export function makeReferenceList(citations: {
   });
 
   return oListEl;
+}
+/*
+ * Use SlDialog to show the reference based on the id
+ * @param id - expects the id to have a hash as first character
+ */
+export function showReferenceDialog(id: string | null): void {
+  if (id == null) return void 0;
+
+  const ref = document.querySelector(id);
+  if (ref == null) return void 0;
+
+  const dialog = $("display-dialog") as SlDialog;
+  dialog.label = "";
+
+  $("dialog-content").replaceChildren(ref);
+
+  dialog.show();
+
+  // Get the <span> element that closes the modal
+  const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+
+  // When the user clicks on <span> (x), close the modal
+  closeButton.addEventListener("click", () => {
+    dialog.hide();
+  });
 }
