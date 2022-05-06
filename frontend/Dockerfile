@@ -12,5 +12,4 @@ RUN npm ci --loglevel verbose
 COPY . .
 
 EXPOSE 4173
-CMD ["npm", "run", "build:dev"]
-CMD ["npm", "run", "serve:dev"]
+CMD ["./docker-entrypoint.sh"]
