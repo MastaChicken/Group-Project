@@ -41,10 +41,10 @@ dependencies:
     - source .venv/bin/activate
     - python -m pip install --upgrade pip
     - poetry export --without-hashes -n |
-        tee requirements.txt
+      tee requirements.txt
     - poetry export --dev --without-hashes -n |
-        tee requirements-dev.txt |
-        pip install -r /dev/stdin
+      tee requirements-dev.txt |
+      pip install -r /dev/stdin
     # pip cache filled with all package downloads
     - poetry build
   artifacts:
@@ -74,14 +74,15 @@ coverage:
   stage: test
   script:
     - poetry install
-    - poetry run coverage run -m pytest --verbose --junitxml=report.xml
+    - poetry run coverage run -m pytest --verbose
     - poetry run coverage report --fail-under=80
     - poetry run coverage xml
   artifacts:
     when: always
     reports:
-      cobertura: backend/coverage.xml
-      junit: backend/report.xml
+      coverage_report:
+        ​coverage_format: cobertura
+        path: backend/coverage.xml
 
 docs:
   stage: build
