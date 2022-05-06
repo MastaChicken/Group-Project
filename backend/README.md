@@ -105,7 +105,7 @@ $ docker-compose up
 
 You can also try using an external GROBID REST API (no guarantees are made for uptime)
 
-`https://cloud.science-miner.com/grobid/api`
+`https://cloud.science-miner.com/grobid`
 
 Our API does not set up a GROBID REST API URL by default.
 
@@ -114,13 +114,13 @@ If you haven't already, please refer to [Environment](#environment) setup.
 If you followed the commands above, the `.env` file should look like below
 ```env
 # .env
-GROBID_API_URL=http://host.docker.internal:8070/api
+GROBID_API_URL=http://host.docker.internal:8070
 ```
 
 If you want to use the external API, the `.env` file should like below
 ```env
 # .env
-GROBID_API_URL=https://cloud.science-miner.com/grobid/api
+GROBID_API_URL=https://cloud.science-miner.com/grobid
 ```
 
 ### Running

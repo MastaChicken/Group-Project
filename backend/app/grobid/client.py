@@ -28,7 +28,7 @@ class Client:
     def __build_request(self) -> dict[str, Any]:
         """Build request dictionary."""
         # FIXME: api url is hardcoded
-        url = f"{self.api_url}/processFulltextDocument"
+        url = f"{self.api_url}/api/processFulltextDocument"
         return dict(url=url, files=self.form.to_dict(), timeout=self.timeout)
 
     def __build_response(self, response: httpx.Response) -> Response:
