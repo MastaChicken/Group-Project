@@ -2,7 +2,7 @@
 
 The backend is written in Python. If using Visual Studio Code, ensure you have the
 [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-extension installed for code completion. 
+extension installed for code completion.
 
 [[_TOC_]]
 
@@ -24,7 +24,7 @@ To get started, run:
 $ poetry install
 ```
 
-This will create a local Python virtual environment, `.venv`, which will contain
+Script above will create a local Python virtual environment, `.venv`, which will contain
 the production and development dependencies.
 
 To use the virtual environment, change the interpreter environment to
@@ -37,13 +37,18 @@ Example using bash (\*nix):
 $ source .venv/bin/activate
 ```
 
-Example using git bash (Windows):
+Example using Git bash (Windows):
 
 ```bash
 $ source .venv/Script/activate
 ```
 
-Ensure you keep the `poetry.lock` file updated when adding/updating/removing
+Example using powershell:
+```ps1
+$ .\.venv\Scripts\activate.ps1
+```
+
+Ensure you stage the changes if the `poetry.lock` file is updated; when adding/updating/removing
 dependencies.
 
 ### Environment
@@ -52,25 +57,30 @@ Since the backend makes use of various APIs like GROBID and Hugging Face's
 inference API, you will need to setup the `.env` file.
 
 Start by copying the `.env.example` file as a `.env` file.
-```sh
+```bash
 $ cp .env.example .env
 ```
 
-#### Variables 
+#### Variables
 
-- `GROBID_API_URL` (required)
+- `GROBID_API_URL` (required string)
     - Used for parsing the PDF
     - See [API Prerequisities](#prerequisites)
-- `HUGGINGFACE_API_TOKEN` (optional)
+- `HUGGINGFACE_API_TOKEN` (optional string)
     - Defaults to "" (empty string)
     - Default won't compute a final summary (returns large summary)
     - User access token [documentation](https://huggingface.co/docs/hub/security#user-access-tokens)
-- `GROBID_API_TIMEOUT` (optional)
-    - Defaults to 15s
+- `GROBID_API_TIMEOUT` (optional integer)
+    - Defaults to 15
+    - Measured in seconds
     - Increase the default if you are recieving `503` status code due to timeout
-- `HUGGINGFACE_API_TIMEOUT` (optional)
-    - Defaults to 60s
+- `HUGGINGFACE_API_TIMEOUT` (optional integer)
+    - Defaults to 60
+    - Measured in seconds
     - Increase the default if final summary isn't being computed
+
+Delete any variables that you want to keep at the default.
+You may run into type related errors if an enviroment variable is kept empty.
 
 ## API
 
@@ -83,19 +93,19 @@ The GROBID REST API needs to be running for the PDF parser.
 Either of the following options runs the GROBID REST API locally on port 8070:8070
 
 1. Run (development)
-```sh
+```bash
 $ docker pull lfoppiano/grobid:0.7.1 # required only on first launch
 $ docker run -t --rm --init -p 8070:8070 lfoppiano/grobid:0.7.1
 ```
 
-2. Run (production) 
-```sh
+2. Run (production)
+```bash
 $ docker-compose up
 ```
 
 You can also try using an external GROBID REST API (no guarantees are made for uptime)
 
-`https://cloud.science-miner.com/grobid/api`
+`https://cloud.science-miner.com/grobid`
 
 Our API does not set up a GROBID REST API URL by default.
 
@@ -104,20 +114,20 @@ If you haven't already, please refer to [Environment](#environment) setup.
 If you followed the commands above, the `.env` file should look like below
 ```env
 # .env
-GROBID_API_URL=http://host.docker.internal:8070/api
+GROBID_API_URL=http://host.docker.internal:8070
 ```
 
 If you want to use the external API, the `.env` file should like below
 ```env
 # .env
-GROBID_API_URL=https://cloud.science-miner.com/grobid/api
+GROBID_API_URL=https://cloud.science-miner.com/grobid
 ```
 
 ### Running
 
 Debug mode:
 
-```
+```bash
 $ python debug_server.py
 ```
 
@@ -157,13 +167,17 @@ Tests names should have the following format `tests/<package>/test_<module>.py`
 
 ### Running
 
-`$ poetry run pytest`
+```bash
+$ poetry run pytest
+```
 
-This will run all the tests in the `tests/` folder.
+Script above will run all the tests in the `tests/` folder.
 
-`$ poetry run pytest tests/<test_name>.py`
+```bash
+$ poetry run pytest tests/<test_name>.py
+```
 
-This will run a specific python test module.
+Script above will run a specific python test module.
 
 If those commands don't work on Git Bash. Try a different terminal.
 
@@ -176,12 +190,14 @@ $ poetry run coverage run -m pytest
 $ poetry run coverage report
 ```
 
-This will generate a `.coverage` file in the current directory, which is used to
+Script above will generate a `.coverage` file in the current directory, which is used to
 generate a report printed to the console.
 
-`$ poetry run coverage html`
+```bash
+$ poetry run coverage html
+```
 
-This will generate a complete report located at `htmlcov/index.html`
+Script above will generate a complete report located at `htmlcov/index.html`
 
 ## Documentation
 
@@ -203,7 +219,7 @@ $ sphinx-apidoc -fo docs/ tests/
 $ cd docs && make html
 ```
 
-This will build the html files in `docs/_build/html`
+Script above will build the html files in `docs/_build/html`
 
 For more commands, run `make help` in the `docs/` directory
 
