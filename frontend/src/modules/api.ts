@@ -121,7 +121,7 @@ export async function uploadPDF(file: File) {
         const wordCloudCanvas = document.createElement(
           "canvas"
         ) as HTMLCanvasElement;
-        wordcloud.update(wordCloudCanvas, data.common_words);
+        wordcloud.setup(wordCloudCanvas, data.common_words);
         worldcloudDetails.appendChild(wordCloudCanvas);
       }
 
@@ -131,7 +131,7 @@ export async function uploadPDF(file: File) {
         const phraseCanvas = document.createElement(
           "canvas"
         ) as HTMLCanvasElement;
-        wordcloud.update(phraseCanvas, data.phrase_ranks);
+        wordcloud.setup(phraseCanvas, data.phrase_ranks);
         phrasecloudDetails.appendChild(phraseCanvas);
       }
 
