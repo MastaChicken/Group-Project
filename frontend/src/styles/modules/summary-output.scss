@@ -23,6 +23,10 @@
   }
 }
 
+#upload-skeleton {
+  --sheen-color: var(--sl-color-sky-200);
+}
+
 #summary-output::-webkit-scrollbar {
   display: none;
 }
