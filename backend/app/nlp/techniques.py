@@ -52,7 +52,8 @@ class Word:
                 not word.is_punct
                 and not word.is_stop
                 and word.pos_ in self.__accepted_pos_tags
-                and len(word.lemma_) > 1
+                and len(word.lemma_) > 2
+                and word.text[0].isalpha()
             ):
                 if word.lemma_ not in word_frequencies.keys():
                     word_frequencies[word.lemma_] = 1
