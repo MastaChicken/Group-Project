@@ -16,20 +16,11 @@ body {
 }
 
 #outlet {
-  height: 100%;
-}
-
-.output-display {
-  height: 100%;
+  height: calc(90vh - 1px);
 }
 
 #output-main {
-  // min-height: min-content;
-  // max-height: 90vh;
-  max-height: 92%;
-  height: 92%;
-  // border: 1px solid black;
-  border-radius: 0.5em;
+  height: 100%;
   width: 100%;
   min-width: 1150px;
   display: grid;
@@ -38,4 +29,18 @@ body {
   overflow: hidden;
   // padding-top: 1em;
   overflow-x: auto;
+}
+
+#main-divider {
+  margin: 0;
+  color: var(--sl-color-neutral-100);
+}
+
+.help-buttons sl-button {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+#help-dialog dt {
+  font-weight: bold;
 }

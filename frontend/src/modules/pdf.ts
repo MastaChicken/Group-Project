@@ -5,7 +5,6 @@
  * @returns if PDF is valid
  */
 export function isValidPDF({ type, name, size }: File): boolean {
-  console.log(size);
   if (size === 0) {
     return false;
   }

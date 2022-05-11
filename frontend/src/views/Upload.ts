@@ -3,6 +3,7 @@ import { $, html } from "../constants";
 import { validateURL, uploadPDF } from "../modules/api";
 import { dropHandler, dragOverHandler } from "../modules/drag_drop";
 import { isValidPDF } from "../modules/pdf";
+import { SlDialog } from "@shoelace-style/shoelace";
 
 export default class extends AbstractView {
   constructor() {
@@ -12,11 +13,11 @@ export default class extends AbstractView {
 
   getHtml() {
     return html`
-    <div class="tab-contents">
-    <h1>Content Visualisation</h1>
-    <sl-divider></sl-divider>
+    <div class="form-center">
         <form id="upload-form">
+
           <div id="drop-zone">
+          <sl-skeleton id="upload-skeleton" effect="none"></sl-skeleton>
           <label for="pdfpicker-file">
             <span id="pfdpicker-text-default">
               <a
@@ -62,6 +63,18 @@ export default class extends AbstractView {
           </div>
         </form>
       </div>
+      <div class="help-buttons">
+      <sl-button id="manual-button" size="large">
+      <sl-icon slot="prefix" name="journal-text"></sl-icon>
+      Manual
+      </sl-button>
+      <sl-button id="faq-button" size="large">
+      <sl-icon slot="prefix" name="chat-square-quote"></sl-icon>
+      FAQ
+      </sl-button>
+      </div>
+      <sl-dialog id="help-dialog">
+      </sl-dialog>
     `;
   }
 
@@ -77,7 +90,8 @@ export default class extends AbstractView {
 
         if (files.length > 0 && isValidPDF(files[0])) {
           pdfPickerSpan.innerText = `File accepted: ${files[0].name}`;
-
+          $("upload-skeleton").setAttribute("effect", "sheen");
+          pdfpickerInput.disabled = true;
           uploadPDF(files[0]);
         } else {
           // throws alert for wrong file type
@@ -104,5 +118,76 @@ export default class extends AbstractView {
 
     const pdfPickerAnchor = $("pdfpicker-link");
     pdfPickerAnchor.addEventListener("click", () => pdfpickerInput.click());
+
+    // Help dialogs
+    const dialog = $("help-dialog") as SlDialog;
+    const manualButton = $("manual-button");
+    const faqButton = $("faq-button");
+
+    const manualMap: { [key: string]: Array<string> } = {
+      "Use the file upload to add your scholarly articles (ensure it is a PDF)":
+        [],
+      "Wait a few seconds so we can process your PDF": [],
+      "Once the PDF is processed, you will be directed to the display screen":
+        [],
+      "The display screen contains (left to right):": [
+        "A collapsible PDF renderer",
+        "Expandable author names",
+        "Document identifier links",
+        "A word cloud",
+        "A phrase cloud",
+        "Reference list",
+        "An excellent summary",
+      ],
+      "Use the back button on the top left to upload a new PDF": [],
+    };
+    const manualLen = Object.keys(manualMap).length;
+    manualButton.addEventListener("click", () => {
+      dialog.label = "Manual";
+      const oList = document.createElement("ol");
+      Object.entries(manualMap).forEach(([step, subSteps], idx) => {
+        const listItem = document.createElement("li");
+        listItem.innerText = step;
+        if (subSteps) {
+          const uList = document.createElement("ul");
+          subSteps.forEach((v) => {
+            const subListItem = document.createElement("li");
+            subListItem.innerText = v;
+            uList.appendChild(subListItem);
+          });
+          listItem.appendChild(uList);
+        }
+        oList.appendChild(listItem);
+        if (idx < manualLen - 1) {
+          oList.appendChild(document.createElement("sl-divider"));
+        }
+      });
+      dialog.replaceChildren(oList);
+      dialog.show();
+    });
+    const qAndAMap = {
+      "Why can't I select some dropdowns on the summary page?":
+        "The PDF may not include the IMRaD sections explicitly, so they will be disabled if we aren't able to extract them.",
+      "Why is my PDF not being summarised?":
+        "This could be due to a number of issues. The PDF file may be broken or the server may be down. <br> Contact support if the issue persists.",
+    };
+    const qAndALen = Object.keys(qAndAMap).length;
+    faqButton.addEventListener("click", () => {
+      dialog.label = "FAQ";
+      const descList = document.createElement("dl");
+      Object.entries(qAndAMap).forEach(([q, a], idx) => {
+        const descTerm = document.createElement("dt");
+        descTerm.innerText = q;
+        descList.appendChild(descTerm);
+        const descDetails = document.createElement("dd");
+        descDetails.innerHTML = a;
+        descList.appendChild(descDetails);
+        if (idx < qAndALen - 1) {
+          descList.appendChild(document.createElement("sl-divider"));
+        }
+      });
+      dialog.replaceChildren(descList);
+      dialog.show();
+    });
   }
 }

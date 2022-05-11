@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+test.describe.configure({ mode: "parallel" });
+
 /**
  * Test the display screen.
  */
@@ -9,21 +11,12 @@ test("Checks if the page is display", async ({ page }) => {
 });
 
 /**
- * Test to see if renderer is visible when checkbox is ticked.
+ * Test to see if hiding pdf works
  */
 test("Check if pdf renderer is visible", async ({ page }) => {
   await page.goto("/display");
-  await page.check("#output-show-document");
-  expect(await page.isChecked("#output-show-document")).toBeTruthy();
   expect(await page.isVisible("#pdf-renderer")).toBeTruthy();
-});
-
-/**
- * Test to see if renderer is invisible when checkbox is unticked.
- */
-test("Check if pdf renderer is invisible", async ({ page }) => {
-  await page.goto("/display");
-  await page.uncheck("#output-show-document");
-  expect(await page.isChecked("#output-show-document")).toBeFalsy();
+  // FIXME: selecting first element is a hack
+  await page.locator(".show-hide-pdf").first().click();
   expect(await page.isHidden("#pdf-renderer")).toBeTruthy();
 });

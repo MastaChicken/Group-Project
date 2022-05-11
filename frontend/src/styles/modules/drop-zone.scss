@@ -1,19 +1,34 @@
 #drop-zone {
-  margin-top: 20vh;
-  margin-left: auto;
-  margin-right: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px dashed lightgrey;
-  width: 50%;
+  width: 50vw;
   height: 12em;
   border-radius: 1em;
   font-size: 1.5em;
   font-family: "Raleway", sans-serif;
   overflow: hidden;
+
+  &:hover {
+    border: 2px dashed grey;
+  }
+  label {
+    position: absolute;
+    margin: auto;
+    width: 30%;
+  }
 }
 
-#drop-zone:hover {
-  border: 3px dashed grey;
+.form-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+#upload-skeleton {
+  --border-radius: 0%;
+  width: 100%;
+  height: inherit;
 }

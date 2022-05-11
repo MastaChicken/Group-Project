@@ -59,8 +59,8 @@ export interface Date {
  * Represents the <idno> XML tag.
  */
 export interface CitationIDs {
-  doi?: string;
-  arxiv?: string;
+  DOI?: string;
+  arXiv?: string;
 }
 /**
  * Represents the <biblScope/> XML tag.
@@ -92,6 +92,14 @@ export interface RefText {
   text: string;
   refs?: Ref[];
 }
+
+/**
+ * Represents the callouts to structures.
+ *
+ * <https://grobid.readthedocs.io/en/latest/training/fulltext/#markers-callouts-to-structures>
+ */
+export type Marker = "bibr" | "figure" | "table" | "box" | "formula";
+
 /**
  * Represents <ref> XML tag.
  *
@@ -101,7 +109,7 @@ export interface Ref {
   start: number;
   end: number;
   target?: string;
-  type_?: string;
+  marker?: Marker;
 }
 /**
  * Represents the <figure> XML tag of type table.
@@ -117,8 +125,6 @@ export interface Table {
 export interface UploadResponse {
   article: Article;
   common_words: [string, number][];
-  phrase_ranks: {
-    [k: string]: number;
-  };
+  phrase_ranks: [string, number][];
   summary: string[];
 }

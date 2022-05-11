@@ -13,15 +13,19 @@ The frontend is written in HTML, (S)CSS and a mix of JavaScript and TypeScript
 
 Once Node is installed, it should also include the `npm` binary.
 
-`$ npm install`
+```bash
+$ npm install
+```
 
-This should install all the dependencies listed in the `package.json` file,
+Script above should install all the dependencies listed in the `package.json` file,
 including the TypeScript compiler.
 
 The `src` folder is where the CSS, JS and TS is stored.
 
 Using TypeScript for writing modules is preferred due to its type checker, however,
 using JavaScript is also acceptable.
+
+The `public` folder is where any static assets like images and icons are stored.
 
 ## Running
 
@@ -33,7 +37,9 @@ We use the `Vite` build tool for development and bundling.
 
 > Run the development server
 
-`$ npm run dev`
+```bash
+$ npm run dev
+```
 
 By default, the server runs on [http://localhost:3000](http://localhost:3000).
 
@@ -65,13 +71,17 @@ written as [ECMAScript modules](https://nodejs.org/docs/latest/api/esm.html).
 
 > If this is the first time, Playwright will prompt you to install the required dependencies
 
-`$ npm run e2e`
+```bash
+$ npm run e2e
+```
 
-This will run all the tests in the `e2e/` folder on Chromium and Firefox.
+Script above will run all the tests in the `e2e/` folder on Chromium and Firefox.
 
-`$ npx playwright test <filepath>`
+```bash
+$ npx playwright test <filepath>
+```
 
-This will run a specific test on Chromium and Firefox.
+Script above will run a specific test on Chromium and Firefox.
 
 ## Documentation
 
@@ -82,9 +92,11 @@ Visual Studio Code should automatically generate [JSDoc](https://code.visualstud
 We use `typedoc` to generate documentation. `typedoc` is installed as a developer
 dependency through `npm`
 
-`$ npm run doc`
+```bash
+$ npm run doc
+```
 
-This will build the documentation in `docs/`
+Script above will build the documentation in `docs/`
 
 ## Bundling
 
@@ -92,22 +104,30 @@ This will build the documentation in `docs/`
 
 > Build for production
 
-`$ npm run build:prod`
+```bash
+$ npm run build:prod
+```
 
-This will create a folder, `dist/`, which will contain the files needed for
+Script above will create a folder, `dist/`, which will contain the files needed for
 production
 
 > Build for development
 
-`$ npm run build:dev`
+```bash
+$ npm run build:dev
+```
 
 > Locally preview the production build (live server)
 
-`$ npm run preview:prod`
+```bash
+$ npm run preview:prod
+```
 
 > Locally preview the dev build (live server)
 
-`$ npm run preview:dev`
+```bash
+$ npm run preview:dev
+```
 
 By default, the server runs on [http://localhost:4173](http://localhost:4173).
 
@@ -146,11 +166,6 @@ a given module.
 
 [Guide on modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
 
-### Tailwind CSS
-
-We use [Tailwind CSS](https://tailwindcss.com/) to make styling of the web app
-effortless. If using Visual Studio Code, you should install the [Tailwind CSS
-IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) to enhance the development experience.
 
 ### Web Components
 
@@ -176,7 +191,9 @@ Additional ESLint rules for JSDoc are also included.
 
 To run ESLint manually, navigate to the root of the project `frontend/` and run
 
-`$ npm run lint`
+```bash
+$ npm run lint
+```
 
 ### Prettier
 
@@ -187,10 +204,14 @@ install the [Prettier](https://marketplace.visualstudio.com/items?itemName=esben
 
 To run Prettier manually, navigate to the root of the project `frontend` and run
 
-`$ npm run format_lint`
+```bash
+$ npm run format_lint
+```
 
-This will check any files need formatting.
+Script above will check any files need formatting.
 
 In order to format the files, inplace (this will modify the files!)
 
-`$ npx prettier src --write`
+```bash
+$ npx prettier src --write
+```

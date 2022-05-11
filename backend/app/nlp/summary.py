@@ -95,8 +95,7 @@ class Bart:
 
     @property
     async def summary(self) -> str:
-        """
-        Use HuggingFace Inference API to get summary of text.
+        """Use HuggingFace Inference API to get summary of text.
 
         Raises:
             HTTPStatusError: if request fails

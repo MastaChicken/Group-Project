@@ -16,6 +16,7 @@
     "prettier",
     "plugin:@typescript-eslint/recommended"
   ],
+  "ignorePatterns": ["src/build_/*.js"],
   "rules": {
     "no-unused-vars": 0
   }

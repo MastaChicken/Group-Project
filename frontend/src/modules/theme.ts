@@ -1,6 +1,9 @@
 import { $ } from "../constants";
 
-export function setupListeners() {
+/**
+ * Adds event listener to theme switch.
+ */
+export function setupListeners(): void {
   const lDSwitch = $("light-dark-switch") as HTMLInputElement;
   lDSwitch.addEventListener("sl-change", () => {
     if (lDSwitch.checked === true) {
